@@ -93,3 +93,30 @@ jobs:
           path: |
             site/test-results/
             site/playwright-report/
+
+  research-circuits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.9.26'
+      - run: npm ci --prefix code/llama.cpp/examples/receipts/zk/groth16
+      - name: Install authenticated experimental circuit materials
+        run: uv run --project tools/workspace --locked --group dev python research/complete-operation/install_materials.py
+      - name: Quantization boundaries, rounding ties and invalid witnesses
+        run: |
+          mkdir -p test-results
+          uv run --project tools/workspace --locked --group dev python research/complete-operation/check_witnesses.py --build .receipts-research | tee test-results/witness-boundaries.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: research-boundaries
+          path: test-results/

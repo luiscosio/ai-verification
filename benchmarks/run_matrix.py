@@ -12,6 +12,15 @@ MODELS={
  'qwen2.5-1.5b':(Path.home()/'.ollama/models/blobs/sha256-183715c435899236895da3869489cc30ac241476b4971a20285b1a462818a5b4','qwen2.5-1.5b-q4_k_m'),
  'phi3-mini':(Path.home()/'.ollama/models/blobs/sha256-633fc5be925f9a484b61d6f9b9a78021eeb462100bd557309f01ba84cac26adf',None)}
 
+def resolve_models(names, overrides=()):
+    models={name:MODELS[name] for name in names.split(',')}
+    for value in overrides:
+        name,separator,file=value.partition('=')
+        if not separator or name not in models or not file:
+            raise ValueError('Use --model NAME=PATH for a selected model')
+        models[name]=(Path(file).expanduser().resolve(),models[name][1])
+    return models
+
 def digest(file):
     with file.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 def write(file,value):file.write_text(json.dumps(value,indent=2)+'\n')
@@ -19,14 +28,14 @@ def corpus():
     return [{**p,'prompt':p['prompt']*p.get('repeat',1)+p.get('suffix','')} for p in json.loads((ROOT/'benchmarks/corpus.json').read_text())]
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--suite',choices=['native','row-proofs'],default='native');p.add_argument('--models',default=','.join(MODELS));p.add_argument('--limit',type=int);p.add_argument('--case-plan',type=Path,help='Run a saved public case list instead of the default matrix');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--suite',choices=['native','row-proofs'],default='native');p.add_argument('--models',default=','.join(MODELS));p.add_argument('--limit',type=int);p.add_argument('--model',action='append',default=[],metavar='NAME=PATH',help='Override a selected model path');p.add_argument('--case-plan',type=Path,help='Run a saved public case list instead of the default matrix');a=p.parse_args()
     a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
-    models={k:MODELS[k] for k in a.models.split(',')};identities={}
+    models=resolve_models(a.models,a.model);identities={}
     for name,(file,reg) in models.items():
         if not file.exists():raise ValueError('Missing model: '+name)
         value=digest(file)
         if reg:
-            assert value==json.loads((ROOT/'registry'/reg/'manifest.json').read_text())['model']['file_sha256']
+            if value!=json.loads((ROOT/'registry'/reg/'manifest.json').read_text())['model']['file_sha256']:raise ValueError('Model does not match registration: '+name)
         identities[name]={'sha256':value,'bytes':file.stat().st_size,'registration':reg}
     write(a.out/'environment.json',environment(ROOT)|{'models':identities,'suite':a.suite,'corpus_sha256':digest(ROOT/'benchmarks/corpus.json'),'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py'),'native_binary_sha256':digest(BIN),'native_source_sha256':digest(ROOT/'code/llama.cpp/examples/receipts/receipts.cpp'),'fork_commit':subprocess.check_output(['git','-C',str(ROOT/'code/llama.cpp'),'rev-parse','HEAD'],text=True).strip()})
     prompts=corpus();cases=[]
