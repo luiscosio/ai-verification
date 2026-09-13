@@ -84,3 +84,15 @@ test('repeated verification records latency and preserves the user pause',async(
  if(await toggle.isVisible())await expect(toggle).toHaveText('Play motion');
  await testInfo.attach('verification-latency-ms',{body:JSON.stringify({project:testInfo.project.name,samples,cold_first_sample:true,measurement:'interaction_ms includes scrolling and test assertions; verifier_ms is the page-reported policy and pairing time'}),contentType:'application/json'});
 });
+
+test('registered model and circuit shapes render their actual checked rows',async({page})=>{
+ const directory=root+'/checks/fixtures/registered-proofs';
+ for(const name of fs.readdirSync(directory).filter(n=>n.endsWith('.llamaproof')).sort()){
+  const value=JSON.parse(fs.readFileSync(directory+'/'+name));
+  const registration=read('registry/'+(name.startsWith('qwen2.5')?'qwen2.5-1.5b-q4_k_m':'qwen3-0.6b-q4_k_m')+'/manifest.json');
+  const tensor=registration.tensors.find(t=>t.name===value.tensor),first=value.group*tensor.groth16.rows_per_group;
+  await upload(page,value,name);await expect(page.locator('#result-view')).toHaveAttribute('data-state','verified');
+  await expect(page.locator('#result-view')).toContainText(registration.model.name);
+  await expect(page.locator('#result-view')).toContainText(`Rows ${first}–${first+tensor.groth16.rows_per_group-1}`);
+ }
+});
