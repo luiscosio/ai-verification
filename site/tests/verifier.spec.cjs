@@ -68,3 +68,17 @@ test('downloaded example is a portable proof package',async({page})=>{
  const value=JSON.parse(fs.readFileSync(await download.path(),'utf8'));
  expect(Object.keys(value).sort()).toEqual(Object.keys(proof()).sort());expect(value.registration_id).toEqual(manifest.manifest_id);
 });
+
+test('repeated verification records latency and preserves the user pause',async({page},testInfo)=>{
+ const toggle=page.locator('#motion-toggle');
+ if(await toggle.isVisible())await toggle.click();
+ const samples=[];
+ for(let i=0;i<10;i++){
+  const start=Date.now();
+  await page.getByRole('button',{name:'Try a valid proof',exact:true}).click();
+  await expect(page.locator('#result-view')).toHaveAttribute('data-state','verified');
+  samples.push(Date.now()-start);
+ }
+ if(await toggle.isVisible())await expect(toggle).toHaveText('Play motion');
+ await testInfo.attach('verification-latency-ms',{body:JSON.stringify({project:testInfo.project.name,milliseconds:samples,cold_first_sample:true}),contentType:'application/json'});
+});

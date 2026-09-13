@@ -1,0 +1,11 @@
+Registered Qwen3-0.6B Q4_K_M model
+
+Upstream model: https://huggingface.co/Qwen/Qwen3-0.6B
+BF16 source: https://huggingface.co/unsloth/Qwen3-0.6B-GGUF
+License: Apache License 2.0; see Qwen3-0.6B.LICENSE.
+
+Modification: quantized the BF16 GGUF to Q4_K_M using llama.cpp.
+The source digest, command and revision are recorded in
+registry/qwen3-0.6b-q4_k_m/manifest.json in the ai-verification repository.
+Published here as the exact registered bytes for cross-platform installation.
+This redistribution does not imply endorsement by the upstream authors.

@@ -99,5 +99,13 @@
       "bytes": 301991360,
       "sha256": "a6985229b8a639691dfb24174b8374c1686d50135a5eeacdeb8d8d6c209c67f1"
     }
-  ]
+  ],
+  "registered_model": {
+    "name": "qwen3-0.6b-q4_k_m.gguf",
+    "bytes": 396705216,
+    "sha256": "42d6e666a335641d99d74645baa076df60e9f18c50646a722469ca9d5c20f5bf",
+    "upstream": "https://huggingface.co/Qwen/Qwen3-0.6B",
+    "license": "Apache-2.0",
+    "modification": "Q4_K_M quantization of the BF16 source recorded in the registration; exact registered bytes."
+  }
 }

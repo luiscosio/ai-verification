@@ -141,7 +141,7 @@ function resultView(result, ms, label) {
 }
 async function verifyPackage(value, label) {
   if (verifying) return;
-  verifying = true; $('run').disabled = true; $('package-file').disabled = true;
+  verifying = true; document.dispatchEvent?.(new CustomEvent('receipts-verification', {detail:{active:true}})); $('run').disabled = true; $('package-file').disabled = true;
   $('status').textContent = 'Checking the proof and trusted registration in your browser…';
   $('result-view').hidden = false;
   $('result-view').dataset.state = 'checking';
@@ -153,7 +153,7 @@ async function verifyPackage(value, label) {
     return result;
   } catch (e) {
     resultView({status:'unavailable', accept:false, error:'Verification could not finish. Retry or use the offline verifier.'}, 0, label);
-  } finally { verifying = false; $('run').disabled = false; $('package-file').disabled = false; $('status').textContent = ''; }
+  } finally { verifying = false; document.dispatchEvent?.(new CustomEvent('receipts-verification', {detail:{active:false}})); $('run').disabled = false; $('package-file').disabled = false; $('status').textContent = ''; }
 }
 async function verifySelected() {
   if (verifying) return;
@@ -163,7 +163,7 @@ async function verifySelected() {
     resultView({status:'invalid', error:'This checkpoint accepts proof files up to 2 MiB.'}, 0); return;
   }
   let value;
-  verifying = true; $('run').disabled = true; $('package-file').disabled = true;
+  verifying = true; document.dispatchEvent?.(new CustomEvent('receipts-verification', {detail:{active:true}})); $('run').disabled = true; $('package-file').disabled = true;
   try { value = JSON.parse(await file.text()); }
   catch { resultView({status:'invalid', error:'This file could not be read as a JSON proof package. Export it again from the prover.'}, 0); return; }
   finally { verifying = false; $('run').disabled = false; $('package-file').disabled = false; }

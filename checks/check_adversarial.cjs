@@ -11,7 +11,8 @@ async function main(){
  let state=20260913;const random=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state;};
  const check=p=>packages.verify(p,data,policy,snarkjs);
  const metrics=[];const cpu=process.cpuUsage();const start=performance.now();
- for(let i=0;i<300;i++){
+ const iterations=Number(process.argv[2]||300);assert.ok(Number.isSafeInteger(iterations)&&iterations>=1&&iterations<=10000);
+ for(let i=0;i<iterations;i++){
   const p=structuredClone(honest);const category=i%6;
   if(category===0){const j=1+random()%(p.public.length-1);p.public[j]=String((BigInt(p.public[j])+1n)%21888242871839275222246405745257275088548364400416034343698204186575808495617n);}
   if(category===1)p.public[1+random()%1024]=['128','-1','01','1e2',' '+p.public[1],'9'.repeat(100)][random()%6];
@@ -23,6 +24,6 @@ async function main(){
   if(i%25===0){const t=performance.now();assert.equal((await check(honest)).accept,true);metrics.push({after_mutations:i,verify_ms:performance.now()-t,...process.memoryUsage()});}
  }
  for(const malformed of [null,true,0,'text',[],{},Object.assign(structuredClone(honest),{witness:[1,2,3]})])assert.notEqual((await check(malformed)).accept,true);
- console.log(JSON.stringify({seed:20260913,mutations_rejected:300,malformed_rejected:7,honest_recovery_checks:metrics.length,seconds:(performance.now()-start)/1000,cpu:process.cpuUsage(cpu),memory_samples:metrics}));
+ console.log(JSON.stringify({seed:20260913,mutations_rejected:iterations,malformed_rejected:7,honest_recovery_checks:metrics.length,seconds:(performance.now()-start)/1000,cpu:process.cpuUsage(cpu),memory_samples:metrics}));
 }
 main().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1);});

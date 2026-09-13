@@ -3,6 +3,7 @@
 const stage = document.getElementById("jelly-stage");
 const motionButton = document.getElementById("motion-toggle");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+let proofBusy = false;
 let paused = reducedMotion.matches,
   visible = true,
   active = false,
@@ -212,7 +213,7 @@ try {
   }
   function tick(now) {
     frame = 0;
-    if (!active || paused || !visible || document.hidden) {
+    if (!active || paused || proofBusy || !visible || document.hidden) {
       previous = 0;
       return;
     }
@@ -230,7 +231,7 @@ try {
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
     previous = 0;
-    if (active && !paused && visible && !document.hidden)
+    if (active && !paused && !proofBusy && visible && !document.hidden)
       frame = requestAnimationFrame(tick);
   }
   function resize() {
@@ -255,6 +256,10 @@ try {
   reducedMotion.addEventListener("change", (event) => {
     paused = event.matches;
     buttonState();
+    schedule();
+  });
+  document.addEventListener("receipts-verification", (event) => {
+    proofBusy = event.detail?.active === true;
     schedule();
   });
   document.addEventListener("visibilitychange", schedule);

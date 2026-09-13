@@ -87,6 +87,17 @@ def native_state(release):
     if dirty.strip(): raise ValueError('The llama.cpp checkout has local source edits; use a clean checkout for reproducible setup.')
 
 
+def install_registered_model(release, model, target, asset_dir=None):
+    # Quantization can differ across CPU architectures. Install authenticated bytes.
+    asset=release['registered_model']
+    if asset['sha256']!=model['file_sha256'] or asset['bytes']!=model['file_bytes']:
+        raise ValueError('Published model asset does not match the trusted registration')
+    if asset['name']!='qwen3-0.6b-q4_k_m.gguf':
+        raise ValueError('Unexpected registered model asset name')
+    fetch(release['base_url']+asset['name'],target,model['file_sha256'],model['file_bytes'],
+          asset_dir/asset['name'] if asset_dir else None)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--check',action='store_true',help='Check installed files without rebuilding or downloading assets')
@@ -145,15 +156,7 @@ def main():
             if a.model:
                 fetch('',target,model['file_sha256'],model['file_bytes'],a.model.resolve())
             else:
-                source=ROOT/'.receipts-cache/Qwen3-0.6B-BF16.gguf'
-                fetch(model['source']['url'],source,model['source']['sha256'])
-                target.parent.mkdir(parents=True,exist_ok=True)
-                with tempfile.TemporaryDirectory(dir=target.parent,prefix='quantize-') as folder:
-                    candidate=Path(folder)/target.name
-                    run(quantize,'--allow-requantize',source,candidate,'Q4_K_M')
-                    if not matches(candidate,model['file_sha256'],model['file_bytes']):
-                        raise ValueError('Quantization did not reproduce the registered GGUF. No model installed.')
-                    candidate.replace(target)
+                install_registered_model(release,model,target,a.asset_dir)
     if problems: raise ValueError('\n'.join(problems))
     print('Proving materials verified.' if a.materials_only else 'Workspace ready. Run ./start-workspace.sh',flush=True)
     return 0
