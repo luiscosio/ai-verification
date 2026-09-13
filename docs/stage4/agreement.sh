@@ -11,4 +11,4 @@ while IFS= read -r prompt; do
   files+=("$f")
 done < "$PROMPTS"
 echo "${#files[@]} receipts"
-uv run --quiet --with numpy --with pyyaml python3 "$ROOT/docs/stage4/fixed_point_forward.py" "$MODEL" "${files[@]}" --report "$OUT/agreement.json"
+uv run --quiet --with numpy --with pyyaml python3 "$ROOT/docs/stage4/fixed_point_forward.py" "$MODEL" "${files[@]}" --frac "${FRAC_BITS:-20}" --report "$OUT/agreement.json"

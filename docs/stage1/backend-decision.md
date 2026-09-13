@@ -6,7 +6,7 @@ Date: 2026-09-13. Plan: `../../PLAN.md`, Stage 1; progress in `../../TODO.md`. S
 
 Expander and its circuit compiler stay as the arithmetization and prover. No candidate demonstrates the zero-knowledge and hiding-commitment interface the plan requires today; the missing engineering is listed below and is the content of Stage 3. Model binding without zero knowledge already works: the proof carries a commitment to the private weights and the verifier, holding no weights, refuses any proof whose commitment is not the registered one (`../../code/llama.cpp/examples/receipts/zk`).
 
-Stage 1's exit gate is met through its second clause: the missing engineering is identified explicitly.
+Stage 1's exit gate is not met. The missing engineering is identified, but the current plan also requires a feasible privacy/composition path and an explicit execution/budget decision. The row-group Groth16 checkpoint below is narrower evidence.
 
 ## Candidates
 
@@ -60,7 +60,7 @@ Why this one: every matmul dimension (1024, 2048, 3072) is a multiple of the 256
 
 ## Budgets
 
-Set from the measurements, to be enforced in Stage 5:
+Historical budget proposals from the measurements, not adopted limits. The plan retains provisional 50 MiB and 10 s limits until explicit owner acceptance of a change:
 
 | Budget | Value | Why |
 |---|---|---|

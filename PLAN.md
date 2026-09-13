@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 
-Status: Stages 1 to 3 done, Stage 2 done for the first model, Stages 4 to 6 partly done; the running record of what exists and what is missing is `TODO.md`.
+Status: Component proofs and registration tooling exist; no stage is a completed full-inference acceptance gate. Stage 3 remains an integer-core row-group checkpoint. The 2026-09-13 review repairs are recorded in `docs/repairs-2026-09-13.md`; remaining work is in `TODO.md`.
 
 ## Objective
 
@@ -60,7 +60,7 @@ Model identity has two parts: the proof binds computation to a commitment, and r
 
 - The existing llama.cpp receipt generator captures execution traces.
 - The trace verifier uses the verifier's GGUF, an expected topology digest, and sampled operation checks on published openings, which are raw activation bytes. It is not a full inference proof, and its openings are incompatible with zero knowledge.
-- The existing GKR circuit proves a Q4_K x Q8_K integer core. Weight integers are public, and the Python verifier derives them from its GGUF. Plain GKR as used there is not zero-knowledge.
+- The existing GKR circuit proves a Q4_K x Q8_K integer core with weights private under an Orion commitment. Plain GKR as used there is not zero-knowledge. A separate Groth16 checkpoint proves row groups with private weights and public activation quants and sums.
 - The remaining scaling and output comparison happen outside that circuit.
 - The Lean specification and arithmetic references are useful for checking the intended computation. They do not establish zero knowledge or the soundness of the complete proof backend.
 
@@ -203,11 +203,14 @@ Exit gate: a second person reproduces offline verification from public materials
 
 ## Stage 6: build the registry and verification website
 
-Provide three simple views:
+Develop the local proof workspace and verification experience alongside Stages 1 through 5, starting with the honestly labeled row-group checkpoint. Public assurance claims remain gated on cryptographic coverage, setup and independent review. The product/research milestone, file contract, usability acceptance test and release order are in `docs/ux-plan.md`.
 
-1. Models: registered identity, source, supported execution, and verification materials.
-2. Verify: select a trusted model registration and load a proof package.
-3. Result: acceptance or rejection, exact request/output, proof coverage, native versus modified execution mode, and timing.
+Provide these simple views:
+
+1. Generate locally: supported model, prompt, one run action, actual progress, cancellation and a single downloadable proof file. Handle the native executable and proof helpers internally.
+2. Verify: choose or drop one proof file; resolve its lookup hints against independently trusted registrations without asking for tensors, groups or keys.
+3. Result: exact proof coverage, privacy, registration trust, setup and verification location. Distinguish invalid proof, unsupported format, unavailable verifier and unknown registration. Show request/output as authenticated only when the proof actually binds them.
+4. Models and research: expandable registered identities, execution definitions, reproducibility materials and measurements.
 
 Run verification in the browser if the selected backend supports it. Otherwise identify server verification explicitly and offer the independent offline verifier. A website badge alone is not verification evidence.
 

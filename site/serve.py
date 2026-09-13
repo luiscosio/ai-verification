@@ -12,8 +12,10 @@ POST /api/verify/expander   multipart: model (manifest id), tensor, public (publ
 from __future__ import annotations
 
 import argparse
+import asyncio
+import sys
+import re
 import json
-import subprocess
 import tempfile
 import time
 from pathlib import Path
@@ -27,8 +29,15 @@ MAX_PROOF = 64 * 1024 * 1024
 MAX_PUBLIC = 4 * 1024 * 1024
 TIMEOUT = 120
 
+sys.path.insert(0, str(BIN.parents[2]))
+from registration_schema import validate_manifest
+verification_slot = asyncio.Semaphore(1)
+
 app = FastAPI(title="llama-receipts registry")
 manifests = {m["manifest_id"]: m for m in (json.loads(f.read_text()) for f in sorted((ROOT / "registry").glob("*/manifest.json")))}
+
+for manifest in manifests.values():
+    validate_manifest(manifest)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -55,21 +64,41 @@ async def verify_expander(model: str = Form(...), tensor: str = Form(...), publi
         raise HTTPException(413, "package exceeds the size limits")
     try:
         pj = json.loads(pub)
-        if pj.get("m") != entry["shape"][1] or pj.get("k") != entry["shape"][0]:
-            raise HTTPException(400, "public.json shape is not the registered tensor's")
-    except json.JSONDecodeError:
-        raise HTTPException(400, "public.json is not JSON")
-    with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / "public.json").write_bytes(pub)
-        (Path(tmp) / "proof.bin").write_bytes(prf)
-        t0 = time.time()
-        try:
-            r = subprocess.run([str(BIN), "verify", str(Path(tmp) / "public.json"), str(Path(tmp) / "proof.bin"), "orion", "--commitment", entry["commitment"]["value"]],
-                               capture_output=True, text=True, timeout=TIMEOUT)
-        except subprocess.TimeoutExpired:
-            raise HTTPException(504, f"verification exceeded {TIMEOUT}s")
-    accept = r.returncode == 0
-    return {"accept": accept, "seconds": round(time.time() - t0, 3), "registered_commitment": entry["commitment"]["value"], "stderr": r.stderr[-600:],
+        if not isinstance(pj, dict):
+            raise ValueError("public.json must be an object")
+        m, k = entry["shape"][1], entry["shape"][0]
+        if type(pj.get("m")) is not int or type(pj.get("k")) is not int or (pj["m"], pj["k"]) != (m, k):
+            raise ValueError("public.json shape is not the registered tensor's")
+        if pj.get("config") != "orion" or not isinstance(pj.get("commitment"), str) or not re.fullmatch(r"[0-9a-f]{64}", pj["commitment"]):
+            raise ValueError("unsupported commitment format")
+        for name, count, bound in (("q8", k, 127), ("s1", m * k // 256, 30723840), ("s2", m * k // 256, 2048256)):
+            values = pj.get(name)
+            if not isinstance(values, list) or len(values) != count or any(type(v) is not int or abs(v) > bound for v in values):
+                raise ValueError(f"invalid {name} length or integer range")
+    except (ValueError, UnicodeError) as e:
+        raise HTTPException(400, str(e))
+    if verification_slot.locked():
+        raise HTTPException(503, "verifier busy; retry later")
+    async with verification_slot:
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "public.json").write_bytes(pub)
+            (Path(tmp) / "proof.bin").write_bytes(prf)
+            t0 = time.time()
+            proc = None
+            try:
+                proc = await asyncio.create_subprocess_exec(str(BIN), "verify", str(Path(tmp) / "public.json"), str(Path(tmp) / "proof.bin"),
+                    "orion", "--commitment", entry["commitment"]["value"], stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+                stdout, stderr = await asyncio.wait_for(proc.communicate(), TIMEOUT)
+            except asyncio.TimeoutError:
+                raise HTTPException(504, f"verification exceeded {TIMEOUT}s")
+            except OSError:
+                raise HTTPException(503, "verifier executable unavailable")
+            finally:
+                if proc is not None and proc.returncode is None:
+                    proc.kill()
+                    await proc.communicate()
+    accept = proc.returncode == 0
+    return {"accept": accept, "seconds": round(time.time() - t0, 3), "registered_commitment": entry["commitment"]["value"], "stderr": stderr.decode("utf-8", "replace")[-600:],
             "coverage": "one matmul node, integer core, all rows; Expander proof: binding, not zero-knowledge",
             "reproduce": f"receipts-zk verify public.json proof.bin orion --commitment {entry['commitment']['value']}"}
 

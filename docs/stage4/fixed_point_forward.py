@@ -11,8 +11,8 @@ needs. Nothing here is float at run time except the one-time derivation of const
 norm weights, RoPE and exp tables), which a registration would publish as integers.
 
 Conventions. Activations are integers with F fraction bits (x = X / 2^F). Constants are
-integers with S = 24 fraction bits. Matmuls quantize the activation to Q8_K exactly as ggml
-does, but from the fixed-point value, and run ggml's integer core (the Lean spec's s1, s2,
+integers with S = 24 fraction bits. Matmuls use ggml's signed-maximum Q8_K convention with integer division and
+fixed-point scales, then run ggml's integer core (the Lean spec's s1, s2,
 dotQ6); the per-block scales are applied as integers with one rounding per output element.
 Divisions round half to even; square roots are integer square roots. Softmax and SiLU use an
 exponential built from a 4096-entry table of 2^(f/4096) plus shifts.
@@ -157,12 +157,13 @@ class Model:
         d_a, q8, bsums = [], np.zeros(K, dtype=np.int64), np.zeros((nb, 16), dtype=np.int64)
         for i in range(nb):
             blk = [int(v) for v in x[i * QK_K:(i + 1) * QK_K]]
-            amax = max(abs(v) for v in blk)
+            amax = max(blk, key=abs)
             if amax == 0:
                 d_a.append(0)
                 continue
             # q = rint(-127 * x / amax); d = amax / -127
-            qs = [rdiv(-127 * v, amax) for v in blk]
+            sign = 1 if amax > 0 else -1
+            qs = [rdiv(-127 * v * sign, abs(amax)) for v in blk]
             q8[i * QK_K:(i + 1) * QK_K] = qs
             d_a.append(rdiv(-amax, 127))                                # F fraction bits (amax has F bits)
             bsums[i] = np.array(qs, dtype=np.int64).reshape(16, 16).sum(axis=1)
@@ -318,9 +319,11 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser()
     p.add_argument("model")
     p.add_argument("receipts", nargs="+")
-    p.add_argument("--frac", type=int, default=16)
+    p.add_argument("--frac", type=int, default=20)
     p.add_argument("--report")
     a = p.parse_args(argv)
+    if not 12 <= a.frac <= 24:
+        p.error("--frac must be between 12 and 24")
     model = Model(a.model, a.frac)
     rows = []
     agree = 0

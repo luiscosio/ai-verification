@@ -8,8 +8,8 @@ Stage 4 asks for a proof of one full next-token computation. That proof is not b
 
 One next token of Qwen3-0.6B (28 layers, hidden 1024, 16 heads and 8 KV heads of 128, FFN 3072, Q4_K and Q6_K weights) computed with integers only:
 
-- Activations are fixed point with F = 16 fraction bits. Constants (per-block scales `d`, `dmin`, norm weights, RoPE cosines and sines, `1/sqrt(128)`, `log2 e`) are integers with S = 24 fraction bits, derived once from the GGUF and published by a registration.
-- Matmuls quantize the activation to Q8_K exactly as ggml does (`iscale = -127/amax`, round half to even), run ggml's integer core (`s1`, `s2` for Q4_K, `dotQ6` for Q6_K, the Lean spec's definitions), and apply the block scales as integer products with one rounding per output element.
+- The proposed variant uses F = 20 fraction bits (F = 16 is the historical pilot). Constants (per-block scales `d`, `dmin`, norm weights, RoPE cosines and sines, `1/sqrt(128)`, `log2 e`) are integers with S = 24 fraction bits, derived once from the GGUF and published by a registration.
+- Matmuls use ggml's signed-maximum Q8_K convention (`iscale = -127/amax`) with integer round-half-even division and fixed-point scales, run ggml's integer core (`s1`, `s2` for Q4_K, `dotQ6` for Q6_K, the Lean spec's definitions), and apply the block scales as integer products with one rounding per output element.
 - RMS normalization uses an integer square root; RoPE uses the integer tables; softmax and SiLU use `exp(z) = 2^(z log2 e)` with a 4096-entry table of `2^(f/4096)` and shifts.
 - Every division rounds half to even; the argmax takes the lowest token id on ties, as llama.cpp does.
 
@@ -30,7 +30,7 @@ At F = 16 the one disagreement is a pair llama.cpp had at probabilities 0.49 and
 
 ## Bit widths measured
 
-Largest magnitudes over the twenty prompts, which are the widths a circuit must range-check:
+Largest magnitudes over the twenty prompts, which inform candidate widths; these measured maxima do not prove bounds for every supported input:
 
 | Op | Bits at F = 16 | Bits at F = 20 | Note |
 |---|---|---|---|
@@ -55,10 +55,12 @@ One decode graph of Qwen3-0.6B has 197 matmuls (168 Q4_K, 29 Q6_K), 113 RMS norm
 
 ## Linking
 
-Activations stay private, so per-operation proofs link through commitments to the boundary vectors, or a whole layer goes into one circuit. With 29-bit activations packed 8 per BN254 element, a layer boundary of 1024 values is 128 field elements and one Poseidon chain of 9 permutations, which is negligible next to the matmuls. The choice between monolithic and linked remains open and is a prover-capacity question, not a soundness one.
+Activations stay private, so per-operation proofs link through commitments to the boundary vectors, or a whole layer goes into one circuit. The F20 measurements include 33-bit magnitudes, requiring an explicit signed encoding and bounds before packing. Boundary commitments must be randomized and hiding, bind context and tensor identity, and have a composition argument. Monolithic versus linked remains open and affects soundness, privacy and capacity; no complete composition is implemented.
 
 ## What is not done
 
 - The llama.cpp kernels of this mode. The reference defines them; porting them into ggml's CPU backend as a selectable execution mode is the next engineering step, after which the trace verifier's tolerances become exact equalities.
 - Circuits for anything but the Q4_K integer core.
 - The whole-token prover. The counts above say what it needs.
+
+Review repair: the reference now preserves the sign of the first maximum-magnitude element when quantizing Q8_K. This matches ggml's quant/scale sign convention; fixed-point rounding remains a distinct execution rule. `agreement.sh` explicitly selects F20. The 20-prompt corpus is compatibility/tuning evidence, not a held-out equivalence guarantee.

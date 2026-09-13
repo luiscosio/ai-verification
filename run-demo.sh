@@ -3,8 +3,8 @@
 # check the Lean specification against the same trace, prove one matmul node with Expander against a
 # registered commitment, and prove one row group of it in zero knowledge with Groth16.
 #
-#   ./run-demo.sh                # full run, writes into ./demo/
-#   ./run-demo.sh --fresh        # delete ./demo/ first
+#   ./run-demo.sh                # full run, writes into ./demo/run.XXXXXX/
+#   ./run-demo.sh --fresh        # compatibility alias; every run uses a new directory
 #
 # Prerequisites (all present on this machine): the llama.cpp fork built at code/llama.cpp (branch
 # receipts-all, with the receipts example, the Lean spec and the zk crate), elan in ~/.elan, uv, and
@@ -16,13 +16,13 @@ MODEL="${MODEL:-$HOME/.ollama/models/blobs/sha256-183715c435899236895da3869489cc
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 LLAMA="${LLAMA:-$ROOT/code/llama.cpp}"                     # fork, branch receipts-all: receipts, spec and zk together
 LEAN="${LEAN:-$LLAMA}"
-DEMO="$ROOT/demo"
+DEMO_ROOT="${DEMO_ROOT:-$ROOT/demo}"
 PROMPT="${PROMPT:-Explain to a ten-year-old why the sky is blue.}"
 N_PREDICT="${N_PREDICT:-12}"
 OPENINGS="${OPENINGS:-32}"
 export PATH="$HOME/.elan/bin:$PATH"
 
-PY="uv run --quiet --with numpy --with pyyaml python3"
+PY="${PYTHON_RUNNER:-uv run --quiet --with numpy --with pyyaml python3}"
 # llama.cpp's loader is chatty; drop its progress lines, keep everything else
 QUIET='^(load|print_info|llama_|ggml_|common|graph|sched|system_info|build|main:|\.\.\.\.|[0-9.]+ I (load|print_info|llama_|ggml|common|graph|sched))'
 
@@ -38,9 +38,10 @@ show() {   # print the command, then run it
 }
 elapsed() { printf '\033[2m   (%ss)\033[0m\n' "$(( $(date +%s) - t0 ))"; }
 
-if [ "${1:-}" = "--fresh" ]; then rm -rf "$DEMO"; fi
-mkdir -p "$DEMO"
+mkdir -p "$DEMO_ROOT"
+DEMO=$(mktemp -d "$DEMO_ROOT/run.XXXXXX")
 cd "$DEMO"
+DEMO=$(pwd)
 
 for f in "$MODEL" "$LLAMA/build/bin/llama-receipts" "$LLAMA/examples/receipts/verify_trace.py" \
          "$LLAMA/examples/receipts/zk/target/release/receipts-zk" "$LEAN/examples/receipts/spec/lakefile.toml"; do
@@ -52,7 +53,7 @@ banner "Prove: generate on CPU with a receipt and an activation trace"
 t0=$(date +%s)
 printf '\033[1;32m$\033[0m llama-receipts -m qwen2.5-1.5b-q4_k_m.gguf -p "%s" -n %s --seed 5 --temp 0.7 -ngl 0 -t 8 --trace --openings %s --out receipt.json\n' "$PROMPT" "$N_PREDICT" "$OPENINGS"
 "$LLAMA/build/bin/llama-receipts" -m "$MODEL" -p "$PROMPT" -n "$N_PREDICT" --seed 5 --temp 0.7 --top-k 40 --top-p 0.95 \
-    -ngl 0 -t 8 -c 1024 -b 512 --trace --openings "$OPENINGS" --out receipt.json 2>&1 | grep -Ev "$QUIET" || true
+    -ngl 0 -t 8 -c 1024 -b 512 --trace --openings "$OPENINGS" --out receipt.json 2>&1 | { grep -Ev "$QUIET" || [ "$?" -eq 1 ]; }
 elapsed
 ls -la receipt.json receipt.trace.json
 
@@ -66,7 +67,7 @@ elapsed
 banner "Verify by replay (re-runs the model; same backend, expect bit-exact)"
 t0=$(date +%s)
 printf '\033[1;32m$\033[0m llama-receipts -m qwen2.5-1.5b-q4_k_m.gguf --replay receipt.json -ngl 0 -t 8\n'
-"$LLAMA/build/bin/llama-receipts" -m "$MODEL" --replay receipt.json -ngl 0 -t 8 -c 1024 -b 512 --report replay-report.json 2>&1 | grep -Ev "$QUIET" || true
+"$LLAMA/build/bin/llama-receipts" -m "$MODEL" --replay receipt.json -ngl 0 -t 8 -c 1024 -b 512 --report replay-report.json 2>&1 | { grep -Ev "$QUIET" || [ "$?" -eq 1 ]; }
 elapsed
 
 banner "Formal spec (Lean 4): build, SHA-256 self-test, check the same trace"
@@ -115,7 +116,8 @@ pushd "$LLAMA/examples/receipts/zk/groth16" >/dev/null
 if [ -f build/r16_k1536/main_final.zkey ] && [ -d node_modules ]; then
     show $PY groth16_node.py "$DEMO/receipt.json" --model "$MODEL" --index "$INDEX" --groups 0 --out "$DEMO/groth16-out"
 else
-    echo "skipped: run npm install and ./setup.sh build/r16_k1536 ptau/pot18_final.ptau in $LLAMA/examples/receipts/zk/groth16 first (see its README)"
+    echo "missing Groth16 prerequisites: run npm install and ./setup.sh build/r16_k1536 ptau/pot18_final.ptau in $LLAMA/examples/receipts/zk/groth16 first (see its README)"
+    exit 1
 fi
 popd >/dev/null
 elapsed

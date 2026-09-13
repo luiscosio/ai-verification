@@ -1,6 +1,6 @@
-# The statement, version stmt/v0
+# Target statement, version stmt/v0
 
-Date: 2026-09-13. What a proof in this project claims, fixed before backends are built around it. Changes need a new version and a new registration.
+Date: 2026-09-13. Target full-inference statement, not the claim proven by the current row-group checkpoint. The existing registration/v1 preserves the historical stmt/v0 execution metadata and 64-token limit; the plan's first full-token target remains 1-16 tokens pending a separate decision. Changes need a new version and a new registration.
 
 ## Claim
 
@@ -36,7 +36,7 @@ The logits of the last prompt position; `t` is the index of the largest logit, a
 
 ## Overflow and ranges
 
-No wraparound is accepted anywhere. Weight values are in range by construction of the registration encoding (nibbles below 16, six-bit scales and mins below 64). Everything derived from activations must be range-checked in the circuit: the `Q8_K` quants, the block sums against the proven bounds, and every fixed-point intermediate against its declared width.
+No wraparound is accepted anywhere. Weight values are in range by construction of the registration encoding (nibbles below 16, six-bit scales and mins below 64). In the full-token target, everything derived from private activations must be range-checked in the circuit: the `Q8_K` quants, the block sums against the proven bounds, and every fixed-point intermediate against its declared width.
 
 ## Rejected requests
 
@@ -44,4 +44,6 @@ Prompts longer than `L`; models or manifest versions not registered; any tensor 
 
 ## Relation to the receipts
 
-The receipt and its trace keep their meaning as the commit-and-open protocol (`trace/v2`). Under stmt/v0 no opening is published: the trace's leaf hashes remain useful as public boundary commitments if per-operation proofs are linked, and the receipt's `content_sha256` and tokens are what the proof's public inputs are compared against.
+The receipt and its trace keep their meaning as the commit-and-open protocol (`trace/v2`). Under stmt/v0 no opening is published: ordinary trace hashes are not hiding boundaries; linked proofs require separately specified randomized commitments, and the receipt's `content_sha256` and tokens are what the proof's public inputs are compared against.
+
+Current checkpoint: public q8, s1 and s2 ranges are enforced by the shared browser/offline verifier, with canonical signed BN254 field encoding. Its circuit proves only the Q4_K integer core for registered row groups. It does not enforce the full target statement above.

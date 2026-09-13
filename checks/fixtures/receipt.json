@@ -1,0 +1,138 @@
+{
+ "commitments": {
+  "content_sha256": "80b3484d29c69a3d908aba5c7c23e2e0818afe1a9c1f5337f834f4bfafe5bdf0",
+  "tokens_sha256": "0ffce69fd5b526e9a8ac68c87992773a8fcd75bb2684d78c10139a0cae396e9a"
+ },
+ "created_at": "2026-09-13T17:08:17Z",
+ "engine": {
+  "backend": "cpu",
+  "llama_build": 10945,
+  "llama_commit": "7bf600953",
+  "name": "llama.cpp llama-receipts",
+  "options": {
+   "n_batch": 128,
+   "n_ctx": 128,
+   "n_gpu_layers": 0,
+   "n_threads": 8,
+   "n_ubatch": 128
+  },
+  "system_info": "MTL : EMBED_LIBRARY = 1 | CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | MATMUL_INT8 = 1 | DOTPROD = 1 | SME = 1 | SME2 = 1 | ACCELERATE = 1 | REPACK = 1 | "
+ },
+ "model": {
+  "file_name": "qwen3-0.6b-q4_k_m.gguf",
+  "file_sha256": "42d6e666a335641d99d74645baa076df60e9f18c50646a722469ca9d5c20f5bf",
+  "file_size": 396705216,
+  "metadata": {
+   "general.architecture": "qwen3",
+   "general.basename": "Qwen3-0.6B",
+   "general.file_type": 15,
+   "general.name": "Qwen3-0.6B",
+   "general.quantization_version": 2,
+   "general.size_label": "0.6B"
+  },
+  "n_tensors": 310,
+  "tensor_merkle_root": "f9b856acd5400e4834eff43d6734f8e7cdb08767c9785e9785057fb4b186d24e"
+ },
+ "receipt_version": "0.2",
+ "request": {
+  "n_predict": 1,
+  "prompt_text": "The capital of France is",
+  "prompt_tokens": [
+   785,
+   6722,
+   315,
+   9625,
+   374
+  ],
+  "sampler": {
+   "seed": 1789319296,
+   "temperature": 0.0,
+   "top_k": 40,
+   "top_p": 0.949999988079071,
+   "type": "seeded-inverse-cdf/v1"
+  }
+ },
+ "response": {
+  "per_token": [
+   {
+    "boundary_distance": null,
+    "candidates": [
+     [
+      12095,
+      0.478215
+     ],
+     [
+      7407,
+      0.105786
+     ],
+     [
+      279,
+      0.035042
+     ],
+     [
+      1112,
+      0.028492
+     ],
+     [
+      304,
+      0.027404
+     ],
+     [
+      55201,
+      0.016232
+     ],
+     [
+      2598,
+      0.0098
+     ],
+     [
+      9625,
+      0.00967
+     ],
+     [
+      264,
+      0.008918
+     ],
+     [
+      1181,
+      0.008393
+     ]
+    ],
+    "logits_sha256": "32a97874a63879a5052b3e79f9cd588b57bc4ba02ebe3d558da9a9189ccfe903",
+    "logprob": 0.0,
+    "logprob_full": -0.737694,
+    "position": 5,
+    "token": 12095,
+    "u": null
+   }
+  ],
+  "text": " Paris",
+  "tokens": [
+   12095
+  ]
+ },
+ "trace": {
+  "layout_ops_resolved": [
+   "PERMUTE",
+   "RESHAPE",
+   "TRANSPOSE",
+   "VIEW"
+  ],
+  "leaf_hash": "sha256(0x00 || canonical_json(leaf))",
+  "n_graphs": 2,
+  "n_leaves": 1300,
+  "root": "725ddcf267fc29c5e12eeb357c8a900da4d352f62a758d133f6a845eef8b55c9",
+  "stats": {
+   "bytes_hashed": 111234024,
+   "cache_hits": 1634,
+   "graphs": 2,
+   "layout_skipped": 672,
+   "nodes": 1300,
+   "reads": 1642,
+   "seconds": 0.424,
+   "unlinked_node_srcs": 0
+  },
+  "topology_sha256": "f4aba1d4df49c30647a905997c6a709f4cc5576d62812fd2d2eb226108ca901b",
+  "version": "trace/v2"
+ }
+}

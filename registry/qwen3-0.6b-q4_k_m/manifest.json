@@ -1,5 +1,5 @@
 {
- "manifest_version": "registration/v0",
+ "manifest_version": "registration/v1",
  "created_at": "2026-09-13T06:24:17Z",
  "model": {
   "name": "Qwen3-0.6B",
@@ -27806,7 +27806,15 @@
    "rows_per_group": "r{rows}_k{K}: 16 rows for K <= 1536, 8 for K = 2048",
    "hiding": "Poseidon over the packed weights with a salt (0 for open weights)",
    "zero_knowledge": true,
-   "setup": "Groth16 phase 2 with one contributor over a locally generated 2^18 powers of tau: proof-of-concept parameters"
+   "setup": "Groth16 phase 2 with one contributor over a locally generated 2^18 powers of tau: proof-of-concept parameters",
+   "verification_keys": {
+    "r16_k1024": "fc57ee34763c95d1e0e5158466f28055fb9334b17582aa6946aa1203da542360",
+    "r8_k2048": "dd54f634d787e5f43a4e8e8a6a76ed35be5e5090c83d6ffd19b1d2b3d5264494",
+    "r8_k3072": "534f14ecbaa0482fb2cbf1000fcbee030cb29eb619ed47ddb38307dec5322d18"
+   },
+   "circuit_sha256": "cd078ef725541543a98175d7535aec6a0df5e8f93177906bf1b4444eb0a42acc",
+   "verifier_sha256": "30d1b018813a3e3adb466c4b4f29032eb7a8b3a3843327e1d4df666d8a644d56",
+   "setup_sha256": "a6985229b8a639691dfb24174b8374c1686d50135a5eeacdeb8d8d6c209c67f1"
   }
  },
  "registration": {
@@ -27815,5 +27823,5 @@
   "commit_seconds": 0.0,
   "groth16_tensors": 168
  },
- "manifest_id": "9a307115056280494830f692a229e226301814152fe1559289658d0a937df222"
+ "manifest_id": "a3760bf5b3b43f1bff95afd04d3923813353eb3161ba1176791599497deb9254"
 }

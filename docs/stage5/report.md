@@ -2,7 +2,13 @@
 
 Date: 2026-09-13. Script: `verify_isolated.sh`. Proof system under test: the Groth16 checkpoint of `code/llama.cpp/examples/receipts/zk/groth16` (zero-knowledge proof of ggml's Q4_K x Q8_K integer core for a group of weight rows, weights private under a Poseidon commitment). The Expander proofs (`receipts-zk`) are covered by the same negative cases in `zk_node.py`; they are binding but not zero-knowledge, and are verified offline only.
 
-## Isolation
+## Review correction, 2026-09-13
+
+The original negative-case table overstated activation-range coverage. A consistently generated witness with q8=128 passed both pairing and registration checks. The repaired browser and offline verifier now reject it through a shared public-range policy. `checks/run.sh` retains this adversarial proof as a regression fixture. The scope remains an integer-core row-group checkpoint; the full Stage 5 gate has not passed.
+
+The isolation script now uses the same verifier, verifies key digests from registration/v1, requires file/network permission-denial controls to pass, and rejects sandbox startup failures. The controls use a known readable sentinel and a local socket operation, so they do not depend on missing model files or an unavailable remote website.
+
+## Historical isolation measurements
 
 The verifier runs in a fresh directory that holds five files: `verification_key.json`, `manifest.json`, `proof.json`, `public.json` and the 30-line `check.js`, plus a copy of snarkjs. It runs under macOS `sandbox-exec` with a profile that denies all network access and denies reads of `~/.ollama`, `models/`, `code/`, `demo/` and `registry/`. Two controls run under the same profile every time: `cat` on the model file must fail, and `curl` to an external host must fail. Both fail on every run. The prover is a separate process that has already exited; nothing connects to it.
 
@@ -19,8 +25,9 @@ Every case is a real package produced by the pipeline, then altered where the ro
 | Proof checked against another group's registration | manifest group index | reject: commitment differs | reject, bound false |
 | Proof made from different weights (one nibble changed, sums recomputed) | prover's witness | reject: commitment differs from the registered one | reject (`groth16_node.py`, both proofs valid on their own, only one matches the registration) |
 | Another circuit's verification key | `verification_key.json` | reject: verifier error or pairing false | reject, `Cannot read properties of undefined`, reported as a rejection |
-| Out-of-range nibble or activation in the witness | prover input | witness generation fails, no proof | fails at `wtns calculate`: the bit constraints are unsatisfiable (range holds by construction of the bits) |
-| Field wraparound | any value near the modulus | rejected or unrepresentable | values here are below 2^26; BN254's modulus is 2^254; a sum near the modulus fails the pairing check like any other wrong sum |
+| Non-boolean private weight bits | prover input | witness generation fails | rejected by bit constraints |
+| Out-of-range public activation with consistent sums | prover input | application verifier rejects | pairing can pass; shared range policy now rejects |
+| Field encoding and integer ranges | public inputs | reject noncanonical/out-of-field values and signed values outside bounds | shared verifier policy; large canonical residues representing valid small negative integers remain allowed |
 | Malformed or oversized package | file contents or size | refused before verification | the page refuses proofs over 8 KB and public inputs over 2 MB and non-JSON; the server caps Expander packages at 64 MB and 120 s |
 | Public artefacts inspected for weights | `proof.json`, `public.json` | no weight values present | `proof.json` is three curve points (805 bytes); `public.json` is the commitment, 1536 activation quants and the sums; the private inputs are deleted after proving |
 
@@ -42,8 +49,8 @@ The whole 256-row node `Vcur-22` of the 1.5B model was proven as 16 groups in 67
 
 ## What these tests are not
 
-They are implementation tests. Zero knowledge rests on Groth16's construction (Groth 2016) and on snarkjs's implementation of it; the setup is proof-of-concept (a locally generated 2^20 powers of tau and one phase-2 contribution), so soundness against a prover who ran the setup is not established. A deployment would use a public ceremony's parameters and a multi-party phase 2, both of which snarkjs supports without code changes here.
+They are implementation tests. Zero knowledge rests on Groth16's construction (Groth 2016) and on snarkjs's implementation of it; the setup is proof-of-concept (a locally generated 2^18 powers of tau and one phase-2 contribution), so soundness against a prover who ran the setup is not established. A deployment would use a public ceremony's parameters and a multi-party phase 2, both of which snarkjs supports without code changes here.
 
-## Exit gate
+## Component checkpoint only
 
 A second person can reproduce the offline verification from the public materials alone: the verification key, the manifest, the package, snarkjs, and `verify_isolated.sh`. No weights, no witness, no network.
