@@ -1,0 +1,422 @@
+[
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "fact",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "arithmetic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "code",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "json",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "spanish",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "chinese",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "arabic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "whitespace",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "adversarial-text",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "repetition",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "long-context",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "fact",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "arithmetic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "code",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "json",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "spanish",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "chinese",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "arabic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "whitespace",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "adversarial-text",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "repetition",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "long-context",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "fact",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "arithmetic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "code",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "json",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "spanish",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "chinese",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "arabic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "whitespace",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "adversarial-text",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "repetition",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "long-context",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "fact",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "arithmetic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "code",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "json",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "spanish",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "chinese",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "arabic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "whitespace",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "adversarial-text",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "repetition",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "long-context",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-0.5b",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 0,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "unicode",
+    "threads": 2,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "phi3-mini",
+    "prompt": "unicode",
+    "threads": 8,
+    "repeat": 1,
+    "temperature": 0
+  }
+]

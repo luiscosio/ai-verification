@@ -1,0 +1,50 @@
+[
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "fact",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0,
+    "k": 1024
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "arithmetic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0,
+    "k": 2048
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "code",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0,
+    "k": 3072
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "fact",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0,
+    "k": 1536
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "arithmetic",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0,
+    "k": 1536
+  },
+  {
+    "model": "qwen2.5-1.5b",
+    "prompt": "code",
+    "threads": 8,
+    "repeat": 0,
+    "temperature": 0,
+    "k": 1536
+  }
+]

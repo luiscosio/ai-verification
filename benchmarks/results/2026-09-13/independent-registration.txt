@@ -1,0 +1,1 @@
+All 64 weight-and-scale commitments match the exact GGUF. Key/source digests match. This does not audit the ceremony or prove that the keys were derived from this circuit.

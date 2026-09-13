@@ -1,0 +1,195 @@
+{
+  "source_run": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067",
+  "runner": "GitHub-hosted ubuntu-latest; virtual hardware; not the local Apple M5. Mobile is browser emulation, not a physical phone. One CI run is not a controlled browser performance comparison.",
+  "scenarios_passed": 40,
+  "measurements": [
+    {
+      "project": "chromium",
+      "samples": [
+        {
+          "interaction_ms": 1590,
+          "verifier_ms": 892
+        },
+        {
+          "interaction_ms": 1753,
+          "verifier_ms": 719
+        },
+        {
+          "interaction_ms": 1721,
+          "verifier_ms": 712
+        },
+        {
+          "interaction_ms": 1731,
+          "verifier_ms": 703
+        },
+        {
+          "interaction_ms": 1715,
+          "verifier_ms": 712
+        },
+        {
+          "interaction_ms": 1711,
+          "verifier_ms": 710
+        },
+        {
+          "interaction_ms": 1709,
+          "verifier_ms": 707
+        },
+        {
+          "interaction_ms": 1706,
+          "verifier_ms": 716
+        },
+        {
+          "interaction_ms": 1730,
+          "verifier_ms": 708
+        },
+        {
+          "interaction_ms": 1715,
+          "verifier_ms": 707
+        }
+      ],
+      "cold_first_sample": true,
+      "measurement": "interaction_ms includes scrolling and test assertions; verifier_ms is the page-reported policy and pairing time"
+    },
+    {
+      "project": "firefox",
+      "samples": [
+        {
+          "interaction_ms": 723,
+          "verifier_ms": 459
+        },
+        {
+          "interaction_ms": 595,
+          "verifier_ms": 233
+        },
+        {
+          "interaction_ms": 1532,
+          "verifier_ms": 239
+        },
+        {
+          "interaction_ms": 623,
+          "verifier_ms": 250
+        },
+        {
+          "interaction_ms": 590,
+          "verifier_ms": 229
+        },
+        {
+          "interaction_ms": 1460,
+          "verifier_ms": 237
+        },
+        {
+          "interaction_ms": 1523,
+          "verifier_ms": 236
+        },
+        {
+          "interaction_ms": 1441,
+          "verifier_ms": 241
+        },
+        {
+          "interaction_ms": 1518,
+          "verifier_ms": 267
+        },
+        {
+          "interaction_ms": 1511,
+          "verifier_ms": 231
+        }
+      ],
+      "cold_first_sample": true,
+      "measurement": "interaction_ms includes scrolling and test assertions; verifier_ms is the page-reported policy and pairing time"
+    },
+    {
+      "project": "webkit",
+      "samples": [
+        {
+          "interaction_ms": 1387,
+          "verifier_ms": 813
+        },
+        {
+          "interaction_ms": 1015,
+          "verifier_ms": 483
+        },
+        {
+          "interaction_ms": 1034,
+          "verifier_ms": 474
+        },
+        {
+          "interaction_ms": 1027,
+          "verifier_ms": 478
+        },
+        {
+          "interaction_ms": 1014,
+          "verifier_ms": 460
+        },
+        {
+          "interaction_ms": 1012,
+          "verifier_ms": 469
+        },
+        {
+          "interaction_ms": 1019,
+          "verifier_ms": 466
+        },
+        {
+          "interaction_ms": 983,
+          "verifier_ms": 455
+        },
+        {
+          "interaction_ms": 975,
+          "verifier_ms": 458
+        },
+        {
+          "interaction_ms": 1009,
+          "verifier_ms": 454
+        }
+      ],
+      "cold_first_sample": true,
+      "measurement": "interaction_ms includes scrolling and test assertions; verifier_ms is the page-reported policy and pairing time"
+    },
+    {
+      "project": "mobile-chromium",
+      "samples": [
+        {
+          "interaction_ms": 383,
+          "verifier_ms": 250
+        },
+        {
+          "interaction_ms": 554,
+          "verifier_ms": 64
+        },
+        {
+          "interaction_ms": 577,
+          "verifier_ms": 72
+        },
+        {
+          "interaction_ms": 570,
+          "verifier_ms": 61
+        },
+        {
+          "interaction_ms": 569,
+          "verifier_ms": 58
+        },
+        {
+          "interaction_ms": 581,
+          "verifier_ms": 75
+        },
+        {
+          "interaction_ms": 559,
+          "verifier_ms": 56
+        },
+        {
+          "interaction_ms": 570,
+          "verifier_ms": 60
+        },
+        {
+          "interaction_ms": 574,
+          "verifier_ms": 57
+        },
+        {
+          "interaction_ms": 560,
+          "verifier_ms": 59
+        }
+      ],
+      "cold_first_sample": true,
+      "measurement": "interaction_ms includes scrolling and test assertions; verifier_ms is the page-reported policy and pairing time"
+    }
+  ]
+}

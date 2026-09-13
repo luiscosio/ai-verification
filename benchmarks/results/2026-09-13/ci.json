@@ -1,0 +1,97 @@
+{
+  "conclusion": "success",
+  "headSha": "d00975d656da3165df508d35d28d40272090ed68",
+  "jobs": [
+    {
+      "completedAt": "2026-09-13T22:03:05Z",
+      "conclusion": "success",
+      "name": "checks / research-circuits",
+      "startedAt": "2026-09-13T22:02:09Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283315"
+    },
+    {
+      "completedAt": "2026-09-13T22:03:05Z",
+      "conclusion": "success",
+      "name": "checks / portable (macos-latest, 22)",
+      "startedAt": "2026-09-13T22:02:15Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283433"
+    },
+    {
+      "completedAt": "2026-09-13T22:02:49Z",
+      "conclusion": "success",
+      "name": "checks / portable (ubuntu-latest, 22)",
+      "startedAt": "2026-09-13T22:02:09Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283446"
+    },
+    {
+      "completedAt": "2026-09-13T22:12:10Z",
+      "conclusion": "success",
+      "name": "checks / browsers",
+      "startedAt": "2026-09-13T22:02:09Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283480"
+    },
+    {
+      "completedAt": "2026-09-13T22:02:42Z",
+      "conclusion": "success",
+      "name": "checks / portable (ubuntu-latest, 24)",
+      "startedAt": "2026-09-13T22:02:09Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283487"
+    },
+    {
+      "completedAt": "2026-09-13T22:03:00Z",
+      "conclusion": "success",
+      "name": "checks / portable (macos-latest, 24)",
+      "startedAt": "2026-09-13T22:02:14Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283504"
+    },
+    {
+      "completedAt": "2026-09-13T22:09:16Z",
+      "conclusion": "success",
+      "name": "checks / native",
+      "startedAt": "2026-09-13T22:02:10Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103800283529"
+    },
+    {
+      "completedAt": "2026-09-13T22:12:27Z",
+      "conclusion": "success",
+      "name": "build",
+      "startedAt": "2026-09-13T22:12:12Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103801679182"
+    },
+    {
+      "completedAt": "2026-09-13T22:12:41Z",
+      "conclusion": "success",
+      "name": "deploy",
+      "startedAt": "2026-09-13T22:12:31Z",
+      "status": "completed",
+      "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067/job/103801720093"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/luiscosio/ai-verification/actions/runs/34785406067",
+  "browser_scenarios": {
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      "chromium",
+      "firefox",
+      "webkit",
+      "mobile-chromium"
+    ],
+    "registered_circuit_widths": [
+      1024,
+      1536,
+      2048,
+      3072
+    ]
+  }
+}

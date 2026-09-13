@@ -1,0 +1,2 @@
+File and network permission-denial controls passed
+{"accept":true,"claim":"experimental/f20-q4k-matvec/v1","rows":1024,"columns":1024,"proofs":65,"verify_ms":456,"bytes":69570,"scope":"Complete F20 Q4_K matrix-vector operation between private boundary commitments. No native float or token claim."}

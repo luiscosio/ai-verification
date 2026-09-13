@@ -1,0 +1,47 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M5",
+  "logical_cpus": 10,
+  "physical_memory_bytes": 25769803776,
+  "python": "3.13.11",
+  "node": "v24.13.0",
+  "commit": "a3c65a50866af963dfd6d01f343f67f681cff540",
+  "dirty": true,
+  "sampling_interval_seconds": 0.05,
+  "limits": [
+    "Fresh process for each measurement; filesystem cache is uncontrolled",
+    "Summed RSS can double-count shared mappings; sampled peaks can miss short spikes",
+    "CPU metrics from OS time cover its child command; sampled CPU is live processes only",
+    "System available/swap values include other applications; changes are not attributed to this test",
+    "CPU backend only; accelerator allocations and energy not measured"
+  ],
+  "models": {
+    "qwen3-0.6b": {
+      "sha256": "42d6e666a335641d99d74645baa076df60e9f18c50646a722469ca9d5c20f5bf",
+      "bytes": 396705216,
+      "registration": "qwen3-0.6b-q4_k_m"
+    },
+    "qwen2.5-0.5b": {
+      "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+      "bytes": 491400032,
+      "registration": "qwen2.5-0.5b-q4_k_m"
+    },
+    "qwen2.5-1.5b": {
+      "sha256": "183715c435899236895da3869489cc30ac241476b4971a20285b1a462818a5b4",
+      "bytes": 986048512,
+      "registration": "qwen2.5-1.5b-q4_k_m"
+    },
+    "phi3-mini": {
+      "sha256": "633fc5be925f9a484b61d6f9b9a78021eeb462100bd557309f01ba84cac26adf",
+      "bytes": 2176177120,
+      "registration": null
+    }
+  },
+  "suite": "native",
+  "corpus_sha256": "50e4932459aa2f454fd6abcd1bfeece0fb6e0207b7515f1861e17841555c3fb6",
+  "driver_sha256": "4bd944fcd071c8a14ccdb4564a873b547ad14d2333e181cdb28c79cfa4c31680",
+  "monitor_sha256": "2b524e118c1a9cab8b3fb6a58adc29473d1b78ac524ba82900323f40501bc800",
+  "native_binary_sha256": "29b89dc855495463b04fc72baf2e5bc123fc9229451d98609c2e1a2312bd48a2",
+  "native_source_sha256": "6e06bf1193ac1605b80eb9c8bae12e98ae277d8b16afe3587cc0d3dd9237509c",
+  "fork_commit": "a751319930c824eb9cbb24a7c91c4a6ba18ac679"
+}

@@ -1,0 +1,90 @@
+<testsuites id="" name="" tests="40" failures="0" skipped="0" errors="0" time="543.6453270000001">
+<testsuite name="verifier.spec.cjs" timestamp="2026-09-13T22:03:04.740Z" hostname="chromium" tests="10" failures="0" skipped="0" time="227.056" errors="0">
+<testcase name="honest and invalid examples verify offline, then recover" classname="verifier.spec.cjs" time="24.215">
+</testcase>
+<testcase name="uploaded honest proof and altered public value" classname="verifier.spec.cjs" time="22.417">
+</testcase>
+<testcase name="malformed, oversized and unknown registrations fail clearly" classname="verifier.spec.cjs" time="20.33">
+</testcase>
+<testcase name="file names stay text and cannot create markup" classname="verifier.spec.cjs" time="19.788">
+</testcase>
+<testcase name="catalogue search and local generation availability" classname="verifier.spec.cjs" time="36.987">
+</testcase>
+<testcase name="keyboard navigation and narrow layout" classname="verifier.spec.cjs" time="17.899">
+</testcase>
+<testcase name="reduced motion and unavailable WebGL preserve verification" classname="verifier.spec.cjs" time="6.148">
+</testcase>
+<testcase name="downloaded example is a portable proof package" classname="verifier.spec.cjs" time="16.799">
+</testcase>
+<testcase name="repeated verification records latency and preserves the user pause" classname="verifier.spec.cjs" time="30.77">
+</testcase>
+<testcase name="registered model and circuit shapes render their actual checked rows" classname="verifier.spec.cjs" time="31.703">
+</testcase>
+</testsuite>
+<testsuite name="verifier.spec.cjs" timestamp="2026-09-13T22:03:04.740Z" hostname="firefox" tests="10" failures="0" skipped="0" time="33.486" errors="0">
+<testcase name="honest and invalid examples verify offline, then recover" classname="verifier.spec.cjs" time="3.594">
+</testcase>
+<testcase name="uploaded honest proof and altered public value" classname="verifier.spec.cjs" time="2.796">
+</testcase>
+<testcase name="malformed, oversized and unknown registrations fail clearly" classname="verifier.spec.cjs" time="3.276">
+</testcase>
+<testcase name="file names stay text and cannot create markup" classname="verifier.spec.cjs" time="1.28">
+</testcase>
+<testcase name="catalogue search and local generation availability" classname="verifier.spec.cjs" time="0.832">
+</testcase>
+<testcase name="keyboard navigation and narrow layout" classname="verifier.spec.cjs" time="0.735">
+</testcase>
+<testcase name="reduced motion and unavailable WebGL preserve verification" classname="verifier.spec.cjs" time="1.802">
+</testcase>
+<testcase name="downloaded example is a portable proof package" classname="verifier.spec.cjs" time="0.63">
+</testcase>
+<testcase name="repeated verification records latency and preserves the user pause" classname="verifier.spec.cjs" time="12.29">
+</testcase>
+<testcase name="registered model and circuit shapes render their actual checked rows" classname="verifier.spec.cjs" time="6.251">
+</testcase>
+</testsuite>
+<testsuite name="verifier.spec.cjs" timestamp="2026-09-13T22:03:04.740Z" hostname="webkit" tests="10" failures="0" skipped="0" time="95.782" errors="0">
+<testcase name="honest and invalid examples verify offline, then recover" classname="verifier.spec.cjs" time="17.085">
+</testcase>
+<testcase name="uploaded honest proof and altered public value" classname="verifier.spec.cjs" time="8.449">
+</testcase>
+<testcase name="malformed, oversized and unknown registrations fail clearly" classname="verifier.spec.cjs" time="7.706">
+</testcase>
+<testcase name="file names stay text and cannot create markup" classname="verifier.spec.cjs" time="7.055">
+</testcase>
+<testcase name="catalogue search and local generation availability" classname="verifier.spec.cjs" time="7.246">
+</testcase>
+<testcase name="keyboard navigation and narrow layout" classname="verifier.spec.cjs" time="6.818">
+</testcase>
+<testcase name="reduced motion and unavailable WebGL preserve verification" classname="verifier.spec.cjs" time="4.877">
+</testcase>
+<testcase name="downloaded example is a portable proof package" classname="verifier.spec.cjs" time="5.442">
+</testcase>
+<testcase name="repeated verification records latency and preserves the user pause" classname="verifier.spec.cjs" time="17.268">
+</testcase>
+<testcase name="registered model and circuit shapes render their actual checked rows" classname="verifier.spec.cjs" time="13.836">
+</testcase>
+</testsuite>
+<testsuite name="verifier.spec.cjs" timestamp="2026-09-13T22:03:04.740Z" hostname="mobile-chromium" tests="10" failures="0" skipped="0" time="181.25" errors="0">
+<testcase name="honest and invalid examples verify offline, then recover" classname="verifier.spec.cjs" time="15.645">
+</testcase>
+<testcase name="uploaded honest proof and altered public value" classname="verifier.spec.cjs" time="17.852">
+</testcase>
+<testcase name="malformed, oversized and unknown registrations fail clearly" classname="verifier.spec.cjs" time="17.174">
+</testcase>
+<testcase name="file names stay text and cannot create markup" classname="verifier.spec.cjs" time="15.675">
+</testcase>
+<testcase name="catalogue search and local generation availability" classname="verifier.spec.cjs" time="30.803">
+</testcase>
+<testcase name="keyboard navigation and narrow layout" classname="verifier.spec.cjs" time="24.464">
+</testcase>
+<testcase name="reduced motion and unavailable WebGL preserve verification" classname="verifier.spec.cjs" time="5.935">
+</testcase>
+<testcase name="downloaded example is a portable proof package" classname="verifier.spec.cjs" time="14.329">
+</testcase>
+<testcase name="repeated verification records latency and preserves the user pause" classname="verifier.spec.cjs" time="16.959">
+</testcase>
+<testcase name="registered model and circuit shapes render their actual checked rows" classname="verifier.spec.cjs" time="22.414">
+</testcase>
+</testsuite>
+</testsuites>

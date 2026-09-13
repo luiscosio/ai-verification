@@ -1,0 +1,6 @@
+zero passed
+positive-first-tie passed
+negative-first-tie passed
+negative-limit passed
+out-of-range input rejected
+final rounding ties, altered outputs and private ranges passed

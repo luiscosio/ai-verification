@@ -47,7 +47,7 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 - [x] Local generation interface, actual stage progress, cancellation, prerequisite messages and one-file export; `start-workspace.sh` and `site/local_prover.py`.
 - [x] Browser and offline verification of the same versioned file; automatic trusted-registry lookup; exact coverage and separate failure states.
 - [x] Expandable model/research details and local run measurements; no prompt/answer fields in the row-group package.
-- [x] First-time setup with locked dependencies, native build, exact model reproduction and checksum-pinned matching proving materials: `setup-workspace.sh`, `releases/prover-materials-v1.json`.
+- [x] First-time setup with locked dependencies, native build, authenticated exact model download and checksum-pinned matching proving materials; clean Linux CI also exercises generation and fresh proofs: `setup-workspace.sh`, `releases/prover-materials-v1.json`.
 - [x] Local installation and generation/verification tests; research experiment exports include phase timing, process RSS, exact source/material digests and public proof fixtures.
 - [ ] Three-person usability study deferred by the owner for this iteration; local tests are being used. This is not evidence of user comprehension. See `docs/ux-plan.md`.
 - [x] First GitHub Pages deployment passed after the fork release and parent submodule-pin update. A real local proof passed on the hosted page (77 ms), and the adversarial example was rejected. The older private artifact is historical.
@@ -87,6 +87,17 @@ The usability work in `docs/ux-plan.md` proceeds alongside this cryptographic de
 - [x] Repeatable regression command: `checks/run.sh`.
 
 Those repairs did not add full-operation coverage. The later separate F20 experiment adds one complete operation and private activation commitments; it does not add a full-token proof or production setup.
+
+## Testing and measurements, 2026-09-13
+
+- [x] Four-model/12-prompt native matrix (208 attempts); fixed four partial-UTF-8 receipt failures and passed 60 post-fix cases, 52 replays and 38 byte-boundary checks.
+- [x] Sustained throughput at two/eight threads, 40 configurations and 120 samples; CPU time, process RSS, complete runner RSS and trace size measured.
+- [x] Both registered proof models and all four circuit widths: 18 exported proofs accepted; three complete F20 operation packages containing 195 component proofs accepted.
+- [x] 3,000 proof mutation attempts rejected with 120 honest recovery checks; native negative controls, actual circuit witnesses, timeout cleanup and isolated verification exercised.
+- [x] Seven CI check jobs gate deployment: Linux/macOS × Node 22/24, native generation/API/proofs, circuit boundaries and 40 browser scenarios across four browser configurations.
+- [x] Results, preserved failures, public proof fixtures and reproducible measurements: [testing report](benchmarks/results/2026-09-13/README.md).
+- [ ] Reduce full-trace capture cost; measured Qwen3 traces reach 1.5 GiB and the runner reaches 6.22 GiB summed RSS.
+- [ ] Run longer repeated-verification memory soaks and clean CPU/GPU baselines before adopting performance budgets.
 
 ## Decisions that are yours
 

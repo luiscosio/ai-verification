@@ -1,0 +1,18 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M5",
+  "logical_cpus": 10,
+  "physical_memory_bytes": 25769803776,
+  "python": "3.13.11",
+  "node": "v24.13.0",
+  "commit": "762ce635a044247bd1ed471572ef8beddbfeccc6",
+  "dirty": true,
+  "sampling_interval_seconds": 0.05,
+  "limits": [
+    "Fresh process for each measurement; filesystem cache is uncontrolled",
+    "Summed RSS can double-count shared mappings; sampled peaks can miss short spikes",
+    "CPU metrics from OS time cover its child command; sampled CPU is live processes only",
+    "System available/swap values include other applications; changes are not attributed to this test",
+    "CPU backend only; accelerator allocations and energy not measured"
+  ]
+}

@@ -1,0 +1,58 @@
+........................................                                 [100%]
+40 passed in 0.22s
+20 Groth16 regressions, 9 envelope cases and 4 application-renderer cases plus coverage and generation availability passed
+{"seed":20260913,"mutations_rejected":300,"malformed_rejected":7,"honest_recovery_checks":12,"seconds":1.2327899169999998,"cpu":{"user":4715567,"system":173873},"memory_samples":[{"after_mutations":0,"verify_ms":11.654500000000013,"rss":224952320,"heapTotal":51019776,"heapUsed":16956832,"external":4679008,"arrayBuffers":1275178},{"after_mutations":25,"verify_ms":10.74154200000001,"rss":322994176,"heapTotal":51019776,"heapUsed":17542600,"external":4683752,"arrayBuffers":1279850},{"after_mutations":50,"verify_ms":10.755083000000013,"rss":414187520,"heapTotal":51281920,"heapUsed":18685600,"external":4704008,"arrayBuffers":1300106},{"after_mutations":75,"verify_ms":10.790958000000046,"rss":507314176,"heapTotal":52396032,"heapUsed":27305392,"external":5296363,"arrayBuffers":1719387},{"after_mutations":100,"verify_ms":10.556916000000001,"rss":512901120,"heapTotal":52396032,"heapUsed":27574392,"external":5297995,"arrayBuffers":1288414},{"after_mutations":125,"verify_ms":10.641750000000002,"rss":516210688,"heapTotal":52396032,"heapUsed":27652000,"external":5297355,"arrayBuffers":1028211},{"after_mutations":150,"verify_ms":12.24249999999995,"rss":519585792,"heapTotal":51806208,"heapUsed":18763848,"external":4704072,"arrayBuffers":434960},{"after_mutations":175,"verify_ms":10.769832999999949,"rss":552108032,"heapTotal":51806208,"heapUsed":18924264,"external":4706536,"arrayBuffers":437424},{"after_mutations":200,"verify_ms":10.738208999999983,"rss":642334720,"heapTotal":51806208,"heapUsed":20218096,"external":4731016,"arrayBuffers":461904},{"after_mutations":225,"verify_ms":10.70454200000006,"rss":708214784,"heapTotal":86540288,"heapUsed":34205016,"external":5769169,"arrayBuffers":1499993},{"after_mutations":250,"verify_ms":10.780708999999888,"rss":725450752,"heapTotal":85950464,"heapUsed":26174528,"external":5270987,"arrayBuffers":1001875},{"after_mutations":275,"verify_ms":10.447374999999965,"rss":727875584,"heapTotal":85360640,"heapUsed":17529312,"external":4679048,"arrayBuffers":409968}]}
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 33.119s
+
+OK
+.
+----------------------------------------------------------------------
+Ran 1 test in 7.626s
+
+OK
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 1.175s
+
+OK
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 1.191s
+
+OK
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.188s
+
+OK
+Installing: target
+Installing: target
+..Installing: installed.gguf
+Installing: installed.gguf
+.Installing: target
+Verified: target
+.
+----------------------------------------------------------------------
+Ran 4 tests in 0.003s
+
+OK
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+OK
+Honest complete operation accepted 456 ms
+omitted rows rejected
+reordered rows rejected
+duplicate rows rejected
+wrong registration rejected
+other weights rejected
+disconnected activation rejected
+mixed context rejected
+different input rejected
+noncanonical number rejected
+public witness injection rejected
+altered output commitment rejected
+altered pairing rejected

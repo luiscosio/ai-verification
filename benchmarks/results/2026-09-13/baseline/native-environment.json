@@ -1,0 +1,46 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "cpu": "Apple M5",
+  "logical_cpus": 10,
+  "physical_memory_bytes": 25769803776,
+  "python": "3.13.11",
+  "node": "v24.13.0",
+  "commit": "dc2bb08b77699c645d83b617b9e711ac81295a29",
+  "dirty": true,
+  "sampling_interval_seconds": 0.05,
+  "limits": [
+    "Fresh process for each measurement; filesystem cache is uncontrolled",
+    "Summed RSS can double-count shared mappings; sampled peaks can miss short spikes",
+    "CPU metrics from OS time cover its child command; sampled CPU is live processes only",
+    "System available/swap values include other applications; changes are not attributed to this test",
+    "CPU backend only; accelerator allocations and energy not measured"
+  ],
+  "models": {
+    "qwen3-0.6b": {
+      "sha256": "42d6e666a335641d99d74645baa076df60e9f18c50646a722469ca9d5c20f5bf",
+      "bytes": 396705216,
+      "registration": "qwen3-0.6b-q4_k_m"
+    },
+    "qwen2.5-0.5b": {
+      "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+      "bytes": 491400032,
+      "registration": "qwen2.5-0.5b-q4_k_m"
+    },
+    "qwen2.5-1.5b": {
+      "sha256": "183715c435899236895da3869489cc30ac241476b4971a20285b1a462818a5b4",
+      "bytes": 986048512,
+      "registration": "qwen2.5-1.5b-q4_k_m"
+    },
+    "phi3-mini": {
+      "sha256": "633fc5be925f9a484b61d6f9b9a78021eeb462100bd557309f01ba84cac26adf",
+      "bytes": 2176177120,
+      "registration": null
+    }
+  },
+  "suite": "native",
+  "corpus_sha256": "50e4932459aa2f454fd6abcd1bfeece0fb6e0207b7515f1861e17841555c3fb6",
+  "driver_sha256": "ac858075d24332b008e471e9b8e55cdd9ae4c74f0124396934ba3a8b0bb7ca74",
+  "monitor_sha256": "74397d7b8d02035d09a7397e29c7a21371197fad3f2126bdc314049be3d77baa",
+  "native_binary_sha256_recorded_before_rebuild": "0290be73c2d89f683fdacc7018ff0b8ef8e001e2b86d29679f8be9f7e2c528d9",
+  "native_build_info_recorded_before_rebuild": "#include \"build-info.h\"\n\n#include <cstdio>\n#include <string>\n\nint LLAMA_BUILD_NUMBER = 10945;\nchar const * LLAMA_COMMIT = \"7bf600953\";\nchar const * LLAMA_COMPILER = \"AppleClang 21.0.0.21000101\";\nchar const * LLAMA_BUILD_TARGET = \"Darwin arm64\";\n\nint llama_build_number(void) {\n    return LLAMA_BUILD_NUMBER;\n}\n\nconst char * llama_commit(void) {\n    return LLAMA_COMMIT;\n}\n\nconst char * llama_compiler(void) {\n    return LLAMA_COMPILER;\n}\n\nconst char * llama_build_target(void) {\n    return LLAMA_BUILD_TARGET;\n}\n\nconst char * llama_build_info(void) {\n    static std::string s = \"b\" + std::to_string(LLAMA_BUILD_NUMBER) + \"-\" + LLAMA_COMMIT;\n    return s.c_str();\n}\n\nvoid llama_print_build_info(const char * llama_version, FILE * stream) {\n    fprintf(stream, \"version: %s (build %d, commit %s)\\n\", llama_version, llama_build_number(), llama_commit());\n    fprintf(stream, \"built with %s for %s\\n\", llama_compiler(), llama_build_target());\n}\n"
+}
