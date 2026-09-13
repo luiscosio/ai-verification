@@ -14,7 +14,9 @@ class Runtime(unittest.TestCase):
             with self.assertRaises(subprocess.TimeoutExpired):operation.measured([sys.executable,'-c',script],timeout=.4)
             pid=int(file.read_text())
             for _ in range(20):
-                if not psutil.pid_exists(pid) or psutil.Process(pid).status()==psutil.STATUS_ZOMBIE:break
+                try:
+                    if psutil.Process(pid).status()==psutil.STATUS_ZOMBIE:break
+                except psutil.NoSuchProcess:break
                 time.sleep(.05)
             else:self.fail('Research prover descendant survived timeout')
 

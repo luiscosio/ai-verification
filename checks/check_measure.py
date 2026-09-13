@@ -14,6 +14,13 @@ class Measurements(unittest.TestCase):
         self.assertGreater(m['os_peak_process_rss_bytes'],32*1024*1024)
         self.assertIsNotNone(m['user_cpu_seconds'])
 
+    def test_fast_commands_do_not_race_process_inspection(self):
+        with tempfile.TemporaryDirectory() as d:
+            for _ in range(20):
+                metrics,_,_=measure(['/usr/bin/true'],d)
+                self.assertEqual(metrics['returncode'],0)
+                self.assertFalse(metrics['timed_out'])
+
     def test_timeout_cleans_children(self):
         with tempfile.TemporaryDirectory() as d:
             child=Path(d)/'child'
@@ -22,7 +29,9 @@ class Measurements(unittest.TestCase):
             self.assertTrue(m['timed_out']);self.assertLess(m['seconds'],3)
             pid=int(child.read_text())
             for _ in range(20):
-                if not psutil.pid_exists(pid) or psutil.Process(pid).status()==psutil.STATUS_ZOMBIE:break
+                try:
+                    if psutil.Process(pid).status()==psutil.STATUS_ZOMBIE:break
+                except psutil.NoSuchProcess:break
                 time.sleep(.05)
             else:self.fail('Timed-out descendant is still running')
 

@@ -77,8 +77,10 @@ test('repeated verification records latency and preserves the user pause',async(
   const start=Date.now();
   await page.getByRole('button',{name:'Try a valid proof',exact:true}).click();
   await expect(page.locator('#result-view')).toHaveAttribute('data-state','verified');
-  samples.push(Date.now()-start);
+  const interaction_ms=Date.now()-start;
+  const displayed=await page.locator('#result-view .facts > div').filter({hasText:'Verification time'}).locator('dd').innerText();
+  samples.push({interaction_ms,verifier_ms:parseInt(displayed,10)});
  }
  if(await toggle.isVisible())await expect(toggle).toHaveText('Play motion');
- await testInfo.attach('verification-latency-ms',{body:JSON.stringify({project:testInfo.project.name,milliseconds:samples,cold_first_sample:true}),contentType:'application/json'});
+ await testInfo.attach('verification-latency-ms',{body:JSON.stringify({project:testInfo.project.name,samples,cold_first_sample:true,measurement:'interaction_ms includes scrolling and test assertions; verifier_ms is the page-reported policy and pairing time'}),contentType:'application/json'});
 });

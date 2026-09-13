@@ -11,10 +11,11 @@ def measure(command, cwd, timeout=600):
         with (folder/'stdout').open('wb') as out,(folder/'stderr').open('wb') as err:
             proc=subprocess.Popen(['/usr/bin/time','-l' if platform.system()=='Darwin' else '-v','-o',str(metric),*map(str,command)],cwd=cwd,stdout=out,stderr=err,start_new_session=True)
             try:
-                parent=psutil.Process(proc.pid)
+                try:parent=psutil.Process(proc.pid)
+                except psutil.NoSuchProcess:parent=None
                 while proc.poll() is None:
                     rss=0;cpu=0.;count=0
-                    try:tree=[parent,*parent.children(recursive=True)]
+                    try:tree=[parent,*parent.children(recursive=True)] if parent else []
                     except psutil.Error:tree=[]
                     for child in tree:
                         try:
@@ -23,7 +24,8 @@ def measure(command, cwd, timeout=600):
                     samples.append({'t':round(time.perf_counter()-started,3),'rss_bytes':rss,'live_cpu_seconds':round(cpu,3),'processes':count,'available_bytes':psutil.virtual_memory().available,'swap_used_bytes':psutil.swap_memory().used})
                     if time.perf_counter()-started>timeout:
                         timed_out=True;break
-                    time.sleep(.05)
+                    try:proc.wait(timeout=.05)
+                    except subprocess.TimeoutExpired:pass
             finally:
                 try:os.killpg(proc.pid,signal.SIGKILL)
                 except ProcessLookupError:pass
