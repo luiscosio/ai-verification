@@ -87,12 +87,15 @@ test('repeated verification records latency and preserves the user pause',async(
 
 test('registered model and circuit shapes render their actual checked rows',async({page})=>{
  const directory=root+'/checks/fixtures/registered-proofs';
- for(const name of fs.readdirSync(directory).filter(n=>n.endsWith('.llamaproof')).sort()){
+ const names=fs.readdirSync(directory).filter(n=>n.endsWith('.llamaproof')).sort();expect(names).toHaveLength(4);const widths=new Set();
+ for(const name of names){
   const value=JSON.parse(fs.readFileSync(directory+'/'+name));
   const registration=read('registry/'+(name.startsWith('qwen2.5')?'qwen2.5-1.5b-q4_k_m':'qwen3-0.6b-q4_k_m')+'/manifest.json');
   const tensor=registration.tensors.find(t=>t.name===value.tensor),first=value.group*tensor.groth16.rows_per_group;
+  widths.add(tensor.shape[0]);
   await upload(page,value,name);await expect(page.locator('#result-view')).toHaveAttribute('data-state','verified');
   await expect(page.locator('#result-view')).toContainText(registration.model.name);
   await expect(page.locator('#result-view')).toContainText(`Rows ${first}–${first+tensor.groth16.rows_per_group-1}`);
  }
+ expect([...widths].sort((a,b)=>a-b)).toEqual([1024,1536,2048,3072]);
 });
