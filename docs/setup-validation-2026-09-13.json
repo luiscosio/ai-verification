@@ -26,5 +26,17 @@
     "No clean Linux host tested",
     "No unfamiliar-user study, per owner request"
   ],
-  "offline_export_verification": true
+  "offline_export_verification": true,
+  "public_downloads": {
+    "default_proving_key_and_wasm": "Downloaded anonymously through the clean-checkout installer; SHA-256 and size checks passed",
+    "research_wasm": "Downloaded anonymously; SHA-256 and size checks passed",
+    "all_release_assets": "GitHub server-computed SHA-256 and size matched all 13 ordinary assets and all 8 research assets",
+    "implementation_commit": "55f048f7f2ac15adc4b763e30cb2c524bd13553c",
+    "releases": [
+      "https://github.com/luiscosio/ai-verification/releases/tag/prover-materials-v1",
+      "https://github.com/luiscosio/ai-verification/releases/tag/complete-operation-v1"
+    ]
+  },
+  "full_local_checks": "checks/run.sh passed: 40 prototype, 20 Groth16, 9 envelope, 4 renderer plus coverage, 9 core, 5 API, 9 workspace, 3 installer, honest complete operation plus 12 rejection cases",
+  "pages_deployment": "https://github.com/luiscosio/ai-verification/actions/runs/34780863164"
 }
