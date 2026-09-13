@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>llama-receipts registry</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --ink:#14212b; --muted:#5b6b78; --rule:#d5dde3; --panel:#f2f5f7; --accent:#0b6e6a; --ok:#1f7a3a; --bad:#b3261e; --amber:#8a6100; --bg:#fbfcfd; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#e4e9ed; --muted:#98a6b3; --rule:#2c3a45; --panel:#17202a; --accent:#4fc1bb; --ok:#7bd88f; --bad:#f28b82; --amber:#e3b341; --bg:#0f1519; } }
+  :root[data-theme="dark"] { --ink:#e4e9ed; --muted:#98a6b3; --rule:#2c3a45; --panel:#17202a; --accent:#4fc1bb; --ok:#7bd88f; --bad:#f28b82; --amber:#e3b341; --bg:#0f1519; }
+  body { margin:0; padding-block:28px; padding-inline:16px; background:var(--bg); color:var(--ink); font:15px/1.55 "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-variant-numeric: tabular-nums; }
+  main { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; text-wrap: balance; } h2 { font-size: 19px; font-weight: 600; margin: 32px 0 10px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; text-wrap: balance; }
+  .sub { color: var(--muted); margin: 0 0 18px; }
+  nav a { margin-right: 16px; color: var(--accent); text-decoration: none; font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; } th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .wrap { overflow-x: auto; }
+  code, .mono, pre { font-family: "IBM Plex Mono", Menlo, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; margin: 12px 0; }
+  .ok { color: var(--ok); font-weight: 700; } .bad { color: var(--bad); font-weight: 700; } .amber { color: var(--amber); font-weight: 700; }
+  label { display: block; margin: 10px 0 4px; font-weight: 600; } select, input[type=file] { font: inherit; max-width: 100%; }
+  button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; } button:disabled { opacity: .5; cursor: default; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #examples button { background: transparent; color: var(--accent); }
+  .small { color: var(--muted); font-size: 13px; }
+  pre { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 13px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--rule); font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>llama-receipts registry</h1>
+<p class="sub">Registered models and a verifier that holds no weights. Preview built __BUILT_AT__ from <code>registry/</code>. Coverage today: <strong>one matmul node, integer core</strong>, in groups of rows. Not a proof of an answer.</p>
+<nav><a href="#models">Models</a><a href="#verify">Verify</a><a href="#result">Result</a><a href="#offline">Offline</a></nav>
+<p id="autocheck" class="small" hidden></p>
+
+<h2 id="models">Models</h2>
+<div id="models-view"></div>
+
+<h2 id="verify">Verify a proof package</h2>
+<div class="panel">
+  <p class="small">Choose the registered model and the tensor the proof is about, then load the prover's <code>proof.json</code> and <code>public.json</code> for one row group. Verification runs in this page with snarkjs: the Groth16 pairing check against the registered circuit's verification key, then the proof's public commitment against the manifest's registered commitment for that group. No model file, no server, no prover connection.</p>
+  <label for="model">Model</label><select id="model"></select>
+  <label for="tensor">Tensor</label><select id="tensor"></select>
+  <label for="group">Row group</label><select id="group"></select>
+  <label for="proof">proof.json</label><input type="file" id="proof" accept=".json">
+  <label for="public">public.json</label><input type="file" id="public" accept=".json">
+  <p><button id="run">Verify</button> <span id="status" class="small"></span></p>
+  <p class="small">Or check one of the packages bundled with this page: <span id="examples"></span></p>
+</div>
+
+<h2 id="result">Result</h2>
+<div id="result-view" class="panel"><span class="small">No proof checked yet.</span></div>
+
+<h2 id="offline">Reproduce offline</h2>
+<div class="panel">
+<p class="small">A badge on a page is not verification evidence. The same check, from the shell, with the same verification key and manifest:</p>
+<pre>node node_modules/snarkjs/build/cli.cjs groth16 verify build/&lt;circuit&gt;/verification_key.json public.json proof.json
+python3 -c 'import json,sys; p=json.load(open("public.json")); m=json.load(open("manifest.json")); t=[x for x in m["tensors"] if x["name"]==sys.argv[1]][0]; print("commitment registered" if p[0]==t["groth16"]["groups"][int(sys.argv[2])] else "NOT the registered commitment")' &lt;tensor&gt; &lt;group&gt;</pre>
+<p class="small">Manifests, verification keys and the circuit are in the fork <code>luiscosio/llama.cpp</code>, <code>examples/receipts/zk/groth16</code>, and in this project's <code>registry/</code>. Expander proofs (<code>receipts-zk</code>) are verified offline only: <code>receipts-zk verify public.json proof.bin orion --commitment &lt;registered&gt;</code>.</p>
+</div>
+<p class="small">What acceptance means: the public sums s1, s2 are ggml's Q4_K x Q8_K integer core for the public activation quants and the weights behind the registered commitment. It does not establish which machine ran, when, or that any answer is correct. Groth16 proofs are zero-knowledge: the weights do not leave the prover. Setup parameters are proof-of-concept (one contributor).</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.5/build/snarkjs.min.js"></script>
+<script>
+const DATA = __DATA__;
+const $ = (id) => document.getElementById(id);
+const short = (s, n = 16) => (s || "").slice(0, n) + (s && s.length > n ? "…" : "");
+
+function renderModels() {
+  const parts = [];
+  for (const m of DATA.manifests) {
+    const md = m.model, ex = m.execution, ps = m.proof_system;
+    const g16 = m.tensors.filter(t => t.groth16).length, ori = m.tensors.filter(t => t.commitment).length;
+    parts.push(`<div class="panel">
+      <div><strong>${md.name}</strong> <span class="badge">${md.architecture}</span> <span class="badge">manifest ${short(m.manifest_id)}</span></div>
+      <div class="wrap"><table>
+        <tr><th>File</th><td class="mono">${short(md.file_sha256, 24)} · ${md.file_bytes.toLocaleString()} bytes · ${md.n_tensors} tensors</td></tr>
+        <tr><th>Source</th><td class="mono">${md.source.url || "n/a"}<br>${short(md.source.sha256 || "", 24)}<br>${md.source.quantize_cmd || ""}</td></tr>
+        <tr><th>Shape</th><td>${md.hparams.block_count} layers, hidden ${md.hparams.embedding_length}, FFN ${md.hparams.feed_forward_length}, heads ${md.hparams["attention.head_count"]} / ${md.hparams["attention.head_count_kv"]} KV</td></tr>
+        <tr><th>Tokenizer</th><td class="mono">${m.tokenizer.model} (${m.tokenizer.pre}), ${m.tokenizer.n_tokens.toLocaleString()} tokens · ${short(m.tokenizer.sha256, 24)}</td></tr>
+        <tr><th>Execution</th><td>${ex.statement}, llama.cpp ${ex.llama_cpp_rev}, ${ex.backend}, ${ex.threads} threads, ${ex.decoding}, prompt ≤ ${ex.max_prompt_tokens} tokens</td></tr>
+        <tr><th>Commitments</th><td>Groth16 (Poseidon, zero-knowledge): ${g16} Q4_K tensors · Expander Orion (binding, not hiding): ${ori} tensors</td></tr>
+        <tr><th>Setup</th><td class="small">${(ps.groth16 && ps.groth16.setup) || ""}</td></tr>
+      </table></div>
+      <details><summary class="small">Tensor table (${m.tensors.length})</summary><div class="wrap"><table><tr><th>Name</th><th>Type</th><th>Shape</th><th>SHA-256</th><th>Groups</th></tr>
+      ${m.tensors.map(t => `<tr><td class="mono">${t.name}</td><td>${t.type}</td><td>${t.shape.join(" × ")}</td><td class="mono">${short(t.sha256)}</td><td>${t.groth16 ? t.groth16.groups.length + " × " + t.groth16.rows_per_group + " rows" : ""}</td></tr>`).join("")}
+      </table></div></details>
+    </div>`);
+  }
+  $("models-view").innerHTML = parts.join("") || "<p class='small'>No manifests.</p>";
+}
+
+function fillSelects() {
+  $("model").innerHTML = DATA.manifests.map((m, i) => `<option value="${i}">${m.model.name} (${short(m.manifest_id, 12)})</option>`).join("");
+  fillTensors();
+}
+function fillTensors() {
+  const m = DATA.manifests[+$("model").value];
+  const ts = m.tensors.filter(t => t.groth16);
+  $("tensor").innerHTML = ts.map(t => `<option value="${t.name}">${t.name} (${t.shape.join("×")}, ${t.groth16.groups.length} groups)</option>`).join("");
+  fillGroups();
+}
+function fillGroups() {
+  const m = DATA.manifests[+$("model").value];
+  const t = m.tensors.find(x => x.name === $("tensor").value);
+  $("group").innerHTML = t.groth16.groups.map((c, g) => `<option value="${g}">group ${g}: rows ${g * t.groth16.rows_per_group}–${(g + 1) * t.groth16.rows_per_group - 1} · ${short(c, 12)}</option>`).join("");
+}
+$("model").addEventListener("change", fillTensors);
+$("tensor").addEventListener("change", fillGroups);
+
+const readJson = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => { try { res(JSON.parse(r.result)); } catch (e) { rej(e); } }; r.onerror = rej; r.readAsText(file); });
+
+function renderExamples() {
+  const ex = DATA.examples || [];
+  $("examples").innerHTML = ex.length ? ex.map((e, i) => `<button class="small" data-ex="${i}" style="margin:2px 6px 2px 0">${e.label}</button>`).join("") : "none bundled";
+  for (const b of $("examples").querySelectorAll("button")) b.addEventListener("click", () => {
+    const e = ex[+b.dataset.ex];
+    $("model").value = String(DATA.manifests.findIndex(m => m.manifest_id === e.manifest_id)); fillTensors();
+    $("tensor").value = e.tensor; fillGroups(); $("group").value = String(e.group);
+    verify(e.proof, e.public, e.label);
+  });
+}
+
+async function verify(exProof, exPublic, exLabel) {
+  const status = $("status"), out = $("result-view");
+  const m = DATA.manifests[+$("model").value];
+  const t = m.tensors.find(x => x.name === $("tensor").value);
+  const g = +$("group").value;
+  let proof, pub;
+  $("run").disabled = true; status.textContent = "Verifying in this page…";
+  const t0 = performance.now();
+  if (exProof) { proof = exProof; pub = exPublic; }
+  else {
+    const pf = $("proof").files[0], pb = $("public").files[0];
+    if (!pf || !pb) { status.textContent = "Load proof.json and public.json first."; $("run").disabled = false; return; }
+    if (pf.size > 8192 || pb.size > 2_000_000) { status.textContent = "Package too large: a Groth16 proof is under 1 KB and public inputs under 200 KB."; $("run").disabled = false; return; }
+    try { proof = await readJson(pf); pub = await readJson(pb); } catch (e) { status.textContent = "Not valid JSON."; $("run").disabled = false; return; }
+  }
+  const vkey = DATA.vkeys[t.groth16.circuit];
+  let pairing = false, err = "";
+  if (!vkey) { err = "no verification key for circuit " + t.groth16.circuit; }
+  else if (!Array.isArray(pub) || pub.length !== vkey.nPublic) { err = `public.json has ${Array.isArray(pub) ? pub.length : "?"} signals, the circuit ${vkey.nPublic}`; }
+  else { try { pairing = await snarkjs.groth16.verify(vkey, pub, proof); } catch (e) { err = "verifier error: " + (e.message || e); } }
+  const registered = t.groth16.groups[g];
+  const bound = Array.isArray(pub) && pub[0] === registered;
+  const ms = Math.round(performance.now() - t0);
+  const K = t.shape[0], NB = K / 256, rows = t.groth16.rows_per_group;
+  const accept = pairing && bound && !err;
+  if (exLabel && !$("autocheck").dataset.done) {
+    $("autocheck").dataset.done = "1"; $("autocheck").hidden = false;
+    $("autocheck").innerHTML = `Self-check on load: the bundled package "${exLabel}" ${accept ? '<span class="ok">verified</span>' : '<span class="bad">was rejected</span>'} in this page in ${ms} ms (Groth16 pairing ${pairing ? "passes" : "fails"}${err ? ", " + err : ""}; commitment ${bound ? "registered" : "not registered"}). <a href="#result">Details</a>.`;
+  }
+  out.innerHTML = `
+    <div>${accept ? '<span class="ok">ACCEPT</span>' : '<span class="bad">REJECT</span>'} <span class="small">in ${ms} ms, in this page${exLabel ? " · bundled package: " + exLabel : ""}</span></div>
+    <div class="wrap"><table>
+      <tr><th>Groth16 pairing check</th><td>${pairing ? '<span class="ok">passes</span>' : '<span class="bad">fails</span>'} against verification key <span class="mono">${t.groth16.circuit}</span>${err ? ' · <span class="bad">' + err + '</span>' : ''}</td></tr>
+      <tr><th>Registered commitment</th><td>${bound ? '<span class="ok">matches</span>' : '<span class="bad">does not match</span>'} · proof <span class="mono">${short(Array.isArray(pub) ? pub[0] : "", 20)}</span> · registered <span class="mono">${short(registered, 20)}</span></td></tr>
+      <tr><th>Statement</th><td>${m.model.name}, <span class="mono">${t.name}</span>, rows ${g * rows}–${(g + 1) * rows - 1} of ${t.shape[1]}: for each of ${rows} rows and ${NB} blocks, s1 and s2 are ggml's Q4_K × Q8_K integer core of the private weights behind the commitment and the ${K} public activation quants</td></tr>
+      <tr><th>Coverage</th><td><span class="amber">one matmul node, integer core, ${rows} of ${t.shape[1]} rows</span>. The per-block float scales, the other rows, the other operations of the token and the sampled output are not covered by this proof.</td></tr>
+      <tr><th>Zero knowledge</th><td>Groth16 proofs reveal nothing about the private weights beyond the commitment. Proof-of-concept setup parameters (one contributor).</td></tr>
+    </table></div>`;
+  status.textContent = ""; $("run").disabled = false;
+  if (!exLabel || $("autocheck").dataset.scrolled) location.hash = "#result";
+  $("autocheck").dataset.scrolled = "1";
+}
+$("run").addEventListener("click", () => verify());
+renderModels(); fillSelects(); renderExamples();
+if ((DATA.examples || []).length) { const e = DATA.examples[0]; $("model").value = String(DATA.manifests.findIndex(m => m.manifest_id === e.manifest_id)); fillTensors(); $("tensor").value = e.tensor; fillGroups(); $("group").value = String(e.group); verify(e.proof, e.public, e.label); }
+</script>
+</body>
+</html>

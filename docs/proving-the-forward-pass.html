@@ -1,0 +1,1225 @@
+<title>Proving the Forward Pass</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --bg: #F4F6F9;
+    --surface: #FFFFFF;
+    --bench: #EDF1F6;
+    --grid: rgba(22, 32, 44, 0.06);
+    --ink: #16202C;
+    --muted: #5B6875;
+    --line: #D3DAE3;
+    --accent: #2A4DD0;
+    --accent-soft: rgba(42, 77, 208, 0.10);
+    --verify: #0B7A6E;
+    --verify-soft: rgba(11, 122, 110, 0.12);
+    --fail: #B3213A;
+    --fail-soft: rgba(179, 33, 58, 0.12);
+    --code-bg: #E7ECF2;
+    --on-accent: #FFFFFF;
+    --shadow: 0 1px 2px rgba(22, 32, 44, 0.06), 0 8px 24px rgba(22, 32, 44, 0.06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F151C;
+      --surface: #161E27;
+      --bench: #121A22;
+      --grid: rgba(230, 236, 242, 0.06);
+      --ink: #E6ECF2;
+      --muted: #93A1AF;
+      --line: #2A3540;
+      --accent: #8AA2FF;
+      --accent-soft: rgba(138, 162, 255, 0.14);
+      --verify: #3FC7B4;
+      --verify-soft: rgba(63, 199, 180, 0.14);
+      --fail: #FF6B84;
+      --fail-soft: rgba(255, 107, 132, 0.14);
+      --code-bg: #1C2631;
+      --on-accent: #0F151C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F151C;
+    --surface: #161E27;
+    --bench: #121A22;
+    --grid: rgba(230, 236, 242, 0.06);
+    --ink: #E6ECF2;
+    --muted: #93A1AF;
+    --line: #2A3540;
+    --accent: #8AA2FF;
+    --accent-soft: rgba(138, 162, 255, 0.14);
+    --verify: #3FC7B4;
+    --verify-soft: rgba(63, 199, 180, 0.14);
+    --fail: #FF6B84;
+    --fail-soft: rgba(255, 107, 132, 0.14);
+    --code-bg: #1C2631;
+    --on-accent: #0F151C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  h1, h2, h3, .display {
+    font-family: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  code, .mono, .hash, input.num, .num {
+    font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.86em; }
+  a { color: var(--accent); }
+  p { margin: 0 0 1em; }
+  button {
+    font-family: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  button.verify { background: var(--verify); border-color: var(--verify); color: var(--on-accent); }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  input[type="text"], textarea, input.num {
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+    width: 100%;
+  }
+  input.num { width: 64px; text-align: right; padding: 6px 8px; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 20px 80px; }
+  header.top { padding: 32px 0 40px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+  .eyebrow { font-family: "Bricolage Grotesque", sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  header.top h1 { font-size: clamp(38px, 6vw, 64px); line-height: 1.02; font-weight: 800; margin: 10px 0 18px; }
+  header.top .dek { font-size: 20px; max-width: 62ch; color: var(--ink); }
+  .cast { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 22px; }
+  .cast .who { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-family: "Bricolage Grotesque", sans-serif; font-size: 14px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .dot.p { background: var(--accent); }
+  .dot.v { background: var(--verify); }
+  .who span.role { color: var(--muted); }
+
+  .layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; align-items: start; }
+  nav.rail { position: sticky; top: 24px; }
+  nav.rail ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  nav.rail a { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: baseline; padding: 6px 8px; border-radius: 6px; text-decoration: none; color: var(--muted); font-family: "Bricolage Grotesque", sans-serif; font-size: 14px; line-height: 1.3; }
+  nav.rail a .n { font-family: "JetBrains Mono", monospace; font-size: 12px; }
+  nav.rail a.active { color: var(--ink); background: var(--accent-soft); }
+  nav.rail a:hover { color: var(--ink); }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; }
+    nav.rail { position: static; overflow-x: auto; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+    nav.rail ol { flex-direction: row; gap: 4px; }
+    nav.rail a { white-space: nowrap; grid-template-columns: auto auto; }
+  }
+
+  main { min-width: 0; }
+  section.step { padding: 8px 0 56px; border-bottom: 1px solid var(--line); margin-bottom: 40px; scroll-margin-top: 24px; }
+  section.step:last-of-type { border-bottom: none; }
+  section.step h2 { font-size: clamp(26px, 3.2vw, 34px); line-height: 1.12; margin: 6px 0 18px; }
+  section.step .prose { max-width: 66ch; }
+  section.step .prose p { margin-bottom: 1em; }
+  .takeaway { max-width: 66ch; margin-top: 22px; padding: 14px 18px; border-left: 3px solid var(--verify); background: var(--verify-soft); border-radius: 0 8px 8px 0; font-family: "Bricolage Grotesque", sans-serif; font-size: 16px; }
+  .takeaway strong { font-weight: 700; }
+
+  .bench {
+    margin: 22px 0;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background-color: var(--bench);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .bench .label { font-family: "Bricolage Grotesque", sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; gap: 8px; align-items: center; }
+  .bench .label::before { content: ""; width: 8px; height: 8px; background: var(--accent); border-radius: 2px; }
+  .bench .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  .bench .out { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 15px; }
+  .hash { word-break: break-all; font-size: 13px; line-height: 1.7; }
+  .hash .d { color: var(--fail); font-weight: 600; }
+  .pass { color: var(--verify); font-weight: 600; }
+  .fail { color: var(--fail); font-weight: 600; }
+  .status { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .props { list-style: none; padding: 0; margin: 18px 0; display: grid; gap: 10px; max-width: 66ch; }
+  .props li { display: grid; grid-template-columns: 150px 1fr; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .props li:last-child { border-bottom: 1px solid var(--line); }
+  .props .k { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; }
+  @media (max-width: 520px) { .props li { grid-template-columns: 1fr; gap: 4px; } }
+  figure { margin: 22px 0; }
+  figure svg { max-width: 100%; height: auto; display: block; }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 10px; max-width: 66ch; }
+  .svg-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 14px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: "Bricolage Grotesque", sans-serif; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; }
+
+  /* balls demo */
+  .balls { display: flex; gap: 18px; align-items: center; justify-content: center; padding: 14px; }
+  .ball { width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--line); background: var(--code-bg); display: grid; place-items: center; font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--muted); }
+  .ball.reveal-a { background: #E0533A; color: #fff; border-color: transparent; }
+  .ball.reveal-b { background: #3AA0E0; color: #fff; border-color: transparent; }
+  .ball.reveal-same { background: #8A6BD6; color: #fff; border-color: transparent; }
+  .tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+  .tally .cell { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .tally .cell .v { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 600; }
+  .tally .cell .k { font-size: 12px; color: var(--muted); font-family: "Bricolage Grotesque", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
+  .log { max-height: 150px; overflow-y: auto; font-size: 14px; line-height: 1.55; }
+  .log div { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+
+  /* matmul demo */
+  .mm { display: grid; grid-template-columns: auto auto auto auto; gap: 10px 18px; align-items: center; justify-content: start; font-family: "JetBrains Mono", monospace; font-size: 15px; }
+  .mat { display: grid; gap: 6px; padding: 6px 8px; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); border-radius: 6px; }
+  .mat.c2 { grid-template-columns: auto auto; }
+  .eq { font-size: 22px; color: var(--muted); }
+  .cons { display: grid; gap: 8px; margin-top: 14px; font-family: "JetBrains Mono", monospace; font-size: 14px; }
+  .cons div { padding: 8px 10px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .cons div.ok { border-color: var(--verify); background: var(--verify-soft); }
+  .cons div.bad { border-color: var(--fail); background: var(--fail-soft); }
+
+  /* quiz */
+  .q { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .q .qt { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 17px; margin-bottom: 10px; }
+  .q label { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; font-size: 15px; }
+  .q .ans { margin-top: 10px; padding: 10px 12px; border-radius: 6px; font-size: 15px; display: none; }
+  .q .ans.show { display: block; }
+  .q .ans.right { background: var(--verify-soft); border: 1px solid var(--verify); }
+  .q .ans.wrong { background: var(--fail-soft); border: 1px solid var(--fail); }
+  dl.gloss { max-width: 66ch; display: grid; grid-template-columns: 180px 1fr; gap: 10px 18px; font-size: 15px; }
+  dl.gloss dt { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; }
+  dl.gloss dd { margin: 0; }
+  @media (max-width: 520px) { dl.gloss { grid-template-columns: 1fr; gap: 2px 0; } dl.gloss dd { margin-bottom: 10px; } }
+  footer.end { margin-top: 40px; color: var(--muted); font-size: 14px; max-width: 66ch; }
+  .svgtext { font-family: "Bricolage Grotesque", sans-serif; font-size: 12px; }
+  .svgmono { font-family: "JetBrains Mono", monospace; font-size: 11px; }
+
+  /* built section */
+  .part { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-family: "Bricolage Grotesque", sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .verdict { display: inline-block; padding: 4px 10px; border-radius: 6px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 14px; }
+  .verdict.ok { background: var(--verify-soft); color: var(--verify); border: 1px solid var(--verify); }
+  .verdict.bad { background: var(--fail-soft); color: var(--fail); border: 1px solid var(--fail); }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; align-items: baseline; }
+  .kv .k { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; color: var(--muted); }
+  table.results td:nth-child(2) { white-space: nowrap; font-family: "JetBrains Mono", monospace; }
+  .lesson { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); max-width: 66ch; }
+  .lesson:last-child { border-bottom: 1px solid var(--line); }
+  .lesson .n { font-family: "JetBrains Mono", monospace; color: var(--accent); font-weight: 600; }
+</style>
+
+<div class="page">
+  <header class="top">
+    <div class="eyebrow">An interactive walkthrough in nine steps</div>
+    <h1>Proving the Forward Pass</h1>
+    <p class="dek">How a datacenter can prove it ran a specific model on a specific input and got a specific output, without showing anyone the weights, and without the inspector re-running anything. Each step has something to poke at.</p>
+    <div class="cast">
+      <div class="who"><span class="dot p"></span><strong>Alice</strong><span class="role">the prover: a lab or datacenter running inference</span></div>
+      <div class="who"><span class="dot v"></span><strong>Bob</strong><span class="role">the verifier: an inspector, auditor, or the other country</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" aria-label="Steps">
+      <ol>
+        <li><a href="#s1"><span class="n">01</span>The job</a></li>
+        <li><a href="#s2"><span class="n">02</span>Convinced without being shown</a></li>
+        <li><a href="#s3"><span class="n">03</span>Sealed envelopes</a></li>
+        <li><a href="#s4"><span class="n">04</span>Committing to 60 GB</a></li>
+        <li><a href="#s5"><span class="n">05</span>A model as equations</a></li>
+        <li><a href="#s6"><span class="n">06</span>One random number</a></li>
+        <li><a href="#s7"><span class="n">07</span>Sending Bob home</a></li>
+        <li><a href="#s8"><span class="n">08</span>The whole pipeline</a></li>
+        <li><a href="#s9"><span class="n">09</span>What it does not say</a></li>
+        <li><a href="#b1"><span class="n">10</span>What we built: receipts</a></li>
+        <li><a href="#b2"><span class="n">11</span>Drift or tamper?</a></li>
+        <li><a href="#b3"><span class="n">12</span>Results and limits</a></li>
+        <li><a href="#quiz"><span class="n">✓</span>Check yourself</a></li>
+        <li><a href="#gloss"><span class="n">≡</span>Glossary</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <!-- STEP 1 -->
+      <section class="step" id="s1">
+        <div class="eyebrow">Step 1 of 9</div>
+        <h2>The job: prove "I ran M on x and got y"</h2>
+        <div class="prose">
+          <p>Alice runs a datacenter. Bob is the inspector. Alice says: "I ran model <em>M</em> on input <em>x</em>, with random seed <em>r</em>, and the output was <em>y</em>." Bob wants to be sure. Two things make that hard.</p>
+          <p>Alice won't show Bob the weights. They're the most valuable thing she owns. And Bob can't re-run every request himself. He'd need a datacenter as big as hers, and he'd need the weights anyway.</p>
+          <p>A zero-knowledge proof is a file Alice produces that gives Bob three guarantees at once.</p>
+        </div>
+        <ul class="props">
+          <li><span class="k">Complete</span><span>If Alice is honest, Bob's check always passes.</span></li>
+          <li><span class="k">Sound</span><span>If Alice cheats, Bob's check fails, except with a probability so small it never happens in practice (about one in 2<sup>100</sup>).</span></li>
+          <li><span class="k">Zero-knowledge</span><span>Bob learns nothing beyond "the statement is true." Not the weights, not other users' inputs.</span></li>
+        </ul>
+        <div class="prose">
+          <p>Whether this is usable depends on three costs. Prover time: how much slower than plain inference. Proof size: what Alice ships to Bob. Verifier time: what Bob spends. The whole story of the last two years is those three numbers coming down.</p>
+        </div>
+        <table>
+          <thead><tr><th>Cost</th><th>Academic systems, 2025</th><th>Attestable, Aug 2026 (public post)</th></tr></thead>
+          <tbody>
+            <tr><td>Prover speed</td><td>Minutes per token on a 7B model</td><td>53 to 77 tokens per second on a 31B model, one H100</td></tr>
+            <tr><td>Proof size</td><td>Tens of MB or more</td><td>4 to 8 MiB</td></tr>
+            <tr><td>Verifier time</td><td>Seconds to minutes</td><td>0.16 to 0.65 s on a CPU, independent of model size</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><strong>Hold onto this:</strong> the proof says <em>y = F(W, x, r)</em> for a committed <em>W</em>. Everything below is about how you can check that equation without seeing <em>W</em> and without recomputing <em>F</em>.</div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step" id="s2">
+        <div class="eyebrow">Step 2 of 9</div>
+        <h2>Convinced without being shown</h2>
+        <div class="prose">
+          <p>Start with the oldest teaching example, because the real thing works the same way. Alice claims two balls are different colors. Bob can't see color. Bob hides the balls behind his back, either swaps them or doesn't, shows them again, and asks: "Did I swap?"</p>
+          <p>If the balls really differ, Alice always answers correctly. If they're identical, she's guessing, and each round she survives with a 50% chance. After twenty rounds a bluffer survives one time in a million. Bob never learns which color is which, and he ends up sure anyway.</p>
+          <p>You're Bob. Try it.</p>
+        </div>
+        <div class="bench">
+          <div class="label">Bench: the two-ball challenge</div>
+          <div class="balls" id="balls">
+            <div class="ball" id="ballL">?</div>
+            <div class="ball" id="ballR">?</div>
+          </div>
+          <div class="controls">
+            <button class="primary" id="btnNewAlice">New Alice</button>
+            <button id="btnSwap" disabled>Swap behind your back</button>
+            <button id="btnKeep" disabled>Don't swap</button>
+            <button id="btnReveal" disabled>Reveal the balls</button>
+          </div>
+          <div class="tally">
+            <div class="cell"><div class="v" id="tRounds">0</div><div class="k">rounds</div></div>
+            <div class="cell"><div class="v" id="tRight">0</div><div class="k">Alice answered right</div></div>
+            <div class="cell"><div class="v" id="tSurvive">1 in 1</div><div class="k">bluffer survives this streak</div></div>
+          </div>
+          <div class="out log" id="ballLog" style="margin-top:10px">Press <strong>New Alice</strong>. She's honest or bluffing at random, and you don't get told which.</div>
+          <div style="margin-top:14px">
+            <label for="roundsRange" class="eyebrow">Rounds: <span id="roundsN" class="mono">20</span></label>
+            <input type="range" id="roundsRange" min="1" max="128" value="20">
+            <div class="out" style="margin-top:8px">A bluffer survives all <span id="roundsN2" class="mono">20</span> rounds with probability <span class="mono">1 in <span id="roundsP">1,048,576</span></span>. Real proof systems aim for around 2<sup>100</sup>, which is why Bob can stop worrying.</div>
+          </div>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> a proof doesn't have to show you the secret. Random challenges the prover can't predict do the convincing, and confidence compounds with every round.</div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step" id="s3">
+        <div class="eyebrow">Step 3 of 9</div>
+        <h2>Sealed envelopes: hashes as commitments</h2>
+        <div class="prose">
+          <p>Challenges only work if Alice locks in her claim <em>before</em> she sees the challenge. Otherwise she adapts her story. The lock is a cryptographic hash: a function that turns any input into a fixed 256-bit fingerprint.</p>
+          <p>A hash gives two things at once. It's <strong>binding</strong>: nobody can find a second input with the same fingerprint, so Alice can't swap contents later. It's <strong>hiding</strong>: the fingerprint reveals nothing about the contents. Publish the hash now, that's the <em>commitment</em>. Reveal the contents later, that's the <em>opening</em>. Anyone can check they match.</p>
+          <p>Change one character and watch the fingerprint change completely.</p>
+        </div>
+        <div class="bench">
+          <div class="label">Bench: SHA-256, live in your browser</div>
+          <div class="grid2">
+            <div>
+              <textarea id="hashA" rows="3">layer 12 attention weights: 0.0213 -0.4471 0.8820 0.1109 ...</textarea>
+              <div class="out hash" id="hashAOut" style="margin-top:8px"></div>
+            </div>
+            <div>
+              <textarea id="hashB" rows="3">layer 12 attention weights: 0.0213 -0.4471 0.8821 0.1109 ...</textarea>
+              <div class="out hash" id="hashBOut" style="margin-top:8px"></div>
+            </div>
+          </div>
+          <div class="out" style="margin-top:10px"><span class="mono" id="hashDiff">0</span> of 64 hex digits differ. Red digits are the differences.</div>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> "commit, then get challenged, then open" is the rhythm of every proof below. The hash is what stops Alice rewriting history.</div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="step" id="s4">
+        <div class="eyebrow">Step 4 of 9</div>
+        <h2>Committing to 60 GB without revealing it: Merkle trees</h2>
+        <div class="prose">
+          <p>One hash of the whole model is a fine commitment, but opening it means revealing the whole model. Bob only ever needs to look at tiny pieces. A Merkle tree fixes this: chop the weights into chunks, hash each chunk, hash pairs of hashes, and repeat up to a single <strong>root</strong>.</p>
+          <p>The root commits to every chunk. To open one chunk, Alice reveals that chunk plus the sibling hash at each level up the tree. Bob rehashes his way to the root and compares. For a 31B model in 1 MB chunks that's about 60,000 chunks and a path of 16 hashes, half a kilobyte, to prove any one of them.</p>
+          <p>Click a chunk to see its opening path. Then tamper with one and watch the root change.</p>
+        </div>
+        <div class="bench">
+          <div class="label">Bench: an 8-chunk Merkle tree (hashes truncated to 8 hex digits)</div>
+          <div class="svg-wrap"><svg id="merkle" viewBox="0 0 760 320" role="img" aria-label="A Merkle tree with eight leaf chunks hashed pairwise up to a single root; clicking a leaf highlights its sibling hashes along the path to the root."></svg></div>
+          <div class="controls">
+            <button id="btnTamper">Tamper with the selected chunk</button>
+            <button id="btnRestore">Restore original weights</button>
+          </div>
+          <div class="out" id="merkleOut">Click a chunk.</div>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> the model's identity, for the rest of this walkthrough, is one 32-byte root. "The committed model was used" means "every chunk Alice opened hashed up to this root."</div>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="step" id="s5">
+        <div class="eyebrow">Step 5 of 9</div>
+        <h2>A model as equations</h2>
+        <div class="prose">
+          <p>A proof system can only talk about arithmetic: additions and multiplications over a <em>finite field</em>, meaning integers modulo a large prime. That sounds restrictive until you notice what a transformer's forward pass mostly is: matrix multiplies. Each output number is one equation, <code>y_i = Σ_j W_ij · x_j</code>. A whole layer is a few million of those.</p>
+          <p>Two things don't fit. Softmax, GELU, and RMSNorm aren't polynomials, so provers handle them with <strong>lookup tables</strong>: precompute the function on every allowed input, commit to the table, and prove each (input, output) pair appears in it. And floating point doesn't live in a finite field, so the matmuls are <strong>quantized to integers</strong>. Attestable uses 8-bit integers for matmuls and keeps the non-linear parts in floating point, which is where its small accuracy loss comes from.</p>
+          <p>Below, Alice claims a result for a 2×2 layer. Edit her claim and watch which constraint breaks.</p>
+        </div>
+        <div class="bench">
+          <div class="label">Bench: y = W·x as constraints</div>
+          <div class="mm">
+            <div class="mat c2">
+              <input class="num" id="w11" value="3"><input class="num" id="w12" value="-1">
+              <input class="num" id="w21" value="2"><input class="num" id="w22" value="5">
+            </div>
+            <div class="eq">·</div>
+            <div class="mat">
+              <input class="num" id="x1" value="4"><input class="num" id="x2" value="7">
+            </div>
+            <div class="eq">=</div>
+          </div>
+          <div class="controls" style="margin-top:14px">
+            <span class="eyebrow">Alice claims y =</span>
+            <div class="mat" style="display:flex; gap:8px; flex-direction:row">
+              <input class="num" id="y1" value="5"><input class="num" id="y2" value="43">
+            </div>
+            <button id="btnHonest">Recompute honestly</button>
+            <button id="btnCheat">Shave 1 off y₂</button>
+          </div>
+          <div class="cons" id="cons"></div>
+          <div class="out" style="margin-top:10px; font-size:14px">A 31B-parameter model does about 62 billion multiply-adds per token. The proof has to cover every one of them, plus every lookup. Bob won't be checking them one at a time.</div>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> "I ran the model" becomes "these tens of billions of integer equations all hold, and every non-linear step is in its table." That's a statement a proof system can handle.</div>
+      </section>
+
+      <!-- STEP 6 -->
+      <section class="step" id="s6">
+        <div class="eyebrow">Step 6 of 9</div>
+        <h2>Checking billions of equations with one random number</h2>
+        <div class="prose">
+          <p>Here's the trick that makes verification cheap. Pack a huge pile of equations into polynomials. Then use one fact from algebra: two <em>different</em> polynomials of degree <em>d</em> can agree on at most <em>d</em> points. Over a field with 2<sup>61</sup> elements, if Bob picks a random point and the two sides agree there, a cheat slipped through with probability at most <em>d</em> / 2<sup>61</sup>.</p>
+          <p>So Bob doesn't check the equations. He asks Alice to commit to her polynomials (Merkle roots again), picks a random point, asks her to open the values at that point (Merkle paths again), and checks the relation holds at just that point. Modern systems layer this idea into the <em>sum-check</em> protocol and FRI-style low-degree tests, but the core is right here.</p>
+          <p>Try it in a toy field of 101 elements. Alice's fake polynomial has been crafted to agree with the honest one at three points, the most a degree-3 difference allows.</p>
+        </div>
+        <div class="bench">
+          <div class="label">Bench: random spot-check, mod 101</div>
+          <div class="out mono" style="font-size:14px">
+            honest&nbsp; P(x) = x³ + 2x + 7<br>
+            cheat&nbsp;&nbsp; Q(x) = P(x) + (x−3)(x−58)(x−90) &nbsp;<span style="color:var(--muted)">agrees with P only at x = 3, 58, 90</span>
+          </div>
+          <div class="controls">
+            <button class="verify" id="btnPick">Bob picks a random point</button>
+            <button id="btnPick50">Pick 50 points</button>
+            <button id="btnPolyReset">Reset</button>
+          </div>
+          <div class="tally">
+            <div class="cell"><div class="v" id="pTrials">0</div><div class="k">points checked</div></div>
+            <div class="cell"><div class="v" id="pCaught">0</div><div class="k">cheat caught</div></div>
+            <div class="cell"><div class="v" id="pRate">–</div><div class="k">catch rate (theory ≥ 97%)</div></div>
+          </div>
+          <div class="out log" id="polyLog" style="margin-top:10px">Waiting for Bob.</div>
+          <div class="out" style="margin-top:10px; font-size:14px">Same check in a real field of 2<sup>61</sup> elements with degree in the millions: a cheat survives one random point with probability under 10<sup>-12</sup>. Repeat a few times and it's gone.</div>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> verification cost stops depending on the size of the computation. Bob checks a handful of random points and a handful of Merkle paths, whether the model has 1B or 100B parameters.</div>
+      </section>
+
+      <!-- STEP 7 -->
+      <section class="step" id="s7">
+        <div class="eyebrow">Step 7 of 9</div>
+        <h2>Sending Bob home: Fiat-Shamir</h2>
+        <div class="prose">
+          <p>Everything so far needs Bob in the room, picking random points after each commitment. That's useless for a proof you want to file and check next year. The <strong>Fiat-Shamir</strong> transform removes him: Alice computes each "random" challenge as the hash of everything she has committed so far.</p>
+          <p>She can't steer that hash. Changing any commitment to get a friendlier challenge changes the hash, which changes the challenge. The result is a single file Alice can produce alone that anyone can verify later, and the verifier just recomputes the same hashes to confirm the challenges were derived honestly.</p>
+          <p>The price is an assumption: the hash has to behave like a truly random function. That is the assumption Yogi named as the one his team trusts least, and why he mentioned falling back to an interactive protocol if needed.</p>
+        </div>
+        <figure>
+          <div class="svg-wrap">
+          <svg viewBox="0 0 760 250" role="img" aria-label="Left: an interactive proof where Bob sends random challenges after each of Alice's commitments. Right: the Fiat-Shamir version where each challenge is the hash of the transcript so far, so Alice produces the whole proof alone.">
+            <defs>
+              <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+            </defs>
+            <g fill="currentColor" class="svgtext">
+              <text x="20" y="22" font-weight="700">Interactive</text>
+              <text x="400" y="22" font-weight="700">Fiat-Shamir (non-interactive)</text>
+            </g>
+            <!-- interactive -->
+            <rect x="20" y="40" width="110" height="34" rx="6" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="75" y="62" text-anchor="middle" class="svgtext" fill="currentColor">Alice</text>
+            <rect x="230" y="40" width="110" height="34" rx="6" fill="none" stroke="var(--verify)" stroke-width="1.5"/>
+            <text x="285" y="62" text-anchor="middle" class="svgtext" fill="currentColor">Bob</text>
+            <line x1="75" y1="80" x2="75" y2="235" stroke="currentColor" stroke-dasharray="3 4"/>
+            <line x1="285" y1="80" x2="285" y2="235" stroke="currentColor" stroke-dasharray="3 4"/>
+            <line x1="80" y1="100" x2="278" y2="100" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="180" y="94" text-anchor="middle" class="svgmono" fill="currentColor">commit C1</text>
+            <line x1="280" y1="130" x2="82" y2="130" stroke="var(--verify)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="180" y="124" text-anchor="middle" class="svgmono" fill="currentColor">random r1</text>
+            <line x1="80" y1="160" x2="278" y2="160" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="180" y="154" text-anchor="middle" class="svgmono" fill="currentColor">open at r1, commit C2</text>
+            <line x1="280" y1="190" x2="82" y2="190" stroke="var(--verify)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="180" y="184" text-anchor="middle" class="svgmono" fill="currentColor">random r2</text>
+            <line x1="80" y1="220" x2="278" y2="220" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="180" y="214" text-anchor="middle" class="svgmono" fill="currentColor">open at r2 …</text>
+            <!-- fiat-shamir -->
+            <rect x="400" y="40" width="110" height="34" rx="6" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="455" y="62" text-anchor="middle" class="svgtext" fill="currentColor">Alice, alone</text>
+            <rect x="590" y="40" width="150" height="34" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="665" y="62" text-anchor="middle" class="svgtext" fill="currentColor">hash H(·)</text>
+            <line x1="455" y1="80" x2="455" y2="235" stroke="currentColor" stroke-dasharray="3 4"/>
+            <line x1="665" y1="80" x2="665" y2="235" stroke="currentColor" stroke-dasharray="3 4"/>
+            <line x1="460" y1="100" x2="658" y2="100" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="560" y="94" text-anchor="middle" class="svgmono" fill="currentColor">C1</text>
+            <line x1="660" y1="130" x2="462" y2="130" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="560" y="124" text-anchor="middle" class="svgmono" fill="currentColor">r1 = H(C1)</text>
+            <line x1="460" y1="160" x2="658" y2="160" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="560" y="154" text-anchor="middle" class="svgmono" fill="currentColor">opening, C2</text>
+            <line x1="660" y1="190" x2="462" y2="190" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+            <text x="560" y="184" text-anchor="middle" class="svgmono" fill="currentColor">r2 = H(C1, r1, C2)</text>
+            <rect x="400" y="208" width="340" height="28" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1"/>
+            <text x="570" y="226" text-anchor="middle" class="svgmono" fill="currentColor">proof file = all commitments + openings; Bob recomputes H</text>
+          </svg>
+          </div>
+          <figcaption>Left: Bob supplies fresh randomness after each commitment. Right: the randomness is the hash of the transcript so far, so Alice runs the whole exchange herself and ships the result.</figcaption>
+        </figure>
+        <div class="takeaway"><strong>Takeaway:</strong> a "proof" in this field is a file, checkable by anyone, any time. The file's security rests on hash functions behaving randomly, which is also why it's post-quantum and needs no trusted setup.</div>
+      </section>
+
+      <!-- STEP 8 -->
+      <section class="step" id="s8">
+        <div class="eyebrow">Step 8 of 9</div>
+        <h2>The whole pipeline for one forward pass</h2>
+        <div class="prose">
+          <p>Now assemble the pieces. This is roughly what a hash-based, STARK-style prover for LLM inference does.</p>
+        </div>
+        <figure>
+          <div class="svg-wrap">
+          <svg viewBox="0 0 760 300" role="img" aria-label="Pipeline: Alice commits weights to a Merkle root, runs inference on GPU keeping the layer-by-layer trace, commits the trace, proves each layer's constraints with Fiat-Shamir challenges, binds input, output and seed, and emits a proof of a few megabytes; Bob verifies in under a second using the root, the proof, and the public input and output.">
+            <defs>
+              <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+            </defs>
+            <text x="20" y="22" class="svgtext" font-weight="700" fill="var(--accent)">Alice (prover, on GPU)</text>
+            <text x="560" y="22" class="svgtext" font-weight="700" fill="var(--verify)">Bob (verifier, on CPU)</text>
+            <!-- boxes row 1 -->
+            <rect x="20" y="40" width="150" height="54" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="95" y="60" text-anchor="middle" class="svgtext" fill="currentColor">1. Commit weights</text>
+            <text x="95" y="78" text-anchor="middle" class="svgmono" fill="currentColor">root(W), once</text>
+            <rect x="200" y="40" width="150" height="54" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="275" y="60" text-anchor="middle" class="svgtext" fill="currentColor">2. Run inference</text>
+            <text x="275" y="78" text-anchor="middle" class="svgmono" fill="currentColor">keep every layer's trace</text>
+            <rect x="380" y="40" width="150" height="54" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="455" y="60" text-anchor="middle" class="svgtext" fill="currentColor">3. Commit trace</text>
+            <text x="455" y="78" text-anchor="middle" class="svgmono" fill="currentColor">Merkle roots</text>
+            <line x1="170" y1="67" x2="198" y2="67" stroke="currentColor" marker-end="url(#ar2)"/>
+            <line x1="350" y1="67" x2="378" y2="67" stroke="currentColor" marker-end="url(#ar2)"/>
+            <!-- down -->
+            <line x1="455" y1="94" x2="455" y2="122" stroke="currentColor" marker-end="url(#ar2)"/>
+            <!-- row 2 -->
+            <rect x="200" y="124" width="330" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="365" y="144" text-anchor="middle" class="svgtext" fill="currentColor">4. Prove every layer's constraints</text>
+            <text x="365" y="162" text-anchor="middle" class="svgmono" fill="currentColor">matmuls: polynomial checks at random points</text>
+            <text x="365" y="180" text-anchor="middle" class="svgmono" fill="currentColor">softmax, GELU, norm: lookup tables · challenges = H(transcript)</text>
+            <line x1="365" y1="194" x2="365" y2="222" stroke="currentColor" marker-end="url(#ar2)"/>
+            <!-- row 3 -->
+            <rect x="200" y="224" width="330" height="54" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="365" y="244" text-anchor="middle" class="svgtext" fill="currentColor">5. Proof file, 4 to 8 MiB</text>
+            <text x="365" y="262" text-anchor="middle" class="svgmono" fill="currentColor">binds root(W), x, y, seed r, sampling policy</text>
+            <!-- to Bob -->
+            <line x1="530" y1="251" x2="578" y2="251" stroke="currentColor" marker-end="url(#ar2)"/>
+            <text x="554" y="243" text-anchor="middle" class="svgmono" fill="currentColor">ship</text>
+            <rect x="580" y="124" width="160" height="154" rx="6" fill="var(--surface)" stroke="var(--verify)" stroke-width="1.5"/>
+            <text x="660" y="146" text-anchor="middle" class="svgtext" fill="currentColor">6. Verify</text>
+            <text x="660" y="168" text-anchor="middle" class="svgmono" fill="currentColor">has: root(W), x, y, r</text>
+            <text x="660" y="186" text-anchor="middle" class="svgmono" fill="currentColor">recompute challenges</text>
+            <text x="660" y="204" text-anchor="middle" class="svgmono" fill="currentColor">check Merkle paths</text>
+            <text x="660" y="222" text-anchor="middle" class="svgmono" fill="currentColor">check spot values</text>
+            <text x="660" y="246" text-anchor="middle" class="svgtext" fill="var(--verify)" font-weight="700">0.16 to 0.65 s</text>
+            <text x="660" y="264" text-anchor="middle" class="svgmono" fill="currentColor">never sees W, never reruns F</text>
+          </svg>
+          </div>
+          <figcaption>Alice's work is proportional to the model; Bob's is not. The weights never leave step 1, and the root is the only thing about them that Bob ever holds.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Three things explain why it took until 2026 to be usable. Proving used to be thousands of times slower than inference, so the systems that matter are the ones that run the prover on the same GPUs as the model. Lookup arguments got cheap enough to cover the non-linear layers. And hash-based (STARK-style) proofs, with no trusted setup and no elliptic curves, turned out to parallelize well on GPUs.</p>
+        </div>
+        <table>
+          <thead><tr><th>Attestable's public figures (Gemma 4 31B, one H100)</th><th class="num">Value</th></tr></thead>
+          <tbody>
+            <tr><td>Proving throughput, batch 1, 16K context</td><td class="num">53 tokens/s</td></tr>
+            <tr><td>Proving throughput, batch 4, 4K context</td><td class="num">77 tokens/s</td></tr>
+            <tr><td>Proof size</td><td class="num">4.35 to 7.92 MiB</td></tr>
+            <tr><td>Verification on CPU</td><td class="num">157 to 648 ms</td></tr>
+            <tr><td>Security level</td><td class="num">100 bits, hash-based</td></tr>
+            <tr><td>Stated limits</td><td class="num">16K context; int8 matmuls; some accuracy loss</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><strong>Takeaway:</strong> what he says in the group ("implementations for 70B dense and 120B-A5B", "verify sub-second") is this pipeline, pushed to bigger models than the public post shows.</div>
+      </section>
+
+      <!-- STEP 9 -->
+      <section class="step" id="s9">
+        <div class="eyebrow">Step 9 of 9</div>
+        <h2>What the proof does not say</h2>
+        <div class="prose">
+          <p>The proof establishes exactly one sentence: <em>this committed model, on this input, with this seed, produced this output</em>. It's a proof of <strong>correctness</strong> for a declared workload. It says nothing about what else the GPUs did that hour. A datacenter can produce perfect proofs for its public inference and run a training job on the side.</p>
+          <p>That missing half is called <strong>completeness</strong>, and it's the gap the whole group argues about. The proposals fall into three families, and they stack.</p>
+        </div>
+        <figure>
+          <div class="svg-wrap">
+          <svg viewBox="0 0 760 250" role="img" aria-label="A datacenter box containing the declared inference workload, covered by ZK proofs, and a shaded remainder of unaccounted capacity; three approaches point at the remainder: resource exhaustion fills it, network taps log what leaves, compartmentalization makes training across pods impossible.">
+            <defs>
+              <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="currentColor" stroke-width="1" opacity="0.35"/></pattern>
+              <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+            </defs>
+            <rect x="20" y="30" width="400" height="190" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="32" y="52" class="svgtext" font-weight="700" fill="currentColor">Alice's datacenter, one hour of GPU time</text>
+            <rect x="32" y="66" width="250" height="140" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="157" y="92" text-anchor="middle" class="svgtext" fill="currentColor" font-weight="700">declared inference</text>
+            <text x="157" y="112" text-anchor="middle" class="svgmono" fill="currentColor">every output has a ZK proof</text>
+            <text x="157" y="130" text-anchor="middle" class="svgmono" fill="currentColor">correctness: proven</text>
+            <text x="157" y="180" text-anchor="middle" class="svgmono" fill="currentColor">~80 to 90% of capacity</text>
+            <rect x="294" y="66" width="114" height="140" rx="6" fill="url(#hatch)" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="351" y="92" text-anchor="middle" class="svgtext" fill="currentColor" font-weight="700">everything else</text>
+            <text x="351" y="112" text-anchor="middle" class="svgmono" fill="currentColor">idle? training?</text>
+            <text x="351" y="130" text-anchor="middle" class="svgmono" fill="currentColor">the proof is silent</text>
+            <!-- approaches -->
+            <g class="svgtext" fill="currentColor">
+              <rect x="470" y="40" width="270" height="44" rx="6" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"/>
+              <text x="482" y="58" font-weight="700">Resource exhaustion</text>
+              <text x="482" y="75" class="svgmono">fill the idle capacity with provable dummy work</text>
+              <rect x="470" y="102" width="270" height="44" rx="6" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"/>
+              <text x="482" y="120" font-weight="700">Network taps</text>
+              <text x="482" y="137" class="svgmono">log every byte leaving the pods, recompute samples</text>
+              <rect x="470" y="164" width="270" height="44" rx="6" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"/>
+              <text x="482" y="182" font-weight="700">Compartmentalization</text>
+              <text x="482" y="199" class="svgmono">tiny bandwidth between pods, so training can't span them</text>
+            </g>
+            <line x1="468" y1="62" x2="412" y2="90" stroke="currentColor" marker-end="url(#ar3)"/>
+            <line x1="468" y1="124" x2="412" y2="124" stroke="currentColor" marker-end="url(#ar3)"/>
+            <line x1="468" y1="186" x2="412" y2="160" stroke="currentColor" marker-end="url(#ar3)"/>
+            <text x="380" y="238" text-anchor="middle" class="svgmono" fill="currentColor">ZK covers the blue box. The other three aim at the hatched one.</text>
+          </svg>
+          </div>
+          <figcaption>Correctness versus completeness. The "software-only phase 1" idea from the group is the blue box plus resource exhaustion; taps and compartmentalization are the hardware-heavier alternatives for the same hatched region.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Two more limits to keep in mind. The proof binds to a <em>committed</em> model, so someone still has to check that root(W) is the model everyone agreed on, which is a governance problem. And the proof is only as trustworthy as its implementation, which is why Attestable's Lean proof of soundness, and the argument about publishing the prover code, matter as much as the benchmarks.</p>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> ZK proofs are the one component in the stack that gives a mathematical guarantee with no trusted hardware. They answer "was this output computed correctly?" They do not answer "was that all you computed?"</div>
+      </section>
+
+      <!-- BUILT 1 -->
+      <section class="step" id="b1">
+        <div class="part">Built on Sep 10, 2026 · part 1 of 3</div>
+        <h2>What we built: receipts and a recompute verifier</h2>
+        <div class="prose">
+          <p>The nine steps above are the ZK path. What exists in code today is the rung below it: every answer from llama.cpp comes with a signed <strong>receipt</strong>, and a second machine holding the same model file <strong>recomputes</strong> the answer and compares. No proof, no cryptographic circuit. Just commitments, a replayable sampler, and a careful comparison.</p>
+          <p>The honest limit, stated up front: <strong>the verifier needs the weights.</strong> It re-runs the model. That covers open-weight models served by providers, a lab auditing its own inference, and an auditor trusted with weights. It does not cover a closed frontier model whose owner won't share them. That case is what the ZK path is for.</p>
+        </div>
+        <figure>
+          <div class="svg-wrap">
+          <svg viewBox="0 0 760 290" role="img" aria-label="Prover runs llama.cpp and emits a signed receipt listing model hashes, tokens, sampler settings, per-position draws and logits hashes; the verifier, holding the same GGUF file, replays the tokens, re-runs the seeded sampler and issues a verdict.">
+            <defs>
+              <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+            </defs>
+            <rect x="20" y="30" width="190" height="120" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="115" y="52" text-anchor="middle" class="svgtext" font-weight="700" fill="currentColor">Prover</text>
+            <text x="115" y="72" text-anchor="middle" class="svgmono" fill="currentColor">llama.cpp on Metal</text>
+            <text x="115" y="90" text-anchor="middle" class="svgmono" fill="currentColor">Q4_K_M GGUF, int8 dot products</text>
+            <text x="115" y="108" text-anchor="middle" class="svgmono" fill="currentColor">our sampler: u_t = H(seed, t)</text>
+            <text x="115" y="126" text-anchor="middle" class="svgmono" fill="currentColor">signs with ed25519</text>
+            <line x1="210" y1="90" x2="268" y2="90" stroke="currentColor" marker-end="url(#ar4)"/>
+            <text x="239" y="82" text-anchor="middle" class="svgmono" fill="currentColor">emits</text>
+            <rect x="270" y="20" width="220" height="250" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="380" y="42" text-anchor="middle" class="svgtext" font-weight="700" fill="currentColor">Receipt (signed JSON)</text>
+            <g class="svgmono" fill="currentColor">
+              <text x="284" y="66">model: file sha256, tensor Merkle root</text>
+              <text x="284" y="84">engine: build, backend, threads</text>
+              <text x="284" y="102">prompt tokens, response tokens</text>
+              <text x="284" y="120">sampler: T, top-k, top-p, seed</text>
+              <text x="284" y="138">per position:</text>
+              <text x="298" y="156">token, log-prob, draw u</text>
+              <text x="298" y="174">distance of u to nearest CDF edge</text>
+              <text x="298" y="192">sha256(logits)</text>
+              <text x="298" y="210">top-10 candidates</text>
+              <text x="284" y="234">tokens sha256</text>
+              <text x="284" y="252">signature: ed25519 over all of it</text>
+            </g>
+            <line x1="490" y1="90" x2="548" y2="90" stroke="currentColor" marker-end="url(#ar4)"/>
+            <text x="519" y="82" text-anchor="middle" class="svgmono" fill="currentColor">ships</text>
+            <rect x="550" y="30" width="190" height="240" rx="6" fill="var(--surface)" stroke="var(--verify)" stroke-width="1.5"/>
+            <text x="645" y="52" text-anchor="middle" class="svgtext" font-weight="700" fill="currentColor">Verifier</text>
+            <text x="645" y="72" text-anchor="middle" class="svgmono" fill="var(--fail)" font-weight="600">holds the same GGUF</text>
+            <g class="svgmono" fill="currentColor">
+              <text x="562" y="98">1. check signature</text>
+              <text x="562" y="116">2. check structure</text>
+              <text x="562" y="134">3. hash the model file</text>
+              <text x="562" y="152">4. feed claimed tokens</text>
+              <text x="562" y="170">5. re-run seeded sampler</text>
+              <text x="562" y="188">   at every position</text>
+              <text x="562" y="206">6. compare tokens, logits</text>
+              <text x="562" y="224">   hashes, draw gaps</text>
+            </g>
+            <rect x="562" y="238" width="166" height="22" rx="4" fill="var(--verify-soft)" stroke="var(--verify)" stroke-width="1"/>
+            <text x="645" y="253" text-anchor="middle" class="svgtext" fill="currentColor" font-weight="700">verdict + reason</text>
+          </svg>
+          </div>
+          <figcaption>The weights never leave the prover in the ZK path. Here they have to be on both sides. The receipt's Merkle root over tensors is there so a later rung can open single rows instead of shipping the whole file.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Two design choices carry the whole thing. The sampler is <strong>replayable by construction</strong>: the uniform draw at position <em>t</em> is a hash of the seed and <em>t</em>, ties break by token id, and truncation happens in float64, so any machine reproduces the exact draw with no RNG state. And the verifier records the <strong>logits hash</strong> at every position, which tells it whether it's looking at bit-identical arithmetic or a different backend. That distinction turned out to matter more than anything else.</p>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> this rung answers "did this model, with these settings, produce these tokens?" for anyone who can hold the model. Receipts with re-run checks exist elsewhere (INVAR for Ollama, EigenAI, CommitLLM), and tolerant replay exists (Token-DiFR, Rinberg et al.). What's new here is the combination: logits hashes in the receipt choosing a strict or tolerant rule, and hash-derived draws that make the gap exact. It's also the base the openings and proof rungs plug into.</div>
+      </section>
+
+      <!-- BUILT 2 -->
+      <section class="step" id="b2">
+        <div class="part">Built on Sep 10, 2026 · part 2 of 3</div>
+        <h2>Drift or tamper? The draw gap</h2>
+        <div class="prose">
+          <p>The first version of the verifier counted token matches and log-prob differences, and it got fooled in both directions. Honest cross-backend replays failed (Metal and CPU disagree on Q4_K_M arithmetic), and a wrong-seed forgery passed on peaked prompts (same model, same logits, log-prob difference exactly zero).</p>
+          <p>The fix is one number per mismatch. Under the verifier's distribution, every token owns a slice of the unit interval. The receipt says which draw <em>u</em> was used and which token was picked. If <em>u</em> falls inside the claimed token's slice, the replay agrees. If it falls just outside, the boundary moved a little: backend drift. If it falls far away, the prover's distribution or its draw was something else: tamper. That distance is the <strong>draw gap</strong>.</p>
+          <p>Below, five candidate tokens and one draw. Push the backend-drift slider and watch the slices shift a little. Then try the attacks.</p>
+        </div>
+        <div class="bench">
+          <div class="label">Bench: one position, five candidates, T = 0.7, top-k = 4</div>
+          <div class="svg-wrap"><svg id="gapSvg" viewBox="0 0 760 150" role="img" aria-label="A stacked bar showing each candidate token's probability slice under the verifier's distribution, a marker for the uniform draw u, and the claimed token outlined; the gap between u and the claimed slice is drawn as a red bracket."></svg></div>
+          <div class="controls">
+            <button id="gapHonest">Honest, same backend</button>
+            <button id="gapDrift">Honest, other backend</button>
+            <button id="gapSeed">Attack: wrong seed</button>
+            <button id="gapTemp">Attack: hotter temperature</button>
+            <button id="gapQuant">Attack: cheaper model</button>
+          </div>
+          <div style="margin:10px 0 6px">
+            <label for="gapSigma" class="eyebrow">Backend drift on the logits: <span id="gapSigmaV" class="mono">0.00</span></label>
+            <input type="range" id="gapSigma" min="0" max="150" value="0">
+          </div>
+          <div class="out">
+            <div class="kv">
+              <span class="k">claimed token</span><span id="gapClaimed" class="mono"></span>
+              <span class="k">replayed token</span><span id="gapReplayed" class="mono"></span>
+              <span class="k">draw u</span><span id="gapU" class="mono"></span>
+              <span class="k">draw gap</span><span id="gapGap" class="mono"></span>
+              <span class="k">regime</span><span id="gapRegime"></span>
+              <span class="k">verdict</span><span id="gapVerdict"></span>
+            </div>
+          </div>
+          <div class="out" style="margin-top:10px; font-size:14px">The real verifier applies this at every position. Same backend: logits hashes all match, so any mismatch at all is rejected. Different backend: it accepts if the largest gap stays under 0.45 and the mean gap over all positions stays under 0.03, numbers calibrated on the honest runs in part 3.</div>
+        </div>
+        <div class="takeaway"><strong>Takeaway:</strong> hashes of the logits tell you whether the arithmetic was identical. Only replaying the seeded sampler tells you whether the sampling was honest, and the draw gap is what separates a moved boundary from a moved draw.</div>
+      </section>
+
+      <!-- BUILT 3 -->
+      <section class="step" id="b3">
+        <div class="part">Built on Sep 10, 2026 · part 3 of 3</div>
+        <h2>Results and limits</h2>
+        <div class="prose">
+          <p>Twelve cases, eight prompts each, 48 tokens per prompt, on Qwen2.5 1.5B at Q4_K_M with an Apple M5. Four honest cases and eight attacks. Every receipt and verification report is saved so the run can be re-scored without regenerating anything.</p>
+        </div>
+        <table class="results">
+          <thead><tr><th>Case</th><th>Correct</th><th>What the numbers show</th></tr></thead>
+          <tbody>
+            <tr><td>H1 same backend, token-by-token replay</td><td>8/8</td><td>bit-exact: every logits hash matches, log-prob differences around 10<sup>-7</sup></td></tr>
+            <tr><td>H2 same backend, batched replay</td><td>8/8</td><td>same tokens, different logits; prefill kernels differ from decode kernels</td></tr>
+            <tr><td>H3 Metal prove, CPU verify</td><td>8/8</td><td>real drift: token match 0.79 to 0.98, single-position gaps up to 0.43</td></tr>
+            <tr><td>H4 CPU 8 threads prove, 4 threads verify</td><td>8/8</td><td>bit-exact; thread count doesn't matter</td></tr>
+            <tr><td>A1 cheaper quant (Q2_K) served, claims Q4_K_M</td><td>8/8</td><td>78 claimed tokens outside the sampler's support</td></tr>
+            <tr><td>A2 different model served (phi3), claims Qwen</td><td>8/8</td><td>caught on the first tokens</td></tr>
+            <tr><td>A3 hidden system prompt</td><td>7/8</td><td>one mild case overlaps honest cross-backend drift at 48 tokens</td></tr>
+            <tr><td>A4 ran at T = 1.3, claims 0.7</td><td>8/8</td><td>logits bit-identical, sampler disagrees; 38 truncated claims</td></tr>
+            <tr><td>A5 ran greedy, claims seeded 0.7</td><td>8/8</td><td>logits bit-identical, sampler disagrees</td></tr>
+            <tr><td>A6 ran seed 1234, claims 999</td><td>8/8</td><td>log-prob gap exactly zero; caught only by the draw gap</td></tr>
+            <tr><td>A7 token edited, not re-signed</td><td>8/8</td><td>signature</td></tr>
+            <tr><td>A8 token edited, re-signed with a stolen key</td><td>8/8</td><td>the edit cascades into out-of-support claims</td></tr>
+          </tbody>
+        </table>
+        <div class="prose"><p>95 of 96 verdicts correct. Three lessons came out of the data rather than the plan.</p></div>
+        <div class="lesson"><span class="n">1</span><span><strong>Same-backend replay is bit-exact.</strong> Across runs and thread counts, the logits hash matches at every position. So the verifier has two regimes: when hashes all match, any mismatch is tamper; when they don't, small gaps are drift.</span></div>
+        <div class="lesson"><span class="n">2</span><span><strong>Logit hashes say nothing about the sampler.</strong> Temperature, greedy, and seed tampering all leave the logits bit-identical. Replaying the seeded sampler is the only thing that catches them.</span></div>
+        <div class="lesson"><span class="n">3</span><span><strong>Cross-backend drift on quantized models is large.</strong> Metal against CPU on Q4_K_M moved single draws by 0.43 of the unit interval. The drift thresholds are fitted to eight prompts and the margin is thin. Verify on the same backend when you can; when you can't, use longer sequences so systematic shifts separate from symmetric noise.</span></div>
+        <div class="prose" style="margin-top:22px">
+          <p>What it does not do, in one table.</p>
+        </div>
+        <table>
+          <thead><tr><th>Setting</th><th>Does this rung work?</th></tr></thead>
+          <tbody>
+            <tr><td>Open-weight model served by a provider</td><td>Yes, anyone can verify</td></tr>
+            <tr><td>A lab auditing its own inference, or an auditor it trusts with weights</td><td>Yes</td></tr>
+            <tr><td>A third-country auditor holding weights in escrow</td><td>Yes, if the parties accept that</td></tr>
+            <tr><td>A closed frontier model, verifier never sees weights</td><td>No. That's steps 1 to 9.</td></tr>
+          </tbody>
+        </table>
+        <div class="takeaway"><strong>Where this goes next:</strong> the next rung commits every layer's activations into a Merkle tree during the forward pass and lets the verifier open a few random rows, which cuts what it needs from "the whole model" to "a few rows of it." The rung after that removes the weights from the verifier entirely, and that is the ZK prover from the first nine steps.</div>
+      </section>
+
+      <!-- QUIZ -->
+      <section class="step" id="quiz">
+        <div class="eyebrow">Check yourself</div>
+        <h2>Four questions</h2>
+        <div class="q" data-correct="b">
+          <div class="qt">1. After verifying a proof, what does Bob know about the weights?</div>
+          <label><input type="radio" name="q1" value="a"> Their full values, since the proof had to include them.</label>
+          <label><input type="radio" name="q1" value="b"> Only that they hash to the agreed root. Nothing else.</label>
+          <label><input type="radio" name="q1" value="c"> A random sample of chunks, which is enough to reconstruct them.</label>
+          <div class="ans"></div>
+        </div>
+        <div class="q" data-correct="c">
+          <div class="qt">2. Every proof from Alice's datacenter verifies. What can Bob conclude?</div>
+          <label><input type="radio" name="q2" value="a"> The datacenter ran only inference that hour.</label>
+          <label><input type="radio" name="q2" value="b"> No training happened anywhere in the facility.</label>
+          <label><input type="radio" name="q2" value="c"> Each declared output was computed correctly from the committed model. Nothing about undeclared work.</label>
+          <div class="ans"></div>
+        </div>
+        <div class="q" data-correct="a">
+          <div class="qt">3. Why are the matrix multiplies quantized to integers?</div>
+          <label><input type="radio" name="q3" value="a"> Proof systems work over finite fields, where floating point doesn't exist.</label>
+          <label><input type="radio" name="q3" value="b"> Integers are faster on H100s, so it's a performance choice.</label>
+          <label><input type="radio" name="q3" value="c"> Bob can't verify floating point rounding on a CPU.</label>
+          <div class="ans"></div>
+        </div>
+        <div class="q" data-correct="b">
+          <div class="qt">4. What does Fiat-Shamir replace?</div>
+          <label><input type="radio" name="q4" value="a"> The Merkle tree, with a single hash of the whole model.</label>
+          <label><input type="radio" name="q4" value="b"> Bob's live random challenges, with hashes of the transcript so far.</label>
+          <label><input type="radio" name="q4" value="c"> The GPU prover, with a CPU prover.</label>
+          <div class="ans"></div>
+        </div>
+        <div class="controls"><button class="primary" id="btnGrade">Check answers</button> <span class="status" id="gradeOut"></span></div>
+      </section>
+
+      <!-- GLOSSARY -->
+      <section class="step" id="gloss">
+        <div class="eyebrow">Glossary</div>
+        <h2>Words you'll meet in the group</h2>
+        <dl class="gloss">
+          <dt>ZKP</dt><dd>Zero-knowledge proof. Proves a statement is true without revealing why.</dd>
+          <dt>Prover / verifier</dt><dd>Alice and Bob. The datacenter and whoever is checking it.</dd>
+          <dt>Soundness</dt><dd>A false statement can't get an accepting proof, except with negligible probability. Attestable proved this property of their protocol in Lean.</dd>
+          <dt>Commitment</dt><dd>A hash published before a challenge, so the contents can't change afterwards.</dd>
+          <dt>Merkle root</dt><dd>The single hash at the top of a tree of hashes. Commits to a huge dataset; any piece can be opened with a short path.</dd>
+          <dt>Finite field</dt><dd>Integers modulo a large prime. The arithmetic every proof system speaks.</dd>
+          <dt>Arithmetization</dt><dd>Turning a computation into equations over a field.</dd>
+          <dt>Lookup argument</dt><dd>A way to prove a value is in a pre-committed table. How softmax and GELU get proven.</dd>
+          <dt>Sum-check</dt><dd>A protocol for proving a giant sum is correct by checking polynomials at random points.</dd>
+          <dt>STARK</dt><dd>A hash-based proof system. No trusted setup, post-quantum, GPU-friendly. Attestable's is in this family.</dd>
+          <dt>Fiat-Shamir</dt><dd>Turning an interactive protocol into a standalone proof by deriving challenges from hashes.</dd>
+          <dt>Correctness vs completeness</dt><dd>"The declared work was done right" vs "nothing else was done." ZK gives the first. Exhaustion, taps, and compartmentalization go after the second.</dd>
+          <dt>Resource exhaustion</dt><dd>Filling idle GPU capacity with provable dummy work so no room is left for covert training.</dd>
+          <dt>Recomputation (DiFR, TOPLOC)</dt><dd>The non-ZK alternative: the verifier re-runs a random sample of requests on trusted hardware and compares. Needs the weights or a trusted copy.</dd>
+        </dl>
+        <footer class="end">Figures for Attestable come from its public post "Proving LLMs at Scale" (Aug 2026) and Yogi Bar-On's messages in the group. Academic comparison points are ZKTorch (Llama-2-7B) and zkPyTorch (Llama-3 8B), 2025. The two-ball example is the standard colour-blind-friend illustration of interactive proofs.</footer>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const enc = new TextEncoder();
+  async function sha256Hex(str) {
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  /* ---------- rail highlighting ---------- */
+  const links = Array.from(document.querySelectorAll("nav.rail a"));
+  const sections = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id));
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+    sections.forEach(s => io.observe(s));
+  }
+  links[0].classList.add("active");
+
+  /* ---------- step 2: two balls ---------- */
+  let honest = null, rounds = 0, right = 0, alive = true;
+  const log = $("ballLog");
+  function addLog(html, cls) {
+    const d = document.createElement("div");
+    d.innerHTML = html;
+    if (cls) d.className = cls;
+    log.prepend(d);
+  }
+  function setTally() {
+    $("tRounds").textContent = rounds;
+    $("tRight").textContent = right;
+    const p = (1n << BigInt(right)).toLocaleString("en-US");
+    $("tSurvive").textContent = "1 in " + p;
+  }
+  function resetBalls() {
+    honest = Math.random() < 0.5;
+    rounds = 0; right = 0; alive = true;
+    $("ballL").className = "ball"; $("ballR").className = "ball";
+    $("ballL").textContent = "?"; $("ballR").textContent = "?";
+    log.innerHTML = "";
+    addLog("A new Alice steps up and claims: <strong>\"These two balls are different colours.\"</strong> You can't see colour. Swap or don't, then see if she can tell.");
+    setTally();
+    $("btnSwap").disabled = false; $("btnKeep").disabled = false; $("btnReveal").disabled = false;
+  }
+  function playRound(swapped) {
+    if (honest === null || !alive) return;
+    rounds++;
+    let answer;
+    if (honest) answer = swapped; else answer = Math.random() < 0.5;
+    const correct = (answer === swapped);
+    if (correct) {
+      right++;
+      addLog(`Round ${rounds}: you ${swapped ? "swapped" : "kept them"}. Alice says <em>"${answer ? "swapped" : "not swapped"}"</em>. <span class="pass">Right.</span>`);
+    } else {
+      alive = false;
+      addLog(`Round ${rounds}: you ${swapped ? "swapped" : "kept them"}. Alice says <em>"${answer ? "swapped" : "not swapped"}"</em>. <span class="fail">Wrong. Caught bluffing.</span> The balls were the same colour all along.`);
+      $("ballL").className = "ball reveal-same"; $("ballR").className = "ball reveal-same";
+      $("ballL").textContent = "same"; $("ballR").textContent = "same";
+      $("btnSwap").disabled = true; $("btnKeep").disabled = true;
+    }
+    setTally();
+  }
+  function reveal() {
+    if (honest === null) return;
+    if (honest) {
+      $("ballL").className = "ball reveal-a"; $("ballR").className = "ball reveal-b";
+      $("ballL").textContent = "red"; $("ballR").textContent = "blue";
+      addLog(`Revealed: <span class="pass">Alice was honest.</span> Notice you're now sure of that after ${right} round${right === 1 ? "" : "s"}, and you still couldn't tell red from blue yourself.`);
+    } else {
+      $("ballL").className = "ball reveal-same"; $("ballR").className = "ball reveal-same";
+      $("ballL").textContent = "same"; $("ballR").textContent = "same";
+      addLog(`Revealed: <span class="fail">Alice was bluffing</span> and survived ${right} round${right === 1 ? "" : "s"} by luck.`);
+    }
+    $("btnSwap").disabled = true; $("btnKeep").disabled = true; $("btnReveal").disabled = true;
+  }
+  $("btnNewAlice").addEventListener("click", resetBalls);
+  $("btnSwap").addEventListener("click", () => playRound(true));
+  $("btnKeep").addEventListener("click", () => playRound(false));
+  $("btnReveal").addEventListener("click", reveal);
+  const rr = $("roundsRange");
+  function updRounds() {
+    const n = parseInt(rr.value, 10);
+    $("roundsN").textContent = n; $("roundsN2").textContent = n;
+    $("roundsP").textContent = (1n << BigInt(n)).toLocaleString("en-US");
+  }
+  rr.addEventListener("input", updRounds); updRounds();
+
+  /* ---------- step 3: hash diff ---------- */
+  async function updHash() {
+    const a = await sha256Hex($("hashA").value);
+    const b = await sha256Hex($("hashB").value);
+    let diff = 0, ha = "", hb = "";
+    for (let i = 0; i < 64; i++) {
+      const same = a[i] === b[i];
+      if (!same) diff++;
+      ha += same ? a[i] : `<span class="d">${a[i]}</span>`;
+      hb += same ? b[i] : `<span class="d">${b[i]}</span>`;
+    }
+    $("hashAOut").innerHTML = ha; $("hashBOut").innerHTML = hb; $("hashDiff").textContent = diff;
+  }
+  $("hashA").addEventListener("input", updHash);
+  $("hashB").addEventListener("input", updHash);
+  updHash();
+
+  /* ---------- step 4: merkle ---------- */
+  const leafLabels = ["embed", "L1 attn", "L1 mlp", "L2 attn", "L2 mlp", "L3 attn", "L3 mlp", "unembed"];
+  const leafOrig = leafLabels.map((l, i) => `${l}: chunk ${i} of weights 0.0213 -0.4471 0.8820`);
+  let leafData = leafOrig.slice();
+  let selected = 2;
+  const svg = $("merkle");
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, text) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  async function buildTree() {
+    const L0 = await Promise.all(leafData.map(sha256Hex));
+    const L1 = await Promise.all([0, 2, 4, 6].map(i => sha256Hex(L0[i] + L0[i + 1])));
+    const L2 = await Promise.all([0, 2].map(i => sha256Hex(L1[i] + L1[i + 1])));
+    const L3 = [await sha256Hex(L2[0] + L2[1])];
+    return [L0, L1, L2, L3];
+  }
+  function pathNodes(idx) {
+    // returns set of "level-index" keys on the path plus siblings
+    const path = new Set(), sibs = new Set();
+    let i = idx;
+    for (let lvl = 0; lvl < 3; lvl++) {
+      path.add(lvl + "-" + i);
+      sibs.add(lvl + "-" + (i ^ 1));
+      i = i >> 1;
+    }
+    path.add("3-0");
+    return { path, sibs };
+  }
+  async function renderTree(note) {
+    const levels = await buildTree();
+    const ys = [262, 182, 102, 26];
+    const xs = [];
+    xs[0] = leafData.map((_, i) => 60 + i * 91.5);
+    xs[1] = [0, 2, 4, 6].map(i => (xs[0][i] + xs[0][i + 1]) / 2);
+    xs[2] = [0, 2].map(i => (xs[1][i] + xs[1][i + 1]) / 2);
+    xs[3] = [(xs[2][0] + xs[2][1]) / 2];
+    const { path, sibs } = pathNodes(selected);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    // edges
+    for (let lvl = 0; lvl < 3; lvl++) {
+      xs[lvl].forEach((x, i) => {
+        const px = xs[lvl + 1][i >> 1], py = ys[lvl + 1];
+        const on = path.has(lvl + "-" + i);
+        svg.appendChild(el("line", { x1: x, y1: ys[lvl] - 14, x2: px, y2: py + 14, stroke: on ? "var(--accent)" : "currentColor", "stroke-width": on ? 2 : 1, opacity: on ? 1 : 0.45 }));
+      });
+    }
+    // nodes
+    for (let lvl = 0; lvl < 4; lvl++) {
+      levels[lvl].forEach((h, i) => {
+        const key = lvl + "-" + i;
+        const x = xs[lvl][i], y = ys[lvl];
+        const w = lvl === 0 ? 82 : 92;
+        const isSel = (lvl === 0 && i === selected);
+        const onPath = path.has(key), isSib = sibs.has(key), isRoot = lvl === 3;
+        const g = el("g", { style: lvl === 0 ? "cursor:pointer" : "" });
+        let stroke = "currentColor", fill = "var(--surface)", sw = 1;
+        if (onPath) { stroke = "var(--accent)"; sw = 2; }
+        if (isSel) { fill = "var(--accent-soft)"; }
+        if (isSib) { stroke = "var(--verify)"; sw = 2; fill = "var(--verify-soft)"; }
+        if (isRoot) { sw = 2; }
+        g.appendChild(el("rect", { x: x - w / 2, y: y - 14, width: w, height: 28, rx: 5, fill, stroke, "stroke-width": sw }));
+        const t = el("text", { x, y: y + 4, "text-anchor": "middle", class: "svgmono", fill: "currentColor" }, h.slice(0, 8));
+        g.appendChild(t);
+        if (lvl === 0) {
+          g.appendChild(el("text", { x, y: y + 32, "text-anchor": "middle", class: "svgtext", fill: "currentColor" }, leafLabels[i] + (leafData[i] !== leafOrig[i] ? " ✱" : "")));
+          g.addEventListener("click", () => { selected = i; renderTree(); });
+        }
+        if (isRoot) {
+          g.appendChild(el("text", { x: x - 60, y: y + 4, "text-anchor": "end", class: "svgtext", fill: "currentColor", "font-weight": "700" }, "root"));
+        }
+        svg.appendChild(g);
+      });
+    }
+    const sibList = [];
+    let i = selected;
+    for (let lvl = 0; lvl < 3; lvl++) { sibList.push(levels[lvl][i ^ 1].slice(0, 8)); i >>= 1; }
+    const tampered = leafData[selected] !== leafOrig[selected];
+    $("merkleOut").innerHTML =
+      `<strong>${leafLabels[selected]}</strong> selected. Opening it means revealing the chunk plus the three green sibling hashes: ` +
+      `<span class="mono">${sibList.join(" · ")}</span>. Bob rehashes up the blue path and expects root <span class="mono">${levels[3][0].slice(0, 8)}…</span>` +
+      (tampered ? ` <span class="fail">This chunk was tampered with, so the root no longer matches the one Alice published.</span>` : ``) +
+      (note ? `<br>${note}` : ``);
+  }
+  $("btnTamper").addEventListener("click", () => {
+    leafData[selected] = leafOrig[selected].replace("0.8820", "0.8821");
+    renderTree("Changed one digit in one chunk. Every hash on the path, including the root, is now different.");
+  });
+  $("btnRestore").addEventListener("click", () => { leafData = leafOrig.slice(); renderTree("Original weights restored."); });
+  renderTree();
+
+  /* ---------- step 5: matmul constraints ---------- */
+  const ids = ["w11", "w12", "w21", "w22", "x1", "x2", "y1", "y2"];
+  function v(id) { const n = parseInt($(id).value, 10); return Number.isFinite(n) ? n : 0; }
+  function renderCons() {
+    const W = [[v("w11"), v("w12")], [v("w21"), v("w22")]], x = [v("x1"), v("x2")], y = [v("y1"), v("y2")];
+    const box = $("cons"); box.innerHTML = "";
+    let allOk = true;
+    for (let i = 0; i < 2; i++) {
+      const s = W[i][0] * x[0] + W[i][1] * x[1];
+      const r = y[i] - s;
+      const ok = r === 0; if (!ok) allOk = false;
+      const d = document.createElement("div");
+      d.className = ok ? "ok" : "bad";
+      d.innerHTML = `<span>y<sub>${i + 1}</sub> − (${W[i][0]}·${x[0]} + ${W[i][1]}·${x[1]}) = ${y[i]} − ${s} = <strong>${r}</strong></span><span class="${ok ? "pass" : "fail"}">${ok ? "holds" : "violated"}</span>`;
+      box.appendChild(d);
+    }
+    const s = document.createElement("div");
+    s.className = allOk ? "ok" : "bad";
+    s.innerHTML = `<span>Verifier's verdict</span><span class="${allOk ? "pass" : "fail"}">${allOk ? "accept: every constraint is zero" : "reject: a nonzero remainder means the claimed y is not W·x"}</span>`;
+    box.appendChild(s);
+  }
+  ids.forEach(id => $(id).addEventListener("input", renderCons));
+  $("btnHonest").addEventListener("click", () => {
+    $("y1").value = v("w11") * v("x1") + v("w12") * v("x2");
+    $("y2").value = v("w21") * v("x1") + v("w22") * v("x2");
+    renderCons();
+  });
+  $("btnCheat").addEventListener("click", () => { $("y2").value = v("y2") - 1; renderCons(); });
+  renderCons();
+
+  /* ---------- step 6: polynomial spot check ---------- */
+  const P = 101;
+  const mod = (n) => ((n % P) + P) % P;
+  const honestPoly = (x) => mod(x * x * x + 2 * x + 7);
+  const cheatPoly = (x) => mod(honestPoly(x) + (x - 3) * (x - 58) * (x - 90));
+  let trials = 0, caught = 0;
+  const plog = $("polyLog");
+  function pick(n, quiet) {
+    for (let k = 0; k < n; k++) {
+      const r = Math.floor(Math.random() * P);
+      const a = honestPoly(r), b = cheatPoly(r);
+      trials++;
+      const same = a === b;
+      if (!same) caught++;
+      if (!quiet || k === n - 1) {
+        const d = document.createElement("div");
+        d.innerHTML = `r = <span class="mono">${r}</span>: P(r) = <span class="mono">${a}</span>, Q(r) = <span class="mono">${b}</span> → ` + (same ? `<span class="fail">agree, cheat slips through this time</span>` : `<span class="pass">differ, cheat caught</span>`);
+        plog.prepend(d);
+      }
+    }
+    $("pTrials").textContent = trials; $("pCaught").textContent = caught;
+    $("pRate").textContent = trials ? Math.round(100 * caught / trials) + "%" : "–";
+  }
+  $("btnPick").addEventListener("click", () => pick(1, false));
+  $("btnPick50").addEventListener("click", () => { pick(50, true); const d = document.createElement("div"); d.innerHTML = `Checked 50 random points. Q can only match P at 3 of 101 points, so the cheat is caught about 97% of the time per point, and essentially always over 50.`; plog.prepend(d); });
+  $("btnPolyReset").addEventListener("click", () => { trials = 0; caught = 0; plog.innerHTML = "Waiting for Bob."; $("pTrials").textContent = 0; $("pCaught").textContent = 0; $("pRate").textContent = "–"; });
+
+  /* ---------- built part 2: draw gap bench ---------- */
+  const GAP_TOKENS = ["Paris", "the", "a", "located", "France"];
+  const GAP_BASE = [3.0, 1.6, 1.2, 0.8, 0.2];
+  const GAP_NOISE = [0.9, -0.6, 0.4, -1.1, 0.7];
+  const GAP_T = 0.7, GAP_TOPK = 4;
+  const gapSvg = $("gapSvg");
+  let gapState = { sigma: 0, u: 0.80, temp: GAP_T, noise: GAP_NOISE, claimed: null };
+
+  function gapDist(logits, temp) {
+    const x = logits.map(v => v / temp);
+    const order = x.map((v, i) => i).sort((a, b) => (x[b] - x[a]) || (a - b)).slice(0, GAP_TOPK);
+    const m = Math.max(...order.map(i => x[i]));
+    let probs = order.map(i => Math.exp(x[i] - m));
+    const s = probs.reduce((a, b) => a + b, 0);
+    probs = probs.map(p => p / s);
+    return { order, probs };
+  }
+  function gapPick(dist, u) {
+    let c = 0;
+    for (let k = 0; k < dist.order.length; k++) { c += dist.probs[k]; if (u < c) return dist.order[k]; }
+    return dist.order[dist.order.length - 1];
+  }
+  function gapInterval(dist, token) {
+    let c = 0;
+    for (let k = 0; k < dist.order.length; k++) {
+      if (dist.order[k] === token) return [c, c + dist.probs[k]];
+      c += dist.probs[k];
+    }
+    return null;
+  }
+  function gapHonestClaim() {
+    // what an honest prover on the same backend would have written into the receipt
+    return gapPick(gapDist(GAP_BASE, GAP_T), gapState.u);
+  }
+  function renderGap() {
+    const s = gapState;
+    const verifierLogits = GAP_BASE.map((v, i) => v + s.noise[i] * s.sigma);
+    const dist = gapDist(verifierLogits, GAP_T);
+    const claimed = s.claimed;
+    const replayed = gapPick(dist, s.u);
+    const iv = gapInterval(dist, claimed);
+    let gap = null;
+    if (iv) gap = (s.u >= iv[0] && s.u < iv[1]) ? 0 : (s.u < iv[0] ? iv[0] - s.u : s.u - iv[1]);
+    const exact = s.sigma === 0;
+    while (gapSvg.firstChild) gapSvg.removeChild(gapSvg.firstChild);
+    const W = 700, X0 = 30, Y = 40, H = 44;
+    let x = X0;
+    dist.order.forEach((tok, k) => {
+      const w = dist.probs[k] * W;
+      const isClaimed = tok === claimed, isReplayed = tok === replayed;
+      gapSvg.appendChild(el("rect", { x, y: Y, width: Math.max(w, 0.5), height: H, fill: isReplayed ? "var(--verify-soft)" : "var(--surface)", stroke: isClaimed ? "var(--accent)" : "currentColor", "stroke-width": isClaimed ? 3 : 1 }));
+      if (w > 34) gapSvg.appendChild(el("text", { x: x + w / 2, y: Y + 27, "text-anchor": "middle", class: "svgmono", fill: "currentColor" }, GAP_TOKENS[tok]));
+      gapSvg.appendChild(el("text", { x: x + w / 2, y: Y + H + 16, "text-anchor": "middle", class: "svgmono", fill: "currentColor", opacity: 0.7 }, dist.probs[k].toFixed(2)));
+      x += w;
+    });
+    const ux = X0 + s.u * W;
+    gapSvg.appendChild(el("line", { x1: ux, y1: Y - 14, x2: ux, y2: Y + H + 4, stroke: "var(--fail)", "stroke-width": 2 }));
+    gapSvg.appendChild(el("text", { x: ux, y: Y - 18, "text-anchor": "middle", class: "svgtext", fill: "var(--fail)", "font-weight": "700" }, "u = " + s.u.toFixed(3)));
+    if (iv && gap > 0) {
+      const gx1 = s.u < iv[0] ? ux : X0 + iv[1] * W, gx2 = s.u < iv[0] ? X0 + iv[0] * W : ux;
+      gapSvg.appendChild(el("line", { x1: gx1, y1: Y + H + 30, x2: gx2, y2: Y + H + 30, stroke: "var(--fail)", "stroke-width": 2 }));
+      gapSvg.appendChild(el("text", { x: (gx1 + gx2) / 2, y: Y + H + 46, "text-anchor": "middle", class: "svgmono", fill: "var(--fail)" }, "gap " + gap.toFixed(3)));
+    }
+    gapSvg.appendChild(el("text", { x: X0, y: 140, class: "svgmono", fill: "currentColor", opacity: 0.7 }, "blue outline: claimed token · green fill: where u lands under the verifier's distribution"));
+    $("gapClaimed").textContent = GAP_TOKENS[claimed] + (iv ? "" : "  (outside the sampler's support here)");
+    $("gapReplayed").textContent = GAP_TOKENS[replayed];
+    $("gapU").textContent = s.u.toFixed(3);
+    $("gapGap").textContent = iv ? gap.toFixed(3) : "undefined (truncated)";
+    $("gapRegime").innerHTML = exact ? "<span class='mono'>exact</span>: logits hash matches" : "<span class='mono'>drift</span>: logits differ";
+    let verdict, cls;
+    if (!iv) { verdict = "reject: claimed token outside the sampler's support"; cls = "bad"; }
+    else if (exact) { verdict = replayed === claimed ? "accept: bit-exact replay" : "reject: logits identical, sampler disagrees"; cls = replayed === claimed ? "ok" : "bad"; }
+    else if (gap > 0.45) { verdict = "reject: draw sits " + gap.toFixed(2) + " from the claimed token (> 0.45)"; cls = "bad"; }
+    else { verdict = gap === 0 ? "accept: within backend drift (matches)" : "accept: within backend drift (gap " + gap.toFixed(3) + ")"; cls = "ok"; }
+    $("gapVerdict").innerHTML = `<span class="verdict ${cls}">${verdict}</span>`;
+    $("gapSigma").value = Math.round(s.sigma * 100);
+    $("gapSigmaV").textContent = s.sigma.toFixed(2);
+  }
+  function gapReset(sigma, u, temp) {
+    gapState.sigma = sigma; gapState.u = u; gapState.noise = GAP_NOISE;
+    gapState.claimed = gapPick(gapDist(GAP_BASE, temp), u);  // what the prover actually wrote
+    renderGap();
+  }
+  $("gapSigma").addEventListener("input", () => { gapState.sigma = parseInt($("gapSigma").value, 10) / 100; renderGap(); });
+  $("gapHonest").addEventListener("click", () => gapReset(0, 0.80, GAP_T));
+  $("gapDrift").addEventListener("click", () => gapReset(0.35, 0.80, GAP_T));
+  $("gapSeed").addEventListener("click", () => {
+    // prover sampled with its real seed's draw, then claimed a different seed: the verifier's u is unrelated
+    const realU = 0.80;
+    gapState.claimed = gapPick(gapDist(GAP_BASE, GAP_T), realU);
+    gapState.sigma = 0; gapState.u = 0.05 + Math.random() * 0.9; renderGap();
+  });
+  $("gapTemp").addEventListener("click", () => {
+    // prover sampled at T = 1.6 with the same u, claims T = 0.7
+    gapState.claimed = gapPick(gapDist(GAP_BASE, 1.6), 0.80);
+    gapState.sigma = 0; gapState.u = 0.80; renderGap();
+  });
+  $("gapQuant").addEventListener("click", () => {
+    // prover ran a heavily quantized copy: its logits differ a lot, and the verifier's do not match its hash
+    const cheap = GAP_BASE.map((v, i) => v + [-1.6, 1.1, 0.9, 0.6, 1.9][i]);
+    gapState.claimed = gapPick(gapDist(cheap, GAP_T), 0.80);
+    gapState.sigma = 0.01; gapState.u = 0.80; renderGap();
+  });
+  gapReset(0, 0.80, GAP_T);
+
+  /* ---------- quiz ---------- */
+  const explain = {
+    q1: "The proof only ever references the weights through their Merkle root. Bob can confirm the root matches the agreed one and nothing more.",
+    q2: "A ZK proof is a correctness statement about a declared computation. Completeness (nothing else ran) needs a different mechanism: exhaustion, taps, or compartmentalization.",
+    q3: "Arithmetization happens over a finite field. Integers modulo a prime fit; IEEE floats don't, so matmuls are quantized and non-linear ops go through lookup tables.",
+    q4: "Fiat-Shamir derives each challenge from a hash of the commitments so far, turning the interactive exchange into a single file anyone can verify."
+  };
+  $("btnGrade").addEventListener("click", () => {
+    let score = 0, answered = 0;
+    document.querySelectorAll(".q").forEach((q, idx) => {
+      const name = "q" + (idx + 1);
+      const sel = q.querySelector(`input[name="${name}"]:checked`);
+      const ans = q.querySelector(".ans");
+      ans.className = "ans show";
+      if (!sel) { ans.classList.add("wrong"); ans.textContent = "Pick an answer."; return; }
+      answered++;
+      const ok = sel.value === q.dataset.correct;
+      if (ok) score++;
+      ans.classList.add(ok ? "right" : "wrong");
+      ans.textContent = (ok ? "Right. " : "Not quite. ") + explain[name];
+    });
+    $("gradeOut").textContent = `${score} of 4 correct.`;
+  });
+})();
+</script>

@@ -1,0 +1,4 @@
+[submodule "code/llama.cpp"]
+	path = code/llama.cpp
+	url = https://github.com/luiscosio/llama.cpp.git
+	branch = receipts-all

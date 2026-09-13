@@ -1,0 +1,7 @@
+$ llama-receipts -m ~/.ollama/models/blobs/qwen2.5-1.5b-q4_k_m.gguf -p "Explain to a ten-year-old why the sky is blue." -n 12 --seed 5 --temp 0.7 -ngl 0 -t 8 --trace --openings 32 --out receipt.json
+model committed: 183715c435899236, 338 tensors, 4.60 s
+generated 12 tokens in 1.90 s with tracing
+ When sunlight enters Earth's atmosphere, it passes through billions of
+[receipt] 12 tokens, sha256 27f78a72ccf2b998, saved to receipt.json
+opening replay in 2.04 s
+[trace] root ed632eaaa2250274, 8086 leaves over 13 graphs, 32 openings, saved to receipt.trace.json

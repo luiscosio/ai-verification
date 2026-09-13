@@ -1,0 +1,130 @@
+{
+ "n_leaves": 1300,
+ "n_graphs": 2,
+ "ops": [
+  {
+   "op": "MUL_MAT",
+   "nodes": 394,
+   "opened": 394,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 6537.27880859375,
+   "int_bits_signed": 14,
+   "nonfinite": 0,
+   "weights": [
+    "q4_k(weight)",
+    "q6_k(weight)"
+   ],
+   "k": [
+    1024,
+    2048,
+    3072
+   ]
+  },
+  {
+   "op": "RMS_NORM",
+   "nodes": 226,
+   "opened": 226,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 31.76226806640625,
+   "int_bits_signed": 6,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "MUL",
+   "nodes": 226,
+   "opened": 226,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 414.1726379394531,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "ROPE",
+   "nodes": 112,
+   "opened": 112,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 414.1726989746094,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "SET_ROWS",
+   "nodes": 112,
+   "opened": 112,
+   "out_types": [
+    "f16"
+   ],
+   "max_abs": 414.25,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "ADD",
+   "nodes": 112,
+   "opened": 112,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 6557.26708984375,
+   "int_bits_signed": 14,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "FLASH_ATTN_EXT",
+   "nodes": 56,
+   "opened": 56,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 28.694637298583984,
+   "int_bits_signed": 6,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "SWIGLU",
+   "nodes": 56,
+   "opened": 56,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 3645.25732421875,
+   "int_bits_signed": 13,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "GET_ROWS",
+   "nodes": 6,
+   "opened": 6,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 300.679931640625,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  }
+ ]
+}

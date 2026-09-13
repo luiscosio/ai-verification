@@ -1,0 +1,15 @@
+$ python3 zk_node.py receipt.json --model ~/.ollama/models/blobs/qwen2.5-1.5b-q4_k_m.gguf --index 4844 --out zk-out
+node: leaf 4844 graph 7 Vcur-22 = blk.22.attn_v.weight [1536 x 256] q4_K times activation [1536, 1]
+statement: 393216 nibbles, 12288 scales, 12288 mins private under the registered commitment; 1536 activations, 3072 sums public
+float step: max|out - ref| / max|ref| = 3.75e-07 against the opened output
+[commit-inner] encode=13.764083ms transpose=5.739584ms tree=27.126208ms rows=16 cw_len=58604
+committed 417792 private inputs in 2.01s: ea7b23ccd2da8c84d4d1adb5278216b83de147b0e3fd3537031d0c92a67ed76b
+circuit: m=256 k=1536 blocks=6 private inputs=417792 public inputs=4608
+compiled in 1.75s: 4 layers
+witness solved in 0.04s (SIMD pack of 16 identical copies), circuit satisfied
+proved in 0.28s: proof 6468544 bytes, layers 4, commitment ea7b23ccd2da8c84d4d1adb5278216b83de147b0e3fd3537031d0c92a67ed76b
+registered commitment ea7b23ccd2da8c84..., proof carries ea7b23ccd2da8c84...
+compile 1.75s, verify 0.044s, config orion: ACCEPT
+config orion: REJECT, the proof's commitment b3bca1bd934db8256ef6712bd2ef46d4b9f4b768863c7fc9ce12052ccdf3af98 is not the registered ea7b23ccd2da8c84d4d1adb5278216b83de147b0e3fd3537031d0c92a67ed76b
+blk.23.attn_v.weight: config orion: REJECT, the proof's commitment ea7b23ccd2da8c84d4d1adb5278216b83de147b0e3fd3537031d0c92a67ed76b is not the registered f2f0cb0a5d6356c6c0aa6ccad4d5aca30522e8d58f128896c2ccc2277a7c46fb
+RESULT: proof verifies against the registered commitment; tampered sum, other weights and other tensor rejected; float step matches

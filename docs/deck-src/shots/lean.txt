@@ -1,0 +1,17 @@
+-- ReceiptsSpec/Quant.lean
+/-- `s1 = Σ_j scale_j · Σ_l q4·q8` for one weight block against one activation block. -/
+def s1 (blk : Q4KBlock) (a : Q8KBlock) : Int :=
+  (List.range 8).foldl (fun acc j => acc + ((scaleMin blk.scales j).1 : Int) * subDot blk a j) 0
+
+/-- `|s1| ≤ 8 · 63 · 32 · 1905 = 30,723,840 < 2^25`. -/
+theorem s1_bound (blk : Q4KBlock) (a : Q8KBlock) (hq : ∀ (i : Nat), (-127 : Int) ≤ a.qs[i]! ∧ a.qs[i]! ≤ 127) :
+    -(8 * (63 * 60960) : Int) ≤ s1 blk a ∧ s1 blk a ≤ 8 * (63 * 60960) := by
+    ... := by
+  unfold s1
+  ... exact foldl_add_bound _ (63 * 60960) hB 8
+
+theorem s1_lt_2_pow_25 (blk : Q4KBlock) (a : Q8KBlock) (hq : ∀ (i : Nat), (-127 : Int) ≤ a.qs[i]! ∧ a.qs[i]! ≤ 127) :
+    -(2 ^ 25 : Int) < s1 blk a ∧ s1 blk a < 2 ^ 25 := by
+  have := s1_bound blk a hq
+  omega
+

@@ -1,0 +1,19 @@
+[project]
+name = "llama-receipts"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "cryptography>=50.0.1",
+    "gguf>=0.19.0",
+    "llama-cpp-python>=0.3.35",
+    "numpy>=2.5.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

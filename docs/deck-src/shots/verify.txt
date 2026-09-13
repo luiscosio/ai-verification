@@ -1,0 +1,22 @@
+$ python3 examples/receipts/verify_trace.py receipt.json --model ~/.ollama/models/blobs/qwen2.5-1.5b-q4_k_m.gguf --expected-topology-sha256 d4ba63117262f2dc6f120ad50072fa6966e6a3b88b1e7e17b8b44d506adfe6d9
+verdict: accept (trace verified)
+  version                ok  receipt 0.2, trace trace/v2 and trace/v2; this verifier reads receipt 0.2 with trace/v2
+  root                   ok  recomputed ed632eaaa2250274 vs committed ed632eaaa2250274; 8086 leaves, 13 graphs
+  topology               ok  recomputed d4ba63117262f2dc vs expected d4ba63117262f2dc
+  content_commitments    ok  token and human-readable receipt content
+  challenge              ok  32 openings, expected 32, policy minimum 32, Fiat-Shamir
+  graph_count            ok  13 graphs for 12 response tokens
+  graph_order            ok  graph and node indices are contiguous
+  edges                  ok  0 of 10621 data edges inconsistent
+  input_tokens           ok  13 match, 0 mismatch
+  input_positions        ok  728 match, 0 mismatch
+  input_out_ids          ok  26 match, 0 mismatch
+  input_k_cells          ok  364 match, 0 mismatch
+  input_v_cells          ok  364 match, 0 mismatch
+  input_mask             ok  364 match, 0 mismatch
+  inputs_unclassified    ok  0 inputs not classified
+  per_token              ok  12 records for 12 response tokens
+  logits_binding         ok  12 graphs bound to 12 receipt logits hashes, 0 failed
+  model_file             ok  whole-file SHA-256
+  openings               ok  32 of 32 openings verified
+  openings 32 of 8086 leaves; ops {'MUL_MAT': 13, 'ADD': 7, 'MUL': 4, 'FLASH_ATTN_EXT': 2, 'RMS_NORM': 2, 'SET_ROWS': 2, 'SWIGLU': 1, 'ROPE': 1}; worst error {MUL_MAT: 4.8e-07, ADD: 3.9e-08, MUL: 5.0e-08, FLASH_ATTN_EXT: 2.0e-03, RMS_NORM: 3.4e-08, SET_ROWS: 0.0e+00, SWIGLU: 6.1e-08, ROPE: 4.2e-07}; {'total': 4.829, 'openings': 4.616}

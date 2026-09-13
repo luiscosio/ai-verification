@@ -1,0 +1,3 @@
+$ llama-receipts -m ~/.ollama/models/blobs/qwen2.5-1.5b-q4_k_m.gguf --replay receipt.json -ngl 0 -t 8
+tokens: 12  match rate: 1.000  logits-hash match: 1.000  mean|dlogprob|: 0.0000  truncated: 0  mean gap: 0.0000  max gap: 0.000
+verdict: accept (bit-exact replay)

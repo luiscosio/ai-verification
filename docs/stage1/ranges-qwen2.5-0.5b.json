@@ -1,0 +1,131 @@
+{
+ "n_leaves": 1068,
+ "n_graphs": 2,
+ "ops": [
+  {
+   "op": "MUL_MAT",
+   "nodes": 338,
+   "opened": 338,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 1496.477783203125,
+   "int_bits_signed": 12,
+   "nonfinite": 0,
+   "weights": [
+    "q4_k(weight)",
+    "q5_0(weight)",
+    "q6_k(weight)",
+    "q8_0(weight)"
+   ],
+   "k": [
+    896,
+    4864
+   ]
+  },
+  {
+   "op": "ADD",
+   "nodes": 240,
+   "opened": 240,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 1572.49755859375,
+   "int_bits_signed": 12,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "RMS_NORM",
+   "nodes": 98,
+   "opened": 98,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 29.538925170898438,
+   "int_bits_signed": 6,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "MUL",
+   "nodes": 98,
+   "opened": 98,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 382.5354309082031,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "ROPE",
+   "nodes": 96,
+   "opened": 96,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 218.1578826904297,
+   "int_bits_signed": 9,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "SET_ROWS",
+   "nodes": 96,
+   "opened": 96,
+   "out_types": [
+    "f16"
+   ],
+   "max_abs": 218.125,
+   "int_bits_signed": 9,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "FLASH_ATTN_EXT",
+   "nodes": 48,
+   "opened": 48,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 9.987181663513184,
+   "int_bits_signed": 5,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "SWIGLU",
+   "nodes": 48,
+   "opened": 48,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 394.0435485839844,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "GET_ROWS",
+   "nodes": 6,
+   "opened": 6,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 56.91886901855469,
+   "int_bits_signed": 7,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  }
+ ]
+}

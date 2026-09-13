@@ -1,0 +1,24 @@
+$ lake build
+Build completed successfully (15 jobs).
+$ spec-check sha256
+sha256: ok
+$ spec-check trace receipt.json receipt.trace.json d4ba63117262f2dc6f120ad50072fa6966e6a3b88b1e7e17b8b44d506adfe6d9
+leaves: 8086
+root: ok (ed632eaaa2250274 vs receipt ed632eaaa2250274)
+topology: ok (d4ba63117262f2dc vs expected d4ba63117262f2dc)
+challenge: ok (32 openings)
+edges: ok (0 of 10621 inconsistent)
+content commitments: ok
+inputs: tokens 13 match 0 mismatch; positions 728 match 0 mismatch
+trace: ok
+$ python3 gen_vectors.py receipt.json --model ~/.ollama/models/blobs/qwen2.5-1.5b-q4_k_m.gguf --out vectors.json
+wrote vectors.json: 3 q4_K rows of blk.4.attn_q.weight, 3 q6_K rows of blk.9.attn_v.weight, 14 canonical json documents
+$ spec-check vectors vectors.json
+q4k row: q8 true, d true, s1 true, s2 true, row rel err 0.000000
+q4k row: q8 true, d true, s1 true, s2 true, row rel err 0.000000
+q4k row: q8 true, d true, s1 true, s2 true, row rel err 0.000000
+q6k row: dot true
+q6k row: dot true
+q6k row: dot true
+canonical json: 14 documents, all match
+vectors: ok

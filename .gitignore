@@ -1,0 +1,15 @@
+# large or regenerable
+models/
+demo/
+site/index.html
+site/artifact.html
+code/llama-receipts/.venv/
+code/llama-receipts/models/
+code/llama-receipts/testset/out/
+# kept outside the repository on purpose
+signal-chat/
+# tooling
+__pycache__/
+*.pyc
+.DS_Store
+.ruff_cache/

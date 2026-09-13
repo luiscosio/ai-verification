@@ -1,0 +1,20 @@
+The capital of France is
+Water boils at a temperature of
+The largest planet in the solar system is
+def fibonacci(n):
+Once upon a time, there was a
+2 + 2 =
+The chemical symbol for gold is
+Shakespeare wrote the play
+In 1969, humans first landed on the
+The opposite of hot is
+Photosynthesis takes place in the
+The square root of 144 is
+My favourite programming language is
+The Great Wall is located in
+A triangle has three
+The first month of the year is
+import numpy as np
+Cats are known for their
+The speed of light is approximately
+To be or not to be, that is the

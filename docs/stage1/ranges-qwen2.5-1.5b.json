@@ -1,0 +1,129 @@
+{
+ "n_leaves": 1244,
+ "n_graphs": 2,
+ "ops": [
+  {
+   "op": "MUL_MAT",
+   "nodes": 394,
+   "opened": 394,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 5724.001953125,
+   "int_bits_signed": 14,
+   "nonfinite": 0,
+   "weights": [
+    "q4_k(weight)",
+    "q6_k(weight)"
+   ],
+   "k": [
+    1536,
+    8960
+   ]
+  },
+  {
+   "op": "ADD",
+   "nodes": 280,
+   "opened": 280,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 5967.9306640625,
+   "int_bits_signed": 14,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "RMS_NORM",
+   "nodes": 114,
+   "opened": 114,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 24.52098846435547,
+   "int_bits_signed": 6,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "MUL",
+   "nodes": 114,
+   "opened": 114,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 114.37712860107422,
+   "int_bits_signed": 8,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "ROPE",
+   "nodes": 112,
+   "opened": 112,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 316.953125,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "SET_ROWS",
+   "nodes": 112,
+   "opened": 112,
+   "out_types": [
+    "f16"
+   ],
+   "max_abs": 317.0,
+   "int_bits_signed": 10,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "FLASH_ATTN_EXT",
+   "nodes": 56,
+   "opened": 56,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 10.96875,
+   "int_bits_signed": 5,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "SWIGLU",
+   "nodes": 56,
+   "opened": 56,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 4280.46435546875,
+   "int_bits_signed": 14,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  },
+  {
+   "op": "GET_ROWS",
+   "nodes": 6,
+   "opened": 6,
+   "out_types": [
+    "f32"
+   ],
+   "max_abs": 193.71530151367188,
+   "int_bits_signed": 9,
+   "nonfinite": 0,
+   "weights": [],
+   "k": []
+  }
+ ]
+}
