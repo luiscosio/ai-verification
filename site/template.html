@@ -16,7 +16,6 @@ __STYLE__
 <nav class="masthead" aria-label="Main">
 <a class="brand" href="#workspace" aria-label="llama-receipts home"><span class="brand-mark" aria-hidden="true">▦</span>llama-receipts</a>
 <div class="nav-links"><a href="#workspace">Workspace</a><a href="#models">Models</a><a href="#understand">About the proof</a></div>
-<span class="edition" id="edition">Public registry <span aria-hidden="true">/</span> Experimental</span>
 </nav>
 <main>
 <section class="workbench" id="workspace" aria-labelledby="workspace-title">
@@ -60,7 +59,7 @@ __STYLE__
 <div class="learn-notes"><details open><summary>Which weights am I trusting?</summary><p>The registry associates a model name with commitments to its weights. The proof checks that commitment. You still rely on the registrar to make the right association; independent review is pending.</p></details><details><summary>What stays private?</summary><p>Model weights stay private. Activation numbers and integer sums are public in this checkpoint and may reveal information about the prompt.</p></details><details><summary>How much of the computation is covered?</summary><p>One small group of integer calculations inside a matrix operation. Scaling, other operations and the complete token generation are outside this proof.</p></details><details id="offline"><summary>Can I verify without this website?</summary><p>Yes. Use the same file with the trusted registry in your checkout. No model weights are needed.</p><pre>node site/verify-file.cjs my-proof.llamaproof</pre><p>Install the pinned verifier dependencies first. Both paths enforce the same acceptance policy.</p></details><a class="inline-link" href="https://github.com/luiscosio/ai-verification" target="_blank" rel="noopener">Research, code &amp; current limitations ↗</a></div>
 </section>
 </main>
-<footer><span>llama-receipts <span class="footer-divider">/</span> Evidence you can inspect.</span><span>Experimental setup · single contributor<br><span class="build-date">Built __BUILT_AT__</span></span></footer>
+<footer><span>llama-receipts <span class="footer-divider">/</span> Evidence you can inspect.</span><span><span class="build-date">Built __BUILT_AT__</span></span></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.5/build/snarkjs.min.js"></script>
 <script>

@@ -139,15 +139,6 @@ h3 {
 .inline-link:hover {
   color: var(--accent);
 }
-.edition {
-  margin-left: auto;
-  font: 10px/1.5 var(--mono);
-  color: var(--muted);
-  text-align: right;
-}
-.edition span {
-  padding: 0 6px;
-}
 .section-index {
   display: flex;
   gap: 14px;
@@ -923,10 +914,6 @@ footer > span:last-child {
     gap: 18px;
     margin: 0;
   }
-  .edition {
-    font-size: 9px;
-    max-width: 125px;
-  }
   .workspace-controls {
     padding-right: 28px;
   }
@@ -978,10 +965,6 @@ footer > span:last-child {
   }
   .nav-links a {
     font-size: 11px;
-  }
-  .edition {
-    max-width: 130px;
-    margin-left: auto;
   }
   .workbench {
     grid-template-columns: 1fr;

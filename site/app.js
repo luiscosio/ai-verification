@@ -243,7 +243,6 @@ async function pollJob() {
 }
 async function loadLocal() {
   if (!LOCAL) return;
-  $('edition').textContent = 'On this computer / Experimental';
   workspaceMode('generate');
   $('local-unavailable').hidden = true; $('generate-form').hidden = false; $('generate-button').disabled = true;
   try {
