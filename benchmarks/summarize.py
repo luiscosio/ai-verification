@@ -31,7 +31,7 @@ def main():
     pairs=[]
     for name in names:
         for prompt in sorted({c['case']['prompt'] for c in cases}):
-            selected={c['case']['threads']:c.get('token_ids') for c in cases if c['case']['model']==name and c['case']['prompt']==prompt and c['case']['temperature']==0 and c['case']['repeat']==0}
+            selected={c['case']['threads']:c.get('token_ids') for c in cases if c['case']['model']==name and c['case']['prompt']==prompt and c['case']['temperature']==0 and c['case']['repeat']==0 and 'token_ids' in c}
             if len(selected)==2:pairs.append(selected[2]==selected[8])
     lines += [f'Greedy cross-thread token agreement: {sum(pairs)} / {len(pairs)} prompt/model pairs. This is an observation, not a cross-backend guarantee.','', '## Per-prompt latency','',table(['Model','Prompt','Input tokens','2 threads median s','8 threads median s'],per_prompt),'','## Measurement limits','',*['- '+s for s in env['limits']],'']
     failures=[c for c in cases if not c['passed']]
@@ -44,7 +44,7 @@ def main():
         for t in [2,8]:
             selected=[c['metrics']['generation'] for c in cases if c['case']['model']==name and c['case']['threads']==t]
             labels.append(name+' / '+str(t));times.append([m['seconds'] for m in selected]);memory.append([m['os_peak_process_rss_bytes']/2**30 for m in selected])
-    for ax,data,title,xlabel in [(axes[0],times,'Fresh receipt generation','Seconds, including model loading'),(axes[1],memory,'OS peak process memory','GiB RSS')]:
+    for ax,data,title,xlabel in [(axes[0],times,'Receipt generation attempts','Seconds, including model loading'),(axes[1],memory,'OS peak process memory','GiB RSS')]:
         ax.boxplot(data,orientation='horizontal',tick_labels=labels,patch_artist=True,boxprops={'facecolor':'#d8b2a2'},medianprops={'color':'#48394f'});ax.set_title(title);ax.set_xlabel(xlabel);ax.grid(axis='x',alpha=.2)
     fig.savefig(a.out/'native.png',dpi=180);plt.close(fig)
     # Raw measurements are public, compressed without timestamps for stable archival.

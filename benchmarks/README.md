@@ -1,6 +1,6 @@
 # Measurements and regression tests
 
-Run the heavy suites sequentially on an otherwise idle machine. The corpus is public and synthetic; it contains factual, arithmetic, code, JSON, Spanish, Chinese, Arabic, combining characters and emoji, whitespace, HTML-like text, repetition and longer-context requests. This measures execution and verification, not answer quality.
+Run the heavy suites sequentially on an otherwise idle machine. The corpus is public and synthetic; it contains factual, arithmetic, code, JSON, Spanish, Chinese, Arabic, combining characters and emoji, whitespace, HTML-like text, repetition and longer-context requests. This measures execution and verification, not answer quality, instruction following or structured-answer completeness.
 
 Install the locked developer environment with `uv sync --project tools/workspace --locked --group dev`. Install the exact registered Qwen3 model and proving materials with `./setup-workspace.sh --all-circuits`. Native inference also supports the registered Qwen2.5 0.5B and 1.5B files and a local Phi-3 Mini file. The model paths and SHA-256 checks are in `run_matrix.py`; use `--models qwen3-0.6b` when only the default model is available. Supply `--model qwen2.5-1.5b=/path/to/model.gguf` to use a different local path for a selected model. The optional larger models are not downloaded automatically. Phi-3 has no trusted proof registration here.
 

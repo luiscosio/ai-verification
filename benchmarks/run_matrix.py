@@ -29,6 +29,7 @@ def corpus():
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--suite',choices=['native','row-proofs'],default='native');p.add_argument('--models',default=','.join(MODELS));p.add_argument('--limit',type=int);p.add_argument('--model',action='append',default=[],metavar='NAME=PATH',help='Override a selected model path');p.add_argument('--case-plan',type=Path,help='Run a saved public case list instead of the default matrix');a=p.parse_args()
+    if a.limit is not None and a.limit<1:p.error('--limit must be positive')
     a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     models=resolve_models(a.models,a.model);identities={}
     for name,(file,reg) in models.items():
@@ -53,6 +54,7 @@ def main():
                 for i,item in enumerate(prompts[:3]):cases.append({'model':name,'prompt':item['id'],'threads':8,'repeat':0,'temperature':0,'k':([1024,2048,3072][i] if name=='qwen3-0.6b' else 1536)})
     if a.case_plan:cases=json.loads(a.case_plan.read_text())
     if a.limit:cases=cases[:a.limit]
+    if not cases:p.error('No benchmark cases selected; choose a supported model for this suite')
     write(a.out/'plan.json',cases);outcomes=[];seen={}
     for number,case in enumerate(cases):
         name=case['model'];file,reg=models[name];prompt=next(x['prompt'] for x in prompts if x['id']==case['prompt']);record={'case':case,'checks':{},'metrics':{}}
