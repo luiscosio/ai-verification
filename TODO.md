@@ -44,6 +44,7 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 - [x] Demo: `run-demo.sh`, eight steps in about 47 s, ending with the zero-knowledge proof of a row group
 - [x] Fork `luiscosio/llama.cpp`: three draft PRs rebased on upstream master, integration branch `receipts-all`; nothing sent to ggml-org
 - [x] Deck regenerated: `docs/llama-receipts-activation-trace-secure-v2.pptx`
+- [x] Public repository `luiscosio/ai-verification` (MIT), the llama.cpp fork as a submodule pinned to `receipts-all`; models, demo output and the built site untracked. The Signal group material and the unredacted Sep 10 note live outside the repository, in `~/Projects/ai-verification-signal-chat/`.
 
 ## Missing, in the order that unblocks the most
 
