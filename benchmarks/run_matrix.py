@@ -60,10 +60,21 @@ def main():
             with tempfile.TemporaryDirectory(prefix='private-receipts-benchmark-') as directory:
                 work=Path(directory);receipt=work/'receipt.json';n=2 if a.suite=='row-proofs' else 8
                 args=[BIN,'-m',file,'-p',prompt,'-n',str(n),'--temp',str(case['temperature']),'--seed','17','-ngl','0','-t',str(case['threads']),'-c','1024','-b','512','--out',receipt]
-                if a.suite=='row-proofs':args+=['--trace','--openings','2048']
+                reference_tokens=None
+                if a.suite=='row-proofs':
+                    plain,_,error=measure(args,work);record['metrics']['generation_without_trace']=plain
+                    if plain['returncode']:raise ValueError('Untraced generation failed: '+error[-500:])
+                    reference_tokens=json.loads(receipt.read_text())['response']['tokens']
+                    args+=['--trace','--openings','2048']
                 metric,stdout,stderr=measure(args,work);record['metrics']['generation']=metric
                 if metric['returncode']:raise ValueError('Generation failed: '+stderr[-500:])
                 rec=json.loads(receipt.read_text());tokens=rec['response']['tokens'];record['engine']=rec['engine'];record.update(prompt_tokens=len(rec['request']['prompt_tokens']),output_tokens=len(tokens),token_ids=tokens,end_to_end_tokens_per_second=len(tokens)/metric['seconds'])
+                if reference_tokens is not None:
+                    record['checks']['trace_preserves_tokens']=tokens==reference_tokens
+                    record['capture_overhead_seconds']=metric['seconds']-record['metrics']['generation_without_trace']['seconds']
+                for label,pattern in [('native_generation',r'generated \d+ tokens in ([\d.]+) s'),('model_commitment',r'model committed: .*?, ([\d.]+) s')]:
+                    found=re.search(pattern,stderr)
+                    if found:record[label+'_seconds']=float(found[1])
                 record['checks']['model_identity']=rec['model']['file_sha256']==identities[name]['sha256']
                 for label,pattern in [('prompt',r'prompt eval time\s*=\s*([\d.]+) ms /\s*(\d+) tokens'),('decode',r'(?<!prompt )eval time\s*=\s*([\d.]+) ms /\s*(\d+) runs')]:
                     match=re.search(pattern,stderr)
