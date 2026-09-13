@@ -70,6 +70,8 @@ def main() -> int:
             break
     data = {"manifests": manifests, "vkeys": vkeys, "examples": examples}
     template = (ROOT / "site" / "template.html").read_text()
+    template = template.replace("__STYLE__", (ROOT / "site/style.css").read_text())
+    template = template.replace("__JELLY__", (ROOT / "site/jelly.js").read_text())
     template = template.replace("__VERIFIER__", verifier_source)
     template = template.replace("__PACKAGE__", (ROOT / "site/proof-package.js").read_text())
     template = template.replace("__APP__", (ROOT / "site/app.js").read_text())

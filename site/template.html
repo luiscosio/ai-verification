@@ -3,92 +3,65 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>llama-receipts · Proof workspace</title>
+<meta name="theme-color" content="#f4f3ee">
+<meta name="description" content="Inspect a computation proof. Check its arithmetic against registered model weights, directly in your browser.">
+<title>llama-receipts · Inspect a proof</title>
 <style>
-:root { color-scheme:light; --ink:#203028; --muted:#627068; --line:#dbe1d8; --paper:#fafbf7; --card:#fff; --green:#276144; --pale:#eaf2e8; --red:#a13332; --amber:#795716; }
-* { box-sizing:border-box; } [hidden] { display:none!important; }
-body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-main { max-width:1100px; margin:auto; padding:28px 32px 64px; }
-a { color:var(--green); text-underline-offset:4px; }
-nav { display:flex; align-items:center; flex-wrap:wrap; gap:24px; border-bottom:1px solid var(--line); padding-bottom:20px; }
-.brand { font-weight:750; letter-spacing:-.04em; font-size:21px; margin-right:auto; }
-nav a { text-decoration:none; font-size:14px; }
-.tag,.eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
-.tag { color:var(--amber); background:#f7f0df; padding:4px 9px; border-radius:5px; }
-.hero { padding:54px 0 32px; max-width:750px; }
-.eyebrow { color:var(--green); }
-h1 { font-weight:550; font-size:clamp(34px,5vw,54px); letter-spacing:-.055em; line-height:1.13; margin:14px 0 20px; }
-h2 { font-size:23px; line-height:1.25; font-weight:600; letter-spacing:-.025em; margin:0 0 12px; }
-h3 { font-size:17px; margin:0 0 8px; }
-p { margin:0 0 16px; }
-.lead { color:var(--muted); font-size:18px; max-width:660px; }
-.small { font-size:13px; color:var(--muted); }
-.notice { border-left:3px solid #b89b55; padding:10px 16px; background:#f7f3e9; font-size:14px; margin:0 0 28px; }
-.grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start; }
-.model-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; margin-top:20px; }
-.fingerprint { overflow-wrap:anywhere; font:12px/1.6 monospace; }
-input[type=search] { padding:11px 14px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--ink); }
-.card { border:1px solid var(--line); border-radius:14px; background:var(--card); padding:26px; }
-.section { margin-top:30px; scroll-margin-top:20px; }
-.step { width:28px; height:28px; display:inline-grid; place-items:center; border:1px solid var(--line); border-radius:50%; font-size:12px; margin-bottom:18px; color:var(--muted); }
-label { display:block; font-size:14px; font-weight:600; margin:16px 0 6px; }
-select,textarea,input { font:inherit; width:100%; }
-select,textarea { border:1px solid var(--line); border-radius:7px; padding:10px 12px; background:var(--paper); color:var(--ink); }
-textarea { min-height:105px; resize:vertical; }
-button,.button { display:inline-block; font:inherit; font-size:14px; font-weight:600; padding:11px 16px; border:1px solid var(--green); border-radius:7px; background:var(--green); color:#fff; text-decoration:none; cursor:pointer; }
-button.secondary { background:transparent; color:var(--green); border-color:var(--line); }
-button:disabled { opacity:.55; cursor:default; }
-:focus-visible { outline:3px solid #75a7d6; outline-offset:3px; }
-.actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:18px; }
-.drop { padding:24px 16px; border:1px dashed #a3b6a5; border-radius:9px; background:var(--paper); margin:20px 0 12px; }
-.drop.drag { border-color:var(--green); background:var(--pale); }
-.drop label { margin-top:0; }
-input[type=file] { font-size:13px; }
-#examples { display:flex; gap:8px; flex-wrap:wrap; }
-#examples button { padding:7px 10px; font-size:12px; }
-.result { margin-top:24px; }
-.result[data-state=verified] { border-color:#9ab79d; background:#f3f8f0; }
-.result[data-state=invalid] { border-color:#d4a4a1; }
-.result h2 { margin:6px 0 14px; }
-.ok { color:var(--green); } .bad { color:var(--red); }
-.facts { display:grid; grid-template-columns:1fr 1fr; gap:20px 32px; margin:24px 0; }
-.facts dt { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
-.facts dd { margin:0; font-size:14px; }
-details { margin-top:16px; border-top:1px solid var(--line); padding-top:14px; }
-summary { cursor:pointer; font-size:14px; font-weight:600; }
-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
-th,td { text-align:left; border-bottom:1px solid var(--line); vertical-align:top; padding:8px 6px; overflow-wrap:anywhere; }
-th { width:28%; color:var(--muted); font-weight:500; }
-pre { white-space:pre-wrap; overflow-wrap:anywhere; padding:14px; border-radius:6px; background:var(--paper); font-size:12px; }
-.progress { padding:0; list-style:none; }
-.progress li { padding:7px 0; font-size:14px; color:var(--muted); }
-.progress li::before { content:'○'; display:inline-block; width:25px; }
-.progress li[data-state=done]::before { content:'✓'; color:var(--green); }
-.progress li[data-state=active] { font-weight:650; color:var(--ink); }
-.progress li[data-state=active]::before { content:'●'; color:var(--green); }
-.answer { white-space:pre-wrap; overflow-wrap:anywhere; font-size:20px; }
-footer { border-top:1px solid var(--line); margin-top:40px; padding-top:18px; }
-@media(max-width:760px) { main { padding:20px 18px 40px; } .grid,.facts { grid-template-columns:1fr; } .hero { padding-top:35px; } .card { padding:22px; } nav { gap:14px; } .brand { width:100%; } }
+__STYLE__
 </style>
 </head>
 <body>
+<a class="skip-link" href="#workspace">Skip to workspace</a>
+<div class="page-shell">
+<nav class="masthead" aria-label="Main">
+<a class="brand" href="#workspace" aria-label="llama-receipts home"><span class="brand-mark" aria-hidden="true">▦</span>llama-receipts</a>
+<div class="nav-links"><a href="#workspace">Workspace</a><a href="#models">Models</a><a href="#understand">About the proof</a></div>
+<span class="edition" id="edition">Public registry <span aria-hidden="true">/</span> Experimental</span>
+</nav>
 <main>
-<nav aria-label="Main"><span class="brand">llama-receipts<span class="small"> / proof workspace</span></span><a href="#workspace">Create &amp; verify</a><a href="#understand">How it works</a><a href="#models">Models &amp; research</a><span class="tag">Research preview</span></nav>
-<header class="hero"><div class="eyebrow">Local computation. Independent verification.</div><h1>A proof you can check<br>for yourself.</h1><p class="lead">Generate a computation proof on your computer. Open it here to check the math against a registered model, without downloading its weights.</p></header>
-<p class="notice"><strong>What works today:</strong> proofs of a small part of a model operation. The prompt, generated answer and complete inference are not proven. This preview uses experimental setup materials.</p>
-<div class="grid" id="workspace">
-<section class="card" id="generate"><span class="step">01</span><h2>Generate locally</h2><p class="small">Your computer runs the model and builds the proof.</p>
-<div id="local-unavailable"><p>Start the local workspace from your project checkout:</p><pre>./start-workspace.sh</pre><p class="small">Open the local address it prints. It checks your installed model and proving tools before running. First-time setup instructions are in the repository README.</p></div>
-<form id="generate-form" hidden><label for="local-model">Model</label><select id="local-model"></select><p id="readiness" class="small" role="status"></p><label for="prompt">Prompt</label><textarea id="prompt" maxlength="512" required>The capital of France is</textarea><p class="small">Up to 64 model tokens. This checkpoint runs two generation steps and proves one small operation segment.</p><div class="actions"><button id="generate-button" type="submit">Run and generate proof</button><button id="cancel-button" type="button" class="secondary" hidden>Cancel</button></div></form>
-<div id="job-view" hidden><p id="job-status" class="small" role="status" aria-live="polite"></p><ol id="progress" class="progress" aria-label="Proof generation progress"></ol><div id="generation-output" hidden><h3>Generated text · unverified</h3><p id="answer" class="answer"></p><p class="small">The exported proof omits prompt and answer text, because this checkpoint cannot authenticate them. Its public activation values may still reveal information about the prompt.</p><div class="actions"><button id="download-proof">Download proof</button><button id="check-generated" class="secondary">Verify here</button></div></div><details id="run-details" hidden><summary>Run measurements</summary><div id="run-measurements"></div><p class="small">Reported by this local run, not certified by the proof. Peak memory and a separate capture-overhead measurement are not collected yet.</p></details></div>
+<section class="workbench" id="workspace" aria-labelledby="workspace-title">
+<div class="workspace-controls">
+<div class="section-index">01 <span>Proof workspace</span></div>
+<h1 id="workspace-title">Inspect a proof.</h1>
+<p class="intro" id="workspace-intro">Check a computation against registered model weights.</p>
+<div class="workspace-tabs" role="group" aria-label="Workspace mode"><button id="show-verify" type="button" aria-pressed="true">Verify a proof</button><button id="show-generate" type="button" aria-pressed="false">Generate locally</button></div>
+<section id="verify" aria-label="Verify a proof">
+<div class="drop" id="drop-zone"><span class="file-icon" aria-hidden="true">↥</span><label for="package-file">Open your proof file</label><p class="small">Drop a .llamaproof file here, or browse.</p><input type="file" id="package-file" accept=".json,.llamaproof"></div>
+<p id="file-label" class="small file-label">Read on this device. Your file is never uploaded.</p>
+<div class="actions"><button id="run">Verify proof <span aria-hidden="true">↗</span></button><button id="download-example" class="text-button">Download example</button></div>
+<p id="status" class="small status" role="status" aria-live="polite"></p>
+<div class="example-line"><span class="small">Just exploring?</span><div id="examples"></div></div>
 </section>
-<section class="card" id="verify"><span class="step">02</span><h2>Verify a proof</h2><p class="small">One file. Checked in your browser. No upload.</p><div class="drop" id="drop-zone"><label for="package-file">Drop a proof file here, or choose one</label><input type="file" id="package-file" accept=".json,.llamaproof"></div><p id="file-label" class="small">The file identifies its model and computation automatically.</p><div class="actions"><button id="run">Verify proof</button><button id="download-example" class="secondary">Download example</button></div><p id="status" class="small" role="status" aria-live="polite"></p><details open><summary>Try it without installing anything</summary><p class="small">Compare a valid proof with one that breaks the accepted input range.</p><div id="examples"></div></details><p class="small" style="margin-top:18px">Model weights stay private. Activation numbers and arithmetic sums are public in this checkpoint.</p></section>
+<section id="generate" aria-label="Generate locally" hidden>
+<div id="local-unavailable" class="local-setup"><h2>Start on your computer.</h2><p>Run the local workspace to create a proof with your own model file.</p><pre>./start-workspace.sh</pre><p class="small">Open the local address it prints. Your model and the proving tools stay on your computer.</p><a class="inline-link" href="https://github.com/luiscosio/ai-verification#readme" target="_blank" rel="noopener">Setup instructions ↗</a></div>
+<form id="generate-form" hidden><label for="local-model">Model</label><select id="local-model"></select><p id="readiness" class="small readiness" role="status"></p><label for="prompt">Prompt</label><textarea id="prompt" maxlength="512" required>The capital of France is</textarea><p class="small input-note">Two generation steps. One operation segment proven. Up to 64 input tokens.</p><div class="actions"><button id="generate-button" type="submit">Run and generate proof</button><button id="cancel-button" type="button" class="secondary" hidden>Cancel</button></div></form>
+<div id="job-view" hidden><p id="job-status" class="small status" role="status" aria-live="polite"></p><ol id="progress" class="progress" aria-label="Proof generation progress"></ol><div id="generation-output" hidden><div class="output-label">Generated text <span>Not verified</span></div><p id="answer" class="answer"></p><p class="small">The proof omits prompt and answer text. Public activation values may still reveal information about the prompt.</p><div class="actions"><button id="download-proof">Download proof</button><button id="check-generated" class="secondary">Verify here</button></div></div><details id="run-details" hidden><summary>Run measurements</summary><div id="run-measurements"></div><p class="small">Measured locally; not certified by the proof. Peak memory and capture overhead are not collected yet.</p></details></div>
+</section>
 </div>
-<section id="result-view" class="card result" aria-live="polite" aria-atomic="true" tabindex="-1"><div class="eyebrow">Verification result</div><h2>No proof checked yet</h2><p class="small">Choose a file or try an example above. You will see exactly what the proof covers.</p></section>
-<section id="understand" class="card section"><h2>What are you checking?</h2><div class="facts"><div><h3>1. A model is registered</h3><p class="small">The registry records commitments to model weights. You rely on the registrar to associate those commitments with the named model.</p></div><div><h3>2. A prover supplies evidence</h3><p class="small">The prover uses private weights to produce a proof of a specified computation. Today that is one small integer calculation inside a matrix operation.</p></div><div><h3>3. Your browser checks it</h3><p class="small">The verifier checks the proof, accepted input ranges and registered commitment. The proof file cannot supply its own trusted keys.</p></div><div><h3>4. Coverage matters</h3><p class="small">Valid evidence for one calculation does not establish the complete answer. Full-token coverage is a research milestone still ahead.</p></div></div></section>
-<section id="models" class="section"><h2>Registered models</h2><p id="catalog-summary" class="small"></p><p class="small">These fingerprints identify exact model files. Proof coverage is listed separately. They are project registrations, not certificates signed by the model providers.</p><label for="model-search">Find a model</label><input id="model-search" type="search" placeholder="Model name or file fingerprint"><div id="models-view" class="model-grid"></div><details id="offline"><summary>Verify the same file offline</summary><p class="small">In a checkout with the pinned Groth16 dependencies installed:</p><pre>node site/verify-file.cjs my-proof.llamaproof</pre><p class="small">This uses the checkout's trusted registry and the same acceptance policy as the browser. It needs no model weights or network connection. Raw pairing verification alone omits application checks.</p></details></section>
-<footer class="small">Experimental Groth16 setup · one contributor · no independent registrar review yet<br>Built __BUILT_AT__. Browser verification loads snarkjs 0.7.5 from a CDN; proof files are read locally.</footer>
+<aside class="specimen" aria-label="Conceptual illustration of partial proof coverage">
+<div class="specimen-heading"><span>Inside the computation</span><span class="figure-number">Fig. 01</span></div>
+<div class="jelly-stage" id="jelly-stage" aria-hidden="true">
+<svg class="jelly-fallback" viewBox="0 0 600 500" role="presentation"><defs><radialGradient id="jelly-color" cx="30%" cy="20%" r="80%"><stop stop-color="#ffe2b4"/><stop offset=".35" stop-color="#fda57b"/><stop offset=".75" stop-color="#d67894"/><stop offset="1" stop-color="#9076ad"/></radialGradient></defs><ellipse cx="305" cy="425" rx="155" ry="15" fill="#ddd2d5" opacity=".5"/><path d="M150 290C90 120 200 55 315 80C440 55 505 220 440 335C400 420 190 440 150 290Z" fill="url(#jelly-color)"/><g fill="none" stroke="#fff2e9" stroke-width="2" opacity=".7"><ellipse cx="300" cy="200" rx="149" ry="78"/><ellipse cx="301" cy="232" rx="157" ry="78"/><ellipse cx="302" cy="264" rx="158" ry="78"/><ellipse cx="303" cy="296" rx="147" ry="72"/><ellipse cx="305" cy="328" rx="125" ry="61"/></g></svg>
+</div>
+<div class="specimen-caption"><span class="slice-mark" aria-hidden="true"></span><p>A small part of a larger whole.<br><span>This proof checks one integer row group.</span></p><button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false" hidden>Pause motion</button></div>
+<p class="illustration-note">Conceptual illustration. The result below shows actual coverage.</p>
+</aside>
+</section>
+<section id="result-view" class="result" aria-live="polite" aria-atomic="true" tabindex="-1" hidden></section>
+<div class="scope-note"><span class="scope-symbol" aria-hidden="true">↳</span><p><strong>Partial computation proofs.</strong> The prompt, answer and complete inference are not proven in this release.</p><a href="#understand">What this means ↓</a></div>
+<section id="models" class="catalog section" aria-labelledby="models-title">
+<div class="section-heading"><div><div class="section-index">02 <span>The registry</span></div><h2 id="models-title">Model records.</h2><p id="catalog-summary" class="small"></p></div><div class="catalog-search"><label for="model-search">Find a model</label><input id="model-search" type="search" placeholder="Name or fingerprint"></div></div>
+<div class="catalog-columns" aria-hidden="true"><span>Model / exact file</span><span>Registered proof support</span><span>Record</span></div>
+<div id="models-view"></div>
+<p class="catalog-footnote">Registrations maintained by this project. Model providers have not signed these records.</p>
+</section>
+<section id="understand" class="learn section" aria-labelledby="learn-title">
+<div><div class="section-index">03 <span>Read the evidence</span></div><h2 id="learn-title">What does a<br>passing proof mean?</h2><p>It means the specified calculation passed the verifier’s checks against a registered weight commitment.</p><p class="small">It does not yet establish that a complete answer came from that model.</p></div>
+<div class="learn-notes"><details open><summary>Which weights am I trusting?</summary><p>The registry associates a model name with commitments to its weights. The proof checks that commitment. You still rely on the registrar to make the right association; independent review is pending.</p></details><details><summary>What stays private?</summary><p>Model weights stay private. Activation numbers and integer sums are public in this checkpoint and may reveal information about the prompt.</p></details><details><summary>How much of the computation is covered?</summary><p>One small group of integer calculations inside a matrix operation. Scaling, other operations and the complete token generation are outside this proof.</p></details><details id="offline"><summary>Can I verify without this website?</summary><p>Yes. Use the same file with the trusted registry in your checkout. No model weights are needed.</p><pre>node site/verify-file.cjs my-proof.llamaproof</pre><p>Install the pinned verifier dependencies first. Both paths enforce the same acceptance policy.</p></details><a class="inline-link" href="https://github.com/luiscosio/ai-verification" target="_blank" rel="noopener">Research, code &amp; current limitations ↗</a></div>
+</section>
 </main>
+<footer><span>llama-receipts <span class="footer-divider">/</span> Evidence you can inspect.</span><span>Experimental setup · single contributor<br><span class="build-date">Built __BUILT_AT__</span></span></footer>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.5/build/snarkjs.min.js"></script>
 <script>
 __VERIFIER__
@@ -100,6 +73,9 @@ __PACKAGE__
 const DATA = __DATA__;
 const LOCAL = /*LOCAL_CONFIG*/null;
 __APP__
+</script>
+<script type="module">
+__JELLY__
 </script>
 </body>
 </html>

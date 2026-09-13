@@ -61,7 +61,8 @@ const copy = x => JSON.parse(JSON.stringify(x));
         get textContent() { return this.text + this.children.map(c => c.textContent).join(" "); }
         append(...children) { this.children.push(...children); }
         replaceChildren(...children) { this.text = ""; this.children = children; }
-        addEventListener() {}
+        setAttribute(name, value) { this[name] = String(value); }
+        addEventListener(name, handler) { (this.listeners ||= {})[name] = handler; }
         focus() {}
         scrollIntoView() {}
     }
@@ -74,15 +75,30 @@ const copy = x => JSON.parse(JSON.stringify(x));
     await context.verifyPackage(honestPackage, "honest");
     assert.equal(elements["result-view"].dataset.state, "verified");
     assert.match(elements["result-view"].textContent, /answer and complete inference are not verified/);
+    assert.match(elements["result-view"].textContent, /One calculation verified/);
+    const coverage = elements["result-view"].children.find(c => c.className === "coverage");
+    assert.ok(coverage, "accepted proof exposes coverage");
+    const controls = coverage.children[0].children[1].children;
+    controls[0].listeners.click();
+    assert.match(coverage.textContent, /One square per tensor/);
+    const plot = coverage.children[1].children[0].children[0];
+    assert.equal(plot.children.length, data.manifests.find(m => m.manifest_id === honestPackage.registration_id).tensors.length);
+    assert.equal(plot.children.filter(c => c.className === "selected").length, 1);
+    controls[1].listeners.click();
+    assert.match(coverage.textContent, /not an execution trace/);
+    controls[2].listeners.click();
+    assert.match(coverage.textContent, /Rows 0–15/);
+    assert.equal(plot.children.length, 16);
     const html = [...pub]; html[0] = "<svg/onload=alert()>";
     await context.verifyPackage({...honestPackage, public:html}, "<img src=x onerror=alert(1)>");
     assert.equal(elements["result-view"].dataset.state, "invalid");
     assert.equal(elements.run.disabled, false);
+    assert.ok(!elements["result-view"].children.some(c => c.className === "coverage"), "rejected proof cannot show checked coverage");
     await context.verifyPackage({...honestPackage, public:invalid, proof:invalidProof}, "invalid activation");
     assert.match(elements["result-view"].textContent, /activation value is outside the allowed range/);
     elements["package-file"].files = [{size:1, name:"broken", text:async () => "{"}];
     await context.verifySelected(); assert.equal(elements["result-view"].dataset.state, "invalid");
     assert.doesNotMatch(elements["result-view"].textContent, /Computation proof verified/);
-    console.log(`${count} Groth16 regressions, 9 envelope cases and 4 application-renderer cases passed`);
+    console.log(`${count} Groth16 regressions, 9 envelope cases and 4 application-renderer cases plus coverage navigation passed`);
     process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });
