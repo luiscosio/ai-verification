@@ -253,6 +253,8 @@ def create_app(port=8789):
                 raise ValueError('Expected a model and prompt.')
             if not isinstance(data['prompt'], str) or not data['prompt'].strip() or len(data['prompt']) > 512 or '\x00' in data['prompt']:
                 raise ValueError('Enter a prompt of 1 to 512 characters, without NUL characters.')
+            # JSON can contain lone UTF-16 surrogates that cannot be passed to the native tool.
+            data['prompt'].encode('utf-8')
             m = manifest()
             if data['model'] != m['manifest_id']:
                 raise ValueError('Choose the registered model offered by this workspace.')

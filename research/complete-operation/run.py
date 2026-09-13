@@ -43,14 +43,16 @@ def prove(build,inputs,work):
     return value,{'witness':witness,'proving':proving}
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--model',type=Path,default=ROOT/'models/qwen3-0.6b-q4_k_m.gguf');a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--model',type=Path,default=ROOT/'models/qwen3-0.6b-q4_k_m.gguf');p.add_argument('--token-id',type=int,default=0);a=p.parse_args()
     a.build=a.build.resolve();a.out=a.out.resolve()
     if a.out.exists() and any(a.out.iterdir()):raise ValueError('Use a fresh output directory; old results must not be reused.')
     a.out.mkdir(parents=True,exist_ok=True)
     canonical_model=json.loads((ROOT/'registry/qwen3-0.6b-q4_k_m/manifest.json').read_text())
     if sha(a.model)!=canonical_model['model']['file_sha256']:raise ValueError('Unexpected model file')
     model=ref.Model(str(a.model),20);tensor='blk.0.attn_k.weight';rows=16;k=1024;m=1024;nb=4
-    x=model.rms_norm(model.embed(0),model.consts_vec('blk.0.attn_norm.weight'))
+    if not 0 <= a.token_id < model.store.blocks('token_embd.weight').shape[0]:
+        raise ValueError('Token ID is outside the registered vocabulary')
+    x=model.rms_norm(model.embed(a.token_id),model.consts_vec('blk.0.attn_norm.weight'))
     start=time.perf_counter();y=model.matmul(tensor,x);reference_seconds=time.perf_counter()-start
     da,q8,bsums=model.quantize_q8k(x)
     dw,dmin,sc,mn,q4=ref.vt.unpack_q4_k(model.store.blocks(tensor))
@@ -90,7 +92,7 @@ def main():
         package={'format':registration['claim'],'registration_id':registration_id,'context':str(context),'input_commitment':input_commit,'quant':quant,'groups':groups}
         write(a.out/'operation.proof.json',package)
     verify_metric,stdout=measured(['node',HERE/'verify.cjs',a.out/'operation.proof.json',registry]);verdict=json.loads(stdout)
-    report={'claim':registration['claim'],'registration_id':registration_id,'input_source':'F20 normalized embedding of registered token ID 0; preparation itself outside this proof','reference_seconds':reference_seconds,'measurements':timings,'verification':verdict,'verification_process':verify_metric,'machine':{'platform':platform.platform(),'machine':platform.machine(),'python':platform.python_version()},'sources':{'root_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'driver_sha256':sha(__file__),'circuit_sha256':sha(HERE/'full_matvec.circom')},'privacy':'No input/output openings, activation values or witnesses exported. Metadata and commitments are public.'}
+    report={'claim':registration['claim'],'registration_id':registration_id,'input_source':f'F20 normalized embedding of registered token ID {a.token_id}; preparation itself outside this proof','reference_seconds':reference_seconds,'measurements':timings,'verification':verdict,'verification_process':verify_metric,'machine':{'platform':platform.platform(),'machine':platform.machine(),'python':platform.python_version()},'sources':{'root_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()),'driver_sha256':sha(__file__),'circuit_sha256':sha(HERE/'full_matvec.circom')},'privacy':'No input/output openings, activation values or witnesses exported. Metadata and commitments are public.'}
     write(a.out/'report.json',report);print(json.dumps(verdict),flush=True)
 
 if __name__=='__main__':main()

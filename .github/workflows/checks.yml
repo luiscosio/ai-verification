@@ -1,0 +1,91 @@
+name: Verification checks
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ['22', '24']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.9.26'
+      - run: npm ci --prefix code/llama.cpp/examples/receipts/zk/groth16
+      - name: Portable regression, adversarial and resource-monitor checks
+        run: bash checks/portable.sh
+      - name: Prototype tests with its locked native Python dependency
+        env:
+          CMAKE_ARGS: -DGGML_METAL=OFF -DGGML_CUDA=OFF
+          CMAKE_BUILD_PARALLEL_LEVEL: '2'
+        run: uv run --project code/llama-receipts --locked --group dev python -m pytest -q code/llama-receipts --junitxml=test-results/prototype.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: checks-${{ matrix.os }}-node${{ matrix.node }}
+          path: test-results/
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.9.26'
+      - name: Install and authenticate model and proving materials; build native tools
+        run: ./setup-workspace.sh
+      - name: Native registration and receipt rejection tests
+        run: uv run --project tools/workspace --locked --group dev python checks/check_core.py
+      - name: Fresh inference, content check and CPU replay
+        run: uv run --project tools/workspace --locked --group dev python benchmarks/run_matrix.py --models qwen3-0.6b --limit 4 --out test-results/native
+      - name: Fresh registered proofs and negative controls
+        run: uv run --project tools/workspace --locked --group dev python benchmarks/run_matrix.py --suite row-proofs --models qwen3-0.6b --limit 1 --out test-results/proofs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: native-integration
+          path: test-results/
+  browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix site --ignore-scripts
+      - run: npx --prefix site playwright install --with-deps chromium firefox webkit
+      - run: python3 site/build_site.py
+      - name: Real browser verification, upload, keyboard and mobile checks
+        working-directory: site
+        run: npx playwright test
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: browser-results
+          path: |
+            site/test-results/
+            site/playwright-report/

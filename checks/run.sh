@@ -17,9 +17,11 @@ else
 fi
 "$PYTHON" -m pytest -q code/llama-receipts
 node checks/check_groth16.cjs
+node checks/check_adversarial.cjs
 "$PYTHON" checks/check_core.py
 "${API_RUN[@]}" checks/check_api.py
 "${API_RUN[@]}" checks/check_workspace.py
+"${API_RUN[@]}" checks/check_matrix_api.py
 
 "$PYTHON" checks/check_setup.py
 "$PYTHON" checks/check_site_supply.py

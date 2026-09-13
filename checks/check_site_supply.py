@@ -24,8 +24,11 @@ class SupplyChecks(unittest.TestCase):
         self.assertNotRegex((ROOT/'site/jelly.js').read_text(),r'\bimport\s*\(')
 
     def test_actions_use_full_commits(self):
-        actions=re.findall(r'uses:\s*(\S+)',(ROOT/'.github/workflows/pages.yml').read_text())
-        self.assertEqual(len(actions),5)
-        for action in actions:self.assertRegex(action,r'^actions/[\w-]+@[0-9a-f]{40}$')
+        actions=[a for workflow in (ROOT/'.github/workflows').glob('*.yml') for a in re.findall(r'uses:\s*(\S+)',workflow.read_text())]
+        self.assertGreaterEqual(len(actions),5)
+        for action in actions:
+            if action.startswith('./.github/workflows/'):
+                self.assertTrue((ROOT/action).is_file())
+            else:self.assertRegex(action,r'^[\w-]+/[\w-]+@[0-9a-f]{40}$')
 
 if __name__=='__main__':unittest.main()
