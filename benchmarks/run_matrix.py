@@ -105,6 +105,22 @@ def main():
                     if metric['returncode']:raise ValueError('Prover failed: '+error[-600:])
                     summary=json.loads((work/'proof/summary.json').read_text());record['proof_summary']=summary
                     record['checks']['registered_proofs']=all(g['accept'] and g['bound'] and not g['tampered_sum_accepted'] and not g['other_group_accepted'] for g in summary['groups'])
+                    record['proof_files']=[];record['checks']['exported_proofs']=True;record['checks']['wrong_group_rejected']=True
+                    public_dir=a.out/'proofs';public_dir.mkdir(exist_ok=True)
+                    for group in groups:
+                        private_dir=work/'proof'/f'group{group}'
+                        package={'format':'llama-receipts/proof-package/v1','claim':'q4k-integer-row-group/v1','registration_id':manifest['manifest_id'],'tensor':tensor,'group':group,'proof':json.loads((private_dir/'proof.json').read_text()),'public':json.loads((private_dir/'public.json').read_text())}
+                        public_file=public_dir/f'{name}-{case["prompt"]}-k{case["k"]}-g{group}.llamaproof'
+                        write(public_file,package)
+                        record['proof_files'].append({'file':str(public_file.relative_to(a.out)),'sha256':digest(public_file),'bytes':public_file.stat().st_size})
+                        metric,stdout,_=measure(['node',ROOT/'site/verify-file.cjs',public_file],work)
+                        record['metrics'][f'export_verification_{group}']=metric
+                        record['checks']['exported_proofs'] &= metric['returncode']==0 and json.loads(stdout).get('accept') is True
+                        package['group']=(group+1)%len(entry['groth16']['groups']);bad=work/'wrong-group.llamaproof';write(bad,package)
+                        metric,stdout,_=measure(['node',ROOT/'site/verify-file.cjs',bad],work)
+                        record['metrics'][f'wrong_group_{group}']=metric
+                        record['checks']['wrong_group_rejected'] &= metric['returncode']==1 and json.loads(stdout).get('status')=='invalid'
+
                 record['passed']=all(record['checks'].values())
         except Exception as error:record['passed']=False;record['error']=str(error)
         outcomes.append(record)
