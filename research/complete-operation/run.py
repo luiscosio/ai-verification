@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prove all rows of one F20 matvec, keeping all activation openings local."""
 from __future__ import annotations
-import argparse, hashlib, importlib.util, json, os, platform, secrets, shutil, subprocess, sys, tempfile, time
+import argparse, hashlib, importlib.util, json, os, platform, secrets, shutil, signal, subprocess, sys, tempfile, time
 from pathlib import Path
 import numpy as np
 ROOT=Path(__file__).resolve().parents[2]
@@ -24,7 +24,15 @@ def measured(cmd,timeout=600):
     with tempfile.TemporaryDirectory() as d:
         metric=Path(d)/'time.txt';start=time.perf_counter()
         wrapper=['/usr/bin/time','-l' if sys.platform=='darwin' else '-v','-o',str(metric)]
-        result=subprocess.run(wrapper+[str(x) for x in cmd],capture_output=True,text=True,timeout=timeout)
+        with subprocess.Popen(wrapper+[str(x) for x in cmd],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,start_new_session=True) as process:
+            try:
+                stdout,stderr=process.communicate(timeout=timeout)
+            finally:
+                # Killing only /usr/bin/time leaves the actual prover running.
+                try:os.killpg(process.pid,signal.SIGKILL)
+                except ProcessLookupError:pass
+                process.wait()
+        result=subprocess.CompletedProcess(cmd,process.returncode,stdout,stderr)
         elapsed=time.perf_counter()-start
         text=metric.read_text() if metric.exists() else ''
         rss=None

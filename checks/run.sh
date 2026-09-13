@@ -19,6 +19,7 @@ fi
 node checks/check_groth16.cjs
 node checks/check_adversarial.cjs
 "$PYTHON" checks/check_core.py
+"$PYTHON" checks/check_native_unicode.py
 "${API_RUN[@]}" checks/check_api.py
 "${API_RUN[@]}" checks/check_workspace.py
 "${API_RUN[@]}" checks/check_matrix_api.py

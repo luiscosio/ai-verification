@@ -131,10 +131,15 @@ class CoreChecks(unittest.TestCase):
     def test_demo_stops_on_failure(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d); fake = p / "llama"; (fake / "build/bin").mkdir(parents=True)
-            (fake / "examples").symlink_to(ROOT / "code/llama.cpp/examples")
+            # Supply every preflight fixture; this test must not depend on locally
+            # compiled Rust/Lean tools when it only checks first-step failure.
+            for name in ['examples/receipts/verify_trace.py','examples/receipts/zk/target/release/receipts-zk','examples/receipts/spec/lakefile.toml']:
+                file=fake/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text('fixture')
+            lake=fake/'build/bin/lake';lake.write_text('#!/bin/sh\nexit 98\n');lake.chmod(0o755)
+            model=p/'model.gguf';model.write_bytes(b'preflight fixture')
             binary = fake / "build/bin/llama-receipts"
             binary.write_text('#!/bin/sh\necho "injected failure" >&2\nexit 37\n'); binary.chmod(0o755)
-            env = dict(os.environ, LLAMA=str(fake), LEAN=str(ROOT / "code/llama.cpp"), MODEL=str(MODEL),
+            env = dict(os.environ, LLAMA=str(fake), LEAN=str(fake), MODEL=str(model), PATH=str(fake/"build/bin")+":"+os.environ["PATH"],
                        DEMO_ROOT=str(p / "demo"), PYTHON_RUNNER=sys.executable)
             result = subprocess.run(["bash", str(ROOT / "run-demo.sh")], env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 37, result.stdout + result.stderr)

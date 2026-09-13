@@ -56,6 +56,8 @@ jobs:
         run: ./setup-workspace.sh
       - name: Native registration and receipt rejection tests
         run: uv run --project tools/workspace --locked --group dev python checks/check_core.py
+      - name: Native UTF-8 byte-piece boundaries and text tampering
+        run: uv run --project tools/workspace --locked --group dev python checks/check_native_unicode.py
       - name: Real local API generation, download and independent verification
         run: uv run --project tools/workspace --locked --group dev python -m pytest -q checks/check_live_workspace.py --cov=site --cov-branch --cov-report=xml:test-results/live-coverage.xml --junitxml=test-results/live.xml
       - name: Fresh inference, content check and CPU replay

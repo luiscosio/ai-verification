@@ -2,7 +2,7 @@
   "format": "llama-receipts/prover-materials/v1",
   "tag": "prover-materials-v1",
   "base_url": "https://github.com/luiscosio/ai-verification/releases/download/prover-materials-v1/",
-  "fork_commit": "7b8c8181ef47b693a5fab8426d3ea776e5f65399",
+  "fork_commit": "a751319930c824eb9cbb24a7c91c4a6ba18ac679",
   "circom": "2.2.3",
   "snarkjs": "0.7.5",
   "circomlib": "2.0.5",

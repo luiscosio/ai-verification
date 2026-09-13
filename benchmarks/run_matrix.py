@@ -19,7 +19,7 @@ def corpus():
     return [{**p,'prompt':p['prompt']*p.get('repeat',1)+p.get('suffix','')} for p in json.loads((ROOT/'benchmarks/corpus.json').read_text())]
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--suite',choices=['native','row-proofs'],default='native');p.add_argument('--models',default=','.join(MODELS));p.add_argument('--limit',type=int);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--suite',choices=['native','row-proofs'],default='native');p.add_argument('--models',default=','.join(MODELS));p.add_argument('--limit',type=int);p.add_argument('--case-plan',type=Path,help='Run a saved public case list instead of the default matrix');a=p.parse_args()
     a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     models={k:MODELS[k] for k in a.models.split(',')};identities={}
     for name,(file,reg) in models.items():
@@ -28,7 +28,7 @@ def main():
         if reg:
             assert value==json.loads((ROOT/'registry'/reg/'manifest.json').read_text())['model']['file_sha256']
         identities[name]={'sha256':value,'bytes':file.stat().st_size,'registration':reg}
-    write(a.out/'environment.json',environment(ROOT)|{'models':identities,'suite':a.suite,'corpus_sha256':digest(ROOT/'benchmarks/corpus.json'),'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py')})
+    write(a.out/'environment.json',environment(ROOT)|{'models':identities,'suite':a.suite,'corpus_sha256':digest(ROOT/'benchmarks/corpus.json'),'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py'),'native_binary_sha256':digest(BIN),'native_source_sha256':digest(ROOT/'code/llama.cpp/examples/receipts/receipts.cpp'),'fork_commit':subprocess.check_output(['git','-C',str(ROOT/'code/llama.cpp'),'rev-parse','HEAD'],text=True).strip()})
     prompts=corpus();cases=[]
     if a.suite=='native':
         for name in models:
@@ -42,6 +42,7 @@ def main():
         for name in ['qwen3-0.6b','qwen2.5-1.5b']:
             if name in models:
                 for i,item in enumerate(prompts[:3]):cases.append({'model':name,'prompt':item['id'],'threads':8,'repeat':0,'temperature':0,'k':([1024,2048,3072][i] if name=='qwen3-0.6b' else 1536)})
+    if a.case_plan:cases=json.loads(a.case_plan.read_text())
     if a.limit:cases=cases[:a.limit]
     write(a.out/'plan.json',cases);outcomes=[];seen={}
     for number,case in enumerate(cases):
@@ -53,7 +54,7 @@ def main():
                 if a.suite=='row-proofs':args+=['--trace','--openings','2048']
                 metric,stdout,stderr=measure(args,work);record['metrics']['generation']=metric
                 if metric['returncode']:raise ValueError('Generation failed: '+stderr[-500:])
-                rec=json.loads(receipt.read_text());tokens=rec['response']['tokens'];record.update(prompt_tokens=len(rec['request']['prompt_tokens']),output_tokens=len(tokens),token_ids=tokens,end_to_end_tokens_per_second=len(tokens)/metric['seconds'])
+                rec=json.loads(receipt.read_text());tokens=rec['response']['tokens'];record['engine']=rec['engine'];record.update(prompt_tokens=len(rec['request']['prompt_tokens']),output_tokens=len(tokens),token_ids=tokens,end_to_end_tokens_per_second=len(tokens)/metric['seconds'])
                 record['checks']['model_identity']=rec['model']['file_sha256']==identities[name]['sha256']
                 for label,pattern in [('prompt',r'prompt eval time\s*=\s*([\d.]+) ms /\s*(\d+) tokens'),('decode',r'(?<!prompt )eval time\s*=\s*([\d.]+) ms /\s*(\d+) runs')]:
                     match=re.search(pattern,stderr)

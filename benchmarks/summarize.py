@@ -27,7 +27,7 @@ def main():
     for name in names:
         for prompt in sorted({c['case']['prompt'] for c in cases}):
             selected=[c for c in cases if c['case']['model']==name and c['case']['prompt']==prompt and c['case']['temperature']==0]
-            per_prompt.append([name,prompt,min(c.get('prompt_tokens',0) for c in selected),*[fmt(statistics.median(c['metrics']['generation']['seconds'] for c in selected if c['case']['threads']==t)) for t in [2,8]]])
+            per_prompt.append([name,prompt,min((c['prompt_tokens'] for c in selected if 'prompt_tokens' in c),default='unavailable'),*[(fmt(statistics.median(c['metrics']['generation']['seconds'] for c in selected if c['case']['threads']==t)) if any(c['case']['threads']==t for c in selected) else '—') for t in [2,8]]])
     pairs=[]
     for name in names:
         for prompt in sorted({c['case']['prompt'] for c in cases}):
