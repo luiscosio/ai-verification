@@ -3,6 +3,12 @@ name: Publish proof registry
 on:
   push:
     branches: [main]
+    # Reports do not change the built verifier; source and registry edits run every gate.
+    paths-ignore:
+      - 'benchmarks/results/**'
+      - 'benchmarks/README.md'
+      - 'README.md'
+      - 'TODO.md'
   workflow_dispatch:
 
 permissions:
