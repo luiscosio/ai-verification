@@ -47,7 +47,7 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 - [x] Expandable model/research details and local run measurements; no prompt/answer fields in the row-group package.
 - [ ] First-time setup with published matching proving materials; the launcher currently requires an installed model, native build and circuit/proving key.
 - [ ] Usability sessions with three new users, peak-memory measurements and reproducible experiment exports. See `docs/ux-plan.md`.
-- [ ] Confirm the first GitHub Pages deployment after the fork release and parent submodule-pin update; the older private artifact is historical.
+- [x] First GitHub Pages deployment passed after the fork release and parent submodule-pin update. A real local proof passed on the hosted page (77 ms), and the adversarial example was rejected. The older private artifact is historical.
 
 ### Around the plan
 - [x] Receipt 0.2 / trace v2 hardening after the security review (topology digest, opening policy, content commitments, per-token records); Lean canonical JSON fix; clean version rejection. `notes/session-notes-2026-09-12.md`
