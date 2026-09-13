@@ -13,3 +13,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .ruff_cache/
+
+# Reproducible setup caches and private research runs
+.receipts-cache/
+.receipts-research/
+tools/workspace/.venv/

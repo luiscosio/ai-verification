@@ -25,6 +25,8 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 - [x] Measured: about 3 s to prove a group, 0.16 s to verify, 805-byte proof; 256-row demo node as 16 groups in 67 s; registered Qwen3 tensors of all three shapes proven and verified against the manifest
 - [x] Negatives: tampered sum, other group's commitment, other weights, other circuit's key, non-boolean weight bits and out-of-range public activations (including a valid pairing for an invalid activation)
 
+- [x] Separate F20 complete-operation research claim: all 1,024 rows, constrained activation quantization/scales/accumulation/rounding and private boundary commitments. Actual 65-proof package, independent offline verifier, rejection tests and measurements in `research/complete-operation/`. Native semantics and independent cryptographic review remain open.
+
 ### Stage 4, one full next-token computation
 - [x] Circuit-friendly execution mode as a reference implementation: integer-only forward pass of Qwen3-0.6B. `docs/stage4/fixed_point_forward.py`
 - [x] Agreement with llama.cpp's greedy token: 19 of 20 prompts at 16 fraction bits, 20 of 20 at 20 bits (stmt/v1 choice). `docs/stage4/agreement-*.json`
@@ -45,8 +47,9 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 - [x] Local generation interface, actual stage progress, cancellation, prerequisite messages and one-file export; `start-workspace.sh` and `site/local_prover.py`.
 - [x] Browser and offline verification of the same versioned file; automatic trusted-registry lookup; exact coverage and separate failure states.
 - [x] Expandable model/research details and local run measurements; no prompt/answer fields in the row-group package.
-- [ ] First-time setup with published matching proving materials; the launcher currently requires an installed model, native build and circuit/proving key.
-- [ ] Usability sessions with three new users, peak-memory measurements and reproducible experiment exports. See `docs/ux-plan.md`.
+- [x] First-time setup with locked dependencies, native build, exact model reproduction and checksum-pinned matching proving materials: `setup-workspace.sh`, `releases/prover-materials-v1.json`.
+- [x] Local installation and generation/verification tests; research experiment exports include phase timing, process RSS, exact source/material digests and public proof fixtures.
+- [ ] Three-person usability study deferred by the owner for this iteration; local tests are being used. This is not evidence of user comprehension. See `docs/ux-plan.md`.
 - [x] First GitHub Pages deployment passed after the fork release and parent submodule-pin update. A real local proof passed on the hosted page (77 ms), and the adversarial example was rejected. The older private artifact is historical.
 
 ### Around the plan
@@ -62,10 +65,10 @@ The usability work in `docs/ux-plan.md` proceeds alongside this cryptographic de
 
 1. [ ] **Real parameters, after circuit/interface stabilization.** Replace the locally generated 2^18 powers of tau and the single-contributor phase 2 with a public ceremony's file and a multi-party phase 2 (snarkjs supports both as-is). Until then a prover who ran the setup could forge, and every Stage 5 result is an implementation test. Then re-run `groth16_node.py` and `verify_isolated.sh`, republish the site.
 2. [ ] **Second registrar.** Someone else runs `register.py --check --commit --groth16` against their own copy of the GGUF and signs the manifest; publish Expander's commitment parameters explicitly instead of its testing-only RNG. Stage 2 exit gate.
-3. [ ] **Complete-operation statement and feasibility first.** Keep native arithmetic as the default track and F20 as a candidate variant; settle semantics, hiding boundaries and budgets before a broad kernel port. Then port `docs/stage4/fixed_point_forward.py` into ggml's CPU backend as a selectable mode: matmul scale step and RMS norm first, measure token agreement after each op, register stmt/v1 when the whole pass is in. Then the trace verifier's tolerances become exact equalities.
+3. [ ] **Choose the execution track and next backend experiment.** The complete F20 operation is implemented and measured, with conditional private-boundary composition documented. Its Q4-only serial projection is about 28 hours/token, before other required operations. Keep native arithmetic as the default track and F20 as a candidate; obtain independent review and settle budgets before a broad kernel port. A future selected fixed-point track would port `docs/stage4/fixed_point_forward.py` into ggml's CPU backend as a selectable mode: matmul scale step and RMS norm first, measure token agreement after each op, register stmt/v1 when the whole pass is in. Then the trace verifier's tolerances become exact equalities.
 4. [ ] **Whole-token prover spike.** Two one-week spikes: Libra-style masking on one sumcheck layer in the Expander fork, or a GKR-with-logup system that already has a zero-knowledge mode. Then the Q6_K circuit, the nonlinear ops of stmt/v1, and a specified, reviewed hiding-boundary composition. The Stage 4 sketches are not a soundness argument.
 5. [ ] **Production-assurance website**, after item 1: reviewed setup, independent registration, prover signatures and a versioned verifier release. The public experimental Pages site verifies Groth16 locally in the browser and stores no proof uploads. Expander server deployment, if added, needs deployment-level upload/rate limits and explicit labeling.
-6. [ ] Publish the prover material (zkeys, 78 to 108 MB each, and `pot18_final.ptau`) as GitHub release assets of `luiscosio/ai-verification`; their digests are in `registry/circuits/README.md`.
+6. [x] Publish the existing matching prover material as `prover-materials-v1` GitHub release assets; full checksums and byte sizes are in `releases/prover-materials-v1.json`.
 7. [ ] Extend Qwen2.5-1.5B beyond its registered `blk.0.ffn_gate.weight` checkpoint, and integrate supported registrations into the local model picker.
 8. [ ] Cache compiled circuits per shape in `receipts-zk verify` (2 to 5 s per verification today).
 9. [ ] Add the Groth16 circuit to the Lean differential harness; prove in Lean that the circuit's `s1`, `s2` are the spec's.
@@ -83,7 +86,7 @@ The usability work in `docs/ux-plan.md` proceeds alongside this cryptographic de
 - [x] Isolation controls require permission-denial evidence and determine success.
 - [x] Repeatable regression command: `checks/run.sh`.
 
-These repairs do not add full-operation coverage, a full-token proof, hiding activation commitments or a production setup.
+Those repairs did not add full-operation coverage. The later separate F20 experiment adds one complete operation and private activation commitments; it does not add a full-token proof or production setup.
 
 ## Decisions that are yours
 
@@ -96,5 +99,5 @@ These repairs do not add full-operation coverage, a full-token proof, hiding act
 ## Notes for whoever runs this
 
 - The laptop has 24 GB with about 12 GB of swap held by other applications; the harness killed every background job twice for memory. Run one heavy job at a time. The 64-row Groth16 instance compiled but its setup never fit; 16-row groups are the working size.
-- `code/llama.cpp/examples/receipts/zk/groth16/build/` and `ptau/` are not tracked; rebuild with `circom`, `setup.sh` and the README's commands. `pot18_final.ptau` is the file in use.
+- `code/llama.cpp/examples/receipts/zk/groth16/build/` and `ptau/` are not tracked; install the matching existing files with `./setup-workspace.sh --all-circuits --include-setup`. Rebuilding setup produces different keys and requires a new registration. `pot18_final.ptau` is the file in use.
 - Model files in `models/` are not tracked; digests are in `docs/stage1/backend-decision.md`.

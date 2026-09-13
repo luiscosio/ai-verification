@@ -1,0 +1,47 @@
+{
+  "collected_after_run": true,
+  "cpu": "Apple M5",
+  "physical_memory_bytes": 25769803776,
+  "node": "v24.13.0",
+  "circom": "circom compiler 2.2.3",
+  "artifacts": {
+    "quant_k1024/main.r1cs": {
+      "bytes": 61336632,
+      "sha256": "09926ca7742e8e32a7ca426b98c056b6f7e89ee0c1560ec26a6da758f0f91b92"
+    },
+    "quant_k1024/main_final.zkey": {
+      "bytes": 158498076,
+      "sha256": "730a58775a8acfaeb19df8d8c77cb445f4d2e1b96788e53edc1ee3ab70e7ddda"
+    },
+    "quant_k1024/main_js/main.wasm": {
+      "bytes": 5011297,
+      "sha256": "b2d2a49715a1478e38422df644337ccdbae1a7b7144276f4fd23c5a7ef6df20e"
+    },
+    "quant_k1024/main.circom": {
+      "bytes": 103,
+      "sha256": "9d482a7eb11471af62fb6f21fa3d0c238ca491efbd3a709fd82edeba18118715"
+    },
+    "rows16_k1024/main.r1cs": {
+      "bytes": 50370864,
+      "sha256": "885d352caae98e74d005b889cddb0d462e30d29dbf23fe70ebe1ddbdeca98f52"
+    },
+    "rows16_k1024/main_final.zkey": {
+      "bytes": 112976872,
+      "sha256": "31578cf4132cd0e0b5f028522ed81159e06d8267d72454768eb328968f7bcc60"
+    },
+    "rows16_k1024/main_js/main.wasm": {
+      "bytes": 5224991,
+      "sha256": "96ccb033681af9844c9df2aa00c289207503b933de4a1c59f58ad19257e82c25"
+    },
+    "rows16_k1024/main.circom": {
+      "bytes": 116,
+      "sha256": "dbccf720a4da6fd0e7a705391a501e338671562ebb6a8f9004c25ef06c3d24eb"
+    }
+  },
+  "measurement_limits": [
+    "One operation and one benchmark input; not a prompt corpus",
+    "Process RSS from /usr/bin/time; accelerator allocations, swap and total child-process memory were not measured",
+    "Compilation, ceremony, registration, input preparation and independent commitment checks excluded from witness/proving phase times",
+    "Single local run; no confidence interval or clean-host isolation for performance"
+  ]
+}

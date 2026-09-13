@@ -1,0 +1,30 @@
+{
+  "platform": "macOS 26.6.2, Apple M5, 24 GiB",
+  "method": "Fresh local shared clones of parent and pinned submodule; no preinstalled native build or Node/Python dependencies in the clone",
+  "release_asset_test": "Offline copies of release assets; public HTTP installation checked after publication",
+  "model_test": "Verified --model copy, then default quantization from cached SHA-256-pinned BF16 source; exact registered output digest matched",
+  "registered_gguf_sha256": "42d6e666a335641d99d74645baa076df60e9f18c50646a722469ca9d5c20f5bf",
+  "setup_check": true,
+  "roundtrip": {
+    "status": "complete",
+    "elapsed_seconds": 25.0,
+    "measurements": {
+      "model_check_seconds": 0.158,
+      "inference_and_capture_seconds": 15.28,
+      "witness_seconds": 0.4,
+      "prove_seconds": 2.94,
+      "verify_seconds": 0.174,
+      "package_bytes": 43935,
+      "circuit": "r16_k1024",
+      "coverage": "One integer row group; no prompt or answer binding",
+      "verifier_sha256": "30d1b018813a3e3adb466c4b4f29032eb7a8b3a3843327e1d4df666d8a644d56"
+    }
+  },
+  "limits": [
+    "Not a clean OS image",
+    "Cached model source reused; source network download not repeated",
+    "No clean Linux host tested",
+    "No unfamiliar-user study, per owner request"
+  ],
+  "offline_export_verification": true
+}

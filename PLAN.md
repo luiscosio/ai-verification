@@ -2,7 +2,7 @@
 
 Date: 2026-09-12
 
-Status: Component proofs and registration tooling exist; no stage is a completed full-inference acceptance gate. Stage 3 remains an integer-core row-group checkpoint. The 2026-09-13 review repairs are recorded in `docs/repairs-2026-09-13.md`; remaining work is in `TODO.md`.
+Status: Component proofs and registration tooling exist; no stage is a completed full-inference acceptance gate. The website remains an integer-core row-group checkpoint. A separate [complete F20 matrix-vector experiment](research/complete-operation/README.md) now covers all 1,024 rows with private boundaries; it does not adopt F20 as the default execution mode or complete the native/full-token gates. The 2026-09-13 review repairs are recorded in `docs/repairs-2026-09-13.md`; remaining work is in `TODO.md`.
 
 ## Objective
 

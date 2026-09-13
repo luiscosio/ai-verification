@@ -64,3 +64,7 @@ Activations stay private, so per-operation proofs link through commitments to th
 - The whole-token prover. The counts above say what it needs.
 
 Review repair: the reference now preserves the sign of the first maximum-magnitude element when quantizing Q8_K. This matches ggml's quant/scale sign convention; fixed-point rounding remains a distinct execution rule. `agreement.sh` explicitly selects F20. The 20-prompt corpus is compatibility/tuning evidence, not a held-out equivalence guarantee.
+
+## September 13 complete-operation follow-up
+
+The later [F20 complete-operation experiment](../../research/complete-operation/README.md) implements activation quantization, weight scales, accumulation and rounding for one entire 1,024 × 1,024 Q4_K tensor with private boundaries. It supersedes the earlier statement that only the integer core has a circuit. The current registration inventory is 381,681,664 Q4 values, correcting the earlier rough 322-million count above; the new scaling script derives its count directly from that inventory. A full-token circuit and native execution equivalence remain unimplemented.

@@ -1,0 +1,36 @@
+{
+  "scope": "Local implementation validation; no independent review or unfamiliar-user study",
+  "witness_cases": [
+    "zero block",
+    "first positive maximum among equal magnitudes",
+    "first negative maximum among equal magnitudes",
+    "negative signed-40 boundary",
+    "reject positive signed-40 overflow",
+    "positive and negative final half-even rounding ties",
+    "reject altered output",
+    "reject q8=-128",
+    "reject scale overflow",
+    "reject non-boolean weight bit",
+    "reject activation scale overflow"
+  ],
+  "package_cases": {
+    "honest": true,
+    "rejections": 12,
+    "script": "research/complete-operation/check_package.cjs"
+  },
+  "registration": "All 64 commitments recomputed from the exact GGUF; key and source digests matched",
+  "isolation": {
+    "platform": "macOS sandbox-exec",
+    "project_read_denied": true,
+    "network_permission_denied": true,
+    "honest_accepted": true,
+    "verify_ms": 551
+  },
+  "zkeys": {
+    "quant_k1024": "snarkjs zkey verify: ZKey Ok",
+    "rows16_k1024": "snarkjs zkey verify: ZKey Ok",
+    "exported_keys_match_registry": true
+  },
+  "website_claim_separation": "Offline website verifier rejects research package as unsupported",
+  "research_installer": "All eight measured assets installed from the offline release set with SHA-256 and size validation"
+}

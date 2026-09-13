@@ -47,6 +47,7 @@ Expander is used through a fork, `luiscosio/Expander` branch `macos-build`, pull
 ## Docs
 
 - `docs/stage1/`: Stage 1 feasibility work from Sep 13, 2026 (exit gate incomplete): the backend decision record (with the Groth16 addendum), the frozen statement stmt/v0, per-op activation ranges of three models and the script that measures them.
+- [Complete-operation experiment](research/complete-operation/README.md): a real F20 1024 × 1024 matrix-vector proof with private activations, verified public artifacts, measured costs and scaling limits. This separate research claim is not accepted by the website.
 - `docs/stage4/`: the circuit-friendly execution mode as a reference implementation (integer-only forward pass), its agreement with llama.cpp on twenty prompts, measured bit widths, and what a whole-token proof costs.
 - `docs/stage5/`: verification in isolation (sandboxed, no network, no model files) and the adversarial cases, with the script that runs them.
 - [ZK inference PoC plan](PLAN.md): llama.cpp with local proof generation, open-model registration, and independent verification without model weights; stages and acceptance criteria through a full next-token proof and public verifier website.
@@ -71,15 +72,20 @@ The same file can be opened in the static website or verified offline with `node
 
 ### Local setup
 
-The launcher supplies temporary Python dependencies through uv. The prepared machine also needs Node.js, the registered `models/qwen3-0.6b-q4_k_m.gguf`, and these installed tools/materials:
+Install Git, Node.js/npm, CMake, a C++ compiler and [uv](https://docs.astral.sh/uv/getting-started/installation/), then use a clean clone:
 
 ```sh
-cmake -S code/llama.cpp -B code/llama.cpp/build -DLLAMA_BUILD_EXAMPLES=ON
-cmake --build code/llama.cpp/build --target llama-receipts -j 4
-npm ci --prefix code/llama.cpp/examples/receipts/zk/groth16
+git clone --recurse-submodules https://github.com/luiscosio/ai-verification.git
+cd ai-verification
+./setup-workspace.sh
+./start-workspace.sh
 ```
 
-Install the matching `r16_k1024` circuit build (`main_js/main.wasm`), `main_final.zkey` and `verification_key.json` under `code/llama.cpp/examples/receipts/zk/groth16/build/r16_k1024/`. They are present on the development machine; publishing the proving-material release assets is still pending. See `registry/circuits/README.md`. Running a new setup creates different keys and will not reproduce the existing registration. The workspace reports missing prerequisites before allowing a run; first-time installation is not yet automated.
+Setup installs the locked Python and Node dependencies, builds the pinned native executables, downloads the matching registered proving key and witness program, and prepares the exact Qwen3 model. The BF16 source and resulting quantized GGUF are checked against the registration's SHA-256 digests. If you already have the correct file, use `./setup-workspace.sh --model /path/to/qwen3-0.6b-q4_k_m.gguf`. Existing matching files are reused; a different model file at the destination is preserved and reported.
+
+`./setup-workspace.sh --check` validates the installation. `--all-circuits` installs all four registered circuit instances; `--include-setup` additionally installs the R1CS and existing powers-of-tau file for development. `--materials-only` omits native compilation and model preparation. `--asset-dir /path/to/downloaded-assets` installs an offline copy of the published assets. Default proving materials are about 83 MB; all development assets total about 814 MB. Model preparation downloads roughly 1.2 GB of BF16 weights and produces the 397 MB registered model. Plan for several GB of working disk space and a few minutes for compilation/downloads.
+
+The versioned asset names and full checksums are recorded in [releases/prover-materials-v1.json](releases/prover-materials-v1.json). The [proving-material release](https://github.com/luiscosio/ai-verification/releases/tag/prover-materials-v1) contains the existing experimental parameters, not a new ceremony. Never regenerate setup as a substitute for installing the matching keys. Native compilation and exact GGUF reproduction have been tested locally on macOS; Linux has not yet been exercised on a clean host. The fresh-checkout generate/export/offline-verify round trip completed in 25 seconds; [validation details](docs/setup-validation-2026-09-13.json) distinguish cached assets from network tests.
 
 The local companion listens on `127.0.0.1:8789`, uses one active job and an ephemeral session token, and removes private temporary traces/witness files on completion, cancellation or failure. It keeps the latest prompt, unverified text and public package in memory until another run or shutdown. The published static page has no local proving connection. Restarting the companion loses the latest run, so download anything you want to keep.
 
@@ -98,4 +104,4 @@ The older [private artifact](https://claude.ai/code/artifact/687d9b99-421b-4075-
 - `notes/research-sweep-2026-09-10.md`: arXiv and GitHub sweep across four areas (ZK inference, recomputation and determinism, hardware and datacenter mechanisms, attestation and audit tooling), about 60 papers and 40 repos with dates, links, and maturity.
 
 
-Security repair status (2026-09-13): the row-group verifier now shares range and pinned-key checks across browser and offline use. Registration/v1 replaces the previous manifest ID without changing weight commitments or Groth16 keys. Run `checks/run.sh`; see `docs/repairs-2026-09-13.md` for validation and remaining scope. A complete operation or full next-token proof is not implemented.
+Security repair status (2026-09-13): the row-group verifier now shares range and pinned-key checks across browser and offline use. Registration/v1 replaces the previous manifest ID without changing weight commitments or Groth16 keys. Run `checks/run.sh`; see `docs/repairs-2026-09-13.md` for validation and remaining scope. The website still verifies integer row groups. A separate [F20 complete-operation experiment](research/complete-operation/README.md) now covers quantization, scales, accumulation and rounding between private commitments. Native complete-operation equivalence and a full next-token proof remain unimplemented.

@@ -1,0 +1,50 @@
+{
+  "measured_operation": {
+    "rows": 1024,
+    "k": 1024,
+    "proofs": 65,
+    "witness_seconds": 23.6737,
+    "prove_seconds": 266.7107,
+    "peak_process_rss_bytes": 3124936704,
+    "reference_seconds": 0.004790542065165937,
+    "package_bytes": 69685,
+    "verify_seconds": 0.576,
+    "cold_verifier_process_seconds": 0.636
+  },
+  "circuit_counts": {
+    "quant_k1024": {
+      "constraints": 240115,
+      "wires": 236011,
+      "public_signals": 3
+    },
+    "rows16_k1024": {
+      "constraints": 132002,
+      "wires": 131926,
+      "public_signals": 5
+    }
+  },
+  "q4_weight_values_per_token": 381681664,
+  "q4_only_extrapolation": {
+    "equivalent_16x1024_groups": 23296.0,
+    "prove_hours": 26.090549333333335,
+    "witness_hours": 2.336071111111111,
+    "assumption": "Linear scaling of measured 16x1024 row proof work with Q4 weight count. Not a measured full-token runtime and not a lower-bound theorem. Other K shapes may require smaller groups or larger keys.",
+    "excludes": [
+      "Q6_K",
+      "quantization at every operation",
+      "nonlinear operations",
+      "KV state",
+      "private boundary repacking/link proofs",
+      "token selection",
+      "aggregation/compression",
+      "registration and setup"
+    ]
+  },
+  "provisional_reference_thresholds": {
+    "package_bytes": 52428800,
+    "verification_seconds": 10,
+    "operation_package_within": true,
+    "operation_verification_within": true
+  },
+  "conclusion": "Serial grouped Groth16 is a useful complete-operation checkpoint, but these measured costs do not support a practical whole-token claim. Compare a lookup-based prover with equivalent privacy and arithmetic semantics before porting the entire forward pass."
+}

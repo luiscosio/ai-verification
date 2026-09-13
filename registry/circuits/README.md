@@ -4,7 +4,7 @@ One directory per compiled instance of `code/llama.cpp/examples/receipts/zk/grot
 
 Toolchain: circom 2.2.3, snarkjs 0.7.5, circomlib 2.0.5. Parameters: a locally generated 2^18 powers of tau (`snarkjs powersoftau new bn128 18`, one contribution, `prepare phase2`), SHA-256 `a6985229b8a639691dfb24174b8374c1686d50135a5eeacdeb8d8d6c209c67f1`, and one phase-2 contribution per instance. Proof-of-concept parameters: a prover who ran this setup could forge. A deployment replaces them with a public ceremony's file and a multi-party phase 2, which changes every key here.
 
-Prover material (the zkeys, 78 to 108 MB each, and the parameters file) is not in git. Publishing matching release assets is still pending. It can be regenerated with `setup.sh`, in which case the verification keys and registration here must be replaced too, because a new setup is a new key pair. Regenerating setup is not installation of the existing model registration.
+Prover material (the zkeys, 78 to 108 MB each, and the parameters file) is published in the [prover-materials-v1 release](https://github.com/luiscosio/ai-verification/releases/tag/prover-materials-v1), with full file digests in `releases/prover-materials-v1.json`. Run `./setup-workspace.sh` for the default circuit or add `--all-circuits --include-setup` for all development files. It can be regenerated with `setup.sh`, in which case the verification keys and registration here must be replaced too, because a new setup is a new key pair. Regenerating setup is not installation of the existing model registration.
 
 | Instance | zkey SHA-256 (prefix) | zkey bytes |
 |---|---|---|

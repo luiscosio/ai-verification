@@ -1,0 +1,103 @@
+{
+  "format": "llama-receipts/prover-materials/v1",
+  "tag": "prover-materials-v1",
+  "base_url": "https://github.com/luiscosio/ai-verification/releases/download/prover-materials-v1/",
+  "fork_commit": "7b8c8181ef47b693a5fab8426d3ea776e5f65399",
+  "circom": "2.2.3",
+  "snarkjs": "0.7.5",
+  "circomlib": "2.0.5",
+  "trust": "Existing experimental setup; publishing files does not add an independent ceremony.",
+  "assets": [
+    {
+      "name": "r16_k1024-main_final.zkey",
+      "circuit": "r16_k1024",
+      "path": "main_final.zkey",
+      "bytes": 77878592,
+      "sha256": "a565c0f1f2ecb2dbb44f357aeed6b3bc5b8f00bcb474ed8a73a5a8b8101ff9f2"
+    },
+    {
+      "name": "r16_k1024-main.wasm",
+      "circuit": "r16_k1024",
+      "path": "main_js/main.wasm",
+      "bytes": 4655569,
+      "sha256": "f9b855a542735114d13a38864953f9a04fbb91e4184ef8218ffe023195f6cf33"
+    },
+    {
+      "name": "r16_k1024-main.r1cs",
+      "circuit": "r16_k1024",
+      "path": "main.r1cs",
+      "bytes": 24294228,
+      "sha256": "e38a712d9a3972cb164d6414530f854ad467436b8e2554c91efeab9f5079567f"
+    },
+    {
+      "name": "r16_k1536-main_final.zkey",
+      "circuit": "r16_k1536",
+      "path": "main_final.zkey",
+      "bytes": 107704480,
+      "sha256": "951f9eaf5c5cf1cacba516a260ca4414486aa8f240c7bbb215a2cdafcbb8e4a7"
+    },
+    {
+      "name": "r16_k1536-main.wasm",
+      "circuit": "r16_k1536",
+      "path": "main_js/main.wasm",
+      "bytes": 4948768,
+      "sha256": "e26ddb501a9eb9f56f6729e42c6e25f5d3c58d088176a229a07612e44f09dacd"
+    },
+    {
+      "name": "r16_k1536-main.r1cs",
+      "circuit": "r16_k1536",
+      "path": "main.r1cs",
+      "bytes": 36072420,
+      "sha256": "fb21fbdda7e48127b5e15c3a0b533bdd38c6600adb02f79178e3d17307bde81c"
+    },
+    {
+      "name": "r8_k2048-main_final.zkey",
+      "circuit": "r8_k2048",
+      "path": "main_final.zkey",
+      "bytes": 78251328,
+      "sha256": "0b27a7a3124816194f65baf4904a14f4019bb8f5fdb79050bee6bf1c5b700c52"
+    },
+    {
+      "name": "r8_k2048-main.wasm",
+      "circuit": "r8_k2048",
+      "path": "main_js/main.wasm",
+      "bytes": 4659933,
+      "sha256": "634e3c6fbb6f4d69b56292b1bee69e2bf3f17b12f0ce93b087e69e243692b7f0"
+    },
+    {
+      "name": "r8_k2048-main.r1cs",
+      "circuit": "r8_k2048",
+      "path": "main.r1cs",
+      "bytes": 24302420,
+      "sha256": "7f2a1d64626dd72abf35936160a18ba6ada8035bafa99e95f732d10d62cb470b"
+    },
+    {
+      "name": "r8_k3072-main_final.zkey",
+      "circuit": "r8_k3072",
+      "path": "main_final.zkey",
+      "bytes": 108263584,
+      "sha256": "14d0861edec75aa6da559a2dbe71890ff3f8c89b81a56673709921b5f395ba73"
+    },
+    {
+      "name": "r8_k3072-main.wasm",
+      "circuit": "r8_k3072",
+      "path": "main_js/main.wasm",
+      "bytes": 4955354,
+      "sha256": "602d43026b31b97e5e33c774e3774f71563fcf00bc3ad23f627675620fb6b7d2"
+    },
+    {
+      "name": "r8_k3072-main.r1cs",
+      "circuit": "r8_k3072",
+      "path": "main.r1cs",
+      "bytes": 36084708,
+      "sha256": "459f4063357f0a3263ec6f9b0a67aff5077dfef7bbdacd0e03fcede015f808bb"
+    },
+    {
+      "name": "pot18_final.ptau",
+      "circuit": null,
+      "path": "ptau/pot18_final.ptau",
+      "bytes": 301991360,
+      "sha256": "a6985229b8a639691dfb24174b8374c1686d50135a5eeacdeb8d8d6c209c67f1"
+    }
+  ]
+}

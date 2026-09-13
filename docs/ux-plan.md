@@ -38,11 +38,11 @@ A valid row-group proof is not a verified answer, complete operation, proof of p
 
 Implementation checks cover honest and adversarial proof acceptance, package version/claim boundaries, unknown registrations, malformed JSON, safe result rendering, key lookup, local access checks, bounded requests, one-job concurrency, cancellation, timeout, failure recovery and offline verification. Exercise a real local generation and verify its exported proof in the browser and offline. Check the layout at narrow and wide widths and the ordinary keyboard path.
 
-The human usability gate is still pending: ask at least three people unfamiliar with the project to try an example, generate a proof on a prepared machine, verify a file, and explain what passed. Record time, obstacles and mistaken interpretations. Target at most one file choice and one verification action; no tensor, group, JSON-field or key selection. Installation time and warm proving time are measured separately. Any participant interpreting the present result as proof of the answer triggers a copy/design revision.
+The owner deferred the human usability study for this iteration and requested local tests. The comprehension gate remains unmeasured; a later study would ask at least three people unfamiliar with the project to try an example, generate a proof on a prepared machine, verify a file, and explain what passed. Record time, obstacles and mistaken interpretations. Target at most one file choice and one verification action; no tensor, group, JSON-field or key selection. Installation time and warm proving time are measured separately. Any participant interpreting the present result as proof of the answer triggers a copy/design revision.
 
 The implementation checks and first real browser/offline round trip are recorded in `docs/workspace-validation-2026-09-13.md`.
 
-First-time installation is not yet one click. The exact registered model, native build, circuit build and matching proving key must be installed. Publishing matching proving materials and making installation reproducible are the next usability work, before packaging a desktop installer. Re-running setup generates different keys; it is not a way to install the existing registration.
+`./setup-workspace.sh` now installs locked dependencies, builds the pinned native tools, downloads checksum-pinned matching proving materials and prepares the exact registered model. A fresh local checkout was compiled and exercised on macOS. A desktop installer and clean Linux-host validation remain future work. The installer reuses the existing setup; generating a new ceremony creates different keys and is not a way to install an existing registration.
 
 ## Research alongside the interface
 
@@ -82,3 +82,7 @@ Design references: [Distill](https://distill.pub/) for editorial hierarchy; [Are
 Validation: the complete existing check suite passed, with coverage-navigation regressions added. Desktop 1280px and phone 390px layouts were inspected; the phone page has no horizontal overflow. A real locally generated proof was selected through the browser file picker and accepted by the public build (16 ms in that test). Invalid activation input was rejected without showing checked coverage. Search filtered the model catalogue. Reduced-motion emulation started the illustration paused. Blocking the Three.js CDN kept the SVG fallback visible and did not prevent proof verification. The three-person comprehension test remains outstanding.
 
 The revised local UI also completed a fresh generation run in 36.5 seconds, then accepted that new proof through “Verify here” in 69 ms. Generation stages, completion controls and the unverified-answer label were inspected in the browser.
+
+## Complete-operation research checkpoint
+
+The separate [F20 experiment](../research/complete-operation/README.md) proves a full 1,024 × 1,024 matrix-vector operation with private activation boundaries. Its report includes phase timings, process RSS, constraints, package size, cold verification, public artifacts and local negative/isolation tests. It remains outside the website’s accepted claim. The measured scaling does not support a practical full-token claim. Native parity, full-token coverage, total system memory, full timing corpus and independent review remain open.
