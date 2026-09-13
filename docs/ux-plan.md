@@ -86,3 +86,7 @@ The revised local UI also completed a fresh generation run in 36.5 seconds, then
 ## Complete-operation research checkpoint
 
 The separate [F20 experiment](../research/complete-operation/README.md) proves a full 1,024 × 1,024 matrix-vector operation with private activation boundaries. Its report includes phase timings, process RSS, constraints, package size, cold verification, public artifacts and local negative/isolation tests. It remains outside the website’s accepted claim. The measured scaling does not support a practical full-token claim. Native parity, full-token coverage, total system memory, full timing corpus and independent review remain open.
+
+## Browser dependency hardening
+
+The current build vendors and inlines snarkjs 0.7.5 and Three.js 0.180.0 after checking committed SHA-256 and byte-size pins. The earlier CDN loading described above is superseded. All five Pages actions use full commit pins. The model catalogue now labels local generation availability separately from verification coverage. A browser test with jsDelivr blocked accepted the honest example, rejected the invalid activation and rendered the jelly without any external script sources. The stale Claude verifier cannot yet be retired because its owner session requires sign-in; it is no longer linked as a supported verification destination.

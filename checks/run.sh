@@ -22,4 +22,5 @@ node checks/check_groth16.cjs
 "${API_RUN[@]}" checks/check_workspace.py
 
 "$PYTHON" checks/check_setup.py
+"$PYTHON" checks/check_site_supply.py
 node research/complete-operation/check_package.cjs research/complete-operation/results/2026-09-13/operation.proof.json research/complete-operation/results/2026-09-13/registry

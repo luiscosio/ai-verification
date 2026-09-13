@@ -61,14 +61,14 @@ Hosted registry and verifier: **https://luiscosio.github.io/ai-verification/**. 
 | Model file | Hosted verification coverage |
 |---|---|
 | Qwen3-0.6B Q4_K_M | Integer row groups for 168 tensors; current local workspace model |
-| Qwen2.5-1.5B Q4_K_M | Integer row groups for `blk.0.ffn_gate.weight` only (560 groups); other tensors not covered |
+| Qwen2.5-1.5B Q4_K_M | Integer row groups for `blk.0.ffn_gate.weight` only (560 groups); no local workspace generation |
 | Qwen2.5-0.5B Q4_K_M | File/tokenizer/tensor fingerprints only; no proof acceptance |
 
 None of these registrations establishes a complete inference proof. New entries are computed from the actual GGUF with `register.py`, checked against that file, and reviewed before being committed to `registry/`. Adding a fingerprint does not enable proof verification; matching circuit commitments and pinned keys are also required.
 
 Run `./start-workspace.sh` and open the printed local address. Choose Qwen3-0.6B, enter a short prompt, and select **Run and generate proof**. The workspace shows actual progress and cancellation, then offers one `.llamaproof` file to download or verify immediately. It runs two local generation steps and proves one integer row group; the generated answer is visibly unverified. Prompt/answer text and private traces are excluded from export, but public activations may reveal information about the prompt.
 
-The same file can be opened in the static website or verified offline with `node site/verify-file.cjs FILE.llamaproof`. Model, tensor and group selection is automatic against the independently trusted registry. The browser reads the file locally and applies the shared shape, range, commitment and pinned-key policy. It loads snarkjs 0.7.5 from a CDN. The optional Three.js 0.180.0 illustration loads separately from a CDN and receives no proof data; it respects reduced motion, can be paused, and falls back to a static image if unavailable. The Node verifier with installed dependencies needs no network or model weights. Obtain/check registrations independently with `register.py` before installing them for offline use.
+The same file can be opened in the static website or verified offline with `node site/verify-file.cjs FILE.llamaproof`. Model, tensor and group selection is automatic against the independently trusted registry. The browser reads the file locally and applies the shared shape, range, commitment and pinned-key policy. snarkjs 0.7.5 and the Three.js 0.180.0 illustration are vendored and inlined from digest-checked files; no executable code is fetched from a CDN. The illustration receives no proof data; it respects reduced motion, can be paused, and falls back to a static image if unavailable. The Node verifier with installed dependencies needs no network or model weights. Obtain/check registrations independently with `register.py` before installing them for offline use.
 
 ### Local setup
 
@@ -93,7 +93,7 @@ The local companion listens on `127.0.0.1:8789`, uses one active job and an ephe
 
 `python3 site/build_site.py` rebuilds `site/index.html` and `site/artifact.html` from the trusted registry and checked-in site sources. Missing keys or mismatched materials fail with a concise error. `uv run --with fastapi --with 'uvicorn[standard]' --with python-multipart python3 site/serve.py` still serves the static page and the separate server-side Expander verification endpoint.
 
-The older [private artifact](https://claude.ai/code/artifact/687d9b99-421b-4075-a9e2-8ea32dcdccbe) remains historical. GitHub Pages is now the hosting target. `.github/workflows/pages.yml` checks the browser/offline acceptance policy, builds a static bundle from the pinned submodule and registry, and deploys it after each push to `main`. Only the generated HTML is published; local proving endpoints, models and private traces are excluded. No publication occurs when running the builder locally. The product/research plan and usability gate are in [docs/ux-plan.md](docs/ux-plan.md).
+GitHub Pages is the sole supported hosted verifier. The old Claude artifact is stale and must not be used; remote retirement is pending access to its signed-in owner session. It is no longer linked here as a verification destination. `.github/workflows/pages.yml` uses full commit pins for all five actions, checks the browser/offline acceptance policy, builds a static bundle from the pinned submodule and registry, and deploys it after each push to `main`. Only the generated HTML is published; local proving endpoints, models and private traces are excluded. No publication occurs when running the builder locally. The product/research plan and usability gate are in [docs/ux-plan.md](docs/ux-plan.md).
 
 ## Notes
 

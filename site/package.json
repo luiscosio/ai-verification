@@ -1,0 +1,7 @@
+{
+  "name": "receipts-browser-vendor",
+  "private": true,
+  "scripts": {"vendor": "node vendor-build.cjs"},
+  "dependencies": {"three": "0.180.0"},
+  "devDependencies": {"esbuild": "0.25.10"}
+}

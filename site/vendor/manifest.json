@@ -1,0 +1,23 @@
+{
+  "snarkjs": "0.7.5",
+  "three": "0.180.0",
+  "esbuild": "0.25.10",
+  "files": {
+    "three.min.js": {
+      "sha256": "f866bb2c188626e361fbdfa120176ebef311f1e19dd49e2c411551f6418fa624",
+      "bytes": 491792
+    },
+    "snarkjs.min.js": {
+      "sha256": "3bf5b5123047ed9187baa7d4c11285019f09fbed88a28693984ed9dd0508466a",
+      "bytes": 710896
+    },
+    "snarkjs.LICENSE": {
+      "sha256": "d95c74a62d14f13ebfbc8c1783c315e2ed2389e80048b264bdeddb8114dee945",
+      "bytes": 35130
+    },
+    "three.LICENSE": {
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "bytes": 1081
+    }
+  }
+}

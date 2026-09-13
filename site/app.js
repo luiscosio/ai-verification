@@ -42,6 +42,7 @@ function renderModels() {
     const support = node('div', undefined, 'model-support');
     support.append(node('strong', committed.length ? `${committed.length} / ${m.tensors.length} tensors supported` : 'Fingerprint only'));
     support.append(node('p', committed.length ? `${groups.toLocaleString()} integer row groups · partial coverage` : 'Proof verification unavailable'));
+    support.append(node('p', DATA.local_generation?.includes(m.manifest_id) ? 'Generate in the local workspace' : 'Local generation unavailable'));
     summary.append(identity, support, node('span', 'Details ↗', 'record-link')); record.append(summary);
     const body = node('div', undefined, 'model-details');
     body.append(node('p', committed.length ? 'These registrations let the verifier check individual integer row groups. They do not prove a complete operation or model response.' : 'This exact model file is recorded. No Groth16 proof support is registered for it.', 'small'));

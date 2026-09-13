@@ -18,3 +18,4 @@ __pycache__/
 .receipts-cache/
 .receipts-research/
 tools/workspace/.venv/
+site/node_modules/

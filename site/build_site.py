@@ -21,6 +21,19 @@ sys.path.insert(0, str(G16.parent))
 from registration_schema import validate_manifest, canonical
 
 
+def vendor_sources():
+    directory = ROOT / "site/vendor"
+    manifest = json.loads((directory / "manifest.json").read_text())
+    files = {}
+    for name in ("snarkjs.min.js", "three.min.js", "snarkjs.LICENSE", "three.LICENSE"):
+        data = (directory / name).read_bytes()
+        pin = manifest["files"][name]
+        if len(data) != pin["bytes"] or hashlib.sha256(data).hexdigest() != pin["sha256"]:
+            raise ValueError(f"vendored {name} differs from its pinned digest")
+        files[name] = data.decode()
+    return files
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--out", default=str(ROOT / "site" / "index.html"))
@@ -68,8 +81,17 @@ def main() -> int:
                                  "proof": json.loads((fixtures / (name + "-proof.json")).read_text()),
                                  "public": json.loads((fixtures / (name + "-public.json")).read_text())})
             break
-    data = {"manifests": manifests, "vkeys": vkeys, "examples": examples}
+    # Same sole registration offered by local_prover.manifest(); other catalogue
+    # entries support verification only, not workspace generation.
+    workspace = json.loads((ROOT / "registry/qwen3-0.6b-q4_k_m/manifest.json").read_text())["manifest_id"]
+    data = {"manifests": manifests, "vkeys": vkeys, "examples": examples,
+            "local_generation": [workspace] if any(m["manifest_id"] == workspace for m in manifests) else []}
     template = (ROOT / "site" / "template.html").read_text()
+    vendor = vendor_sources()
+    for marker, name in (("__SNARKJS__", "snarkjs"), ("__THREE__", "three")):
+        # Escape closing script sequences in libraries and embed their license notices.
+        source = "/*\n" + vendor[name + ".LICENSE"].replace("*/", "* /") + "\n*/\n" + vendor[name + ".min.js"]
+        template = template.replace(marker, source.replace("</", "<\\/"))
     template = template.replace("__STYLE__", (ROOT / "site/style.css").read_text())
     template = template.replace("__JELLY__", (ROOT / "site/jelly.js").read_text())
     template = template.replace("__VERIFIER__", verifier_source)

@@ -23,9 +23,7 @@ let time = 0,
   pointerY = 0;
 
 try {
-  const THREE = await import(
-    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-  );
+  const THREE = ReceiptsThree;
   renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true,
