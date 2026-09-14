@@ -1,7 +1,7 @@
 {
   "README.md": {
-    "sha256": "59616ee9c55523d5653cebf4baf9a69eea8890a012ad9dd50f2bd6efaae8d345",
-    "bytes": 15509
+    "sha256": "2a9245b14178d3760205e4667f1b00d1244d059d066b677a2aa3040e56a09bd8",
+    "bytes": 16239
   },
   "baseline/native-environment.json": {
     "sha256": "537e97282329a0ca7bab47cffadc540552316ec5c7c42e344fea24e9be16a673",
@@ -38,6 +38,22 @@
   "ci.json": {
     "sha256": "a4a83d8b198b138bfd245faad9c2e535da8ec9c3e4643c2946b820ae8490eee3",
     "bytes": 3225
+  },
+  "clean-smoke/environment.json": {
+    "sha256": "a92be7482df35762901e546c13cc9095b6d862e949ca50df3959a4daf917c440",
+    "bytes": 1559
+  },
+  "clean-smoke/plan.json": {
+    "sha256": "2093cb9470c72b67a725113d0d3910acde79ed4d194111422249e99f6b06a677",
+    "bytes": 241
+  },
+  "clean-smoke/results.jsonl.gz": {
+    "sha256": "25f77d554b73a68c9f79883ecc351157c88bf64237f2b9da69d553068e51aefa",
+    "bytes": 2199
+  },
+  "clean-smoke/summary.json": {
+    "sha256": "f35e8f76e78466dfc1d8cbeab66f1346e2d58a72cf757a5142b0ae03eecaac41",
+    "bytes": 47
   },
   "coverage.json": {
     "sha256": "1159d40e41a32fcbe3abb31679b0a06a54f820d01631cdd8f617d23704500e9a",

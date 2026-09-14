@@ -1,0 +1,16 @@
+[
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "arabic",
+    "threads": 8,
+    "repeat": 1,
+    "temperature": 0
+  },
+  {
+    "model": "qwen3-0.6b",
+    "prompt": "long-context",
+    "threads": 2,
+    "repeat": 1,
+    "temperature": 0
+  }
+]
