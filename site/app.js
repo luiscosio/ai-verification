@@ -20,7 +20,7 @@ function workspaceMode(mode) {
   $('generate').hidden = !generate; $('verify').hidden = generate;
   $('show-generate').setAttribute('aria-pressed', String(generate));
   $('show-verify').setAttribute('aria-pressed', String(!generate));
-  $('workspace-title').textContent = generate ? 'Make the evidence.' : 'Inspect a proof.';
+  $('workspace-title').textContent = generate ? 'Generate a proof.' : 'Inspect a proof.';
   $('workspace-intro').textContent = generate ? (HOSTED ? 'Run a model on the hosted server. Export a proof of one calculation.' : 'Run a model locally. Export a proof of one calculation.') : 'Check a computation against registered model weights.';
 }
 function fileTypeLabel(m) {
@@ -32,7 +32,7 @@ function renderModels() {
   const query = $('model-search').value.trim().toLowerCase();
   const models = DATA.manifests.filter(m => (m.model.name + ' ' + fileTypeLabel(m) + ' ' + m.model.file_sha256).toLowerCase().includes(query));
   const supported = DATA.manifests.filter(m => m.tensors.some(t => t.groth16)).length;
-  $('catalog-summary').textContent = `${DATA.manifests.length} exact model files · ${supported} with partial computation proofs`;
+  $('catalog-summary').textContent = `${DATA.manifests.length} registered model files. ${supported} can be checked with proofs.`;
   if (!models.length) $('models-view').append(node('p', 'No registered models match your search.', 'small'));
   for (const m of models) {
     const record = node('details', undefined, 'model-record'), table = node('table');
@@ -41,21 +41,21 @@ function renderModels() {
     const identity = node('div', undefined, 'model-identity');
     identity.append(node('h3', m.model.name), node('p', fileTypeLabel(m) + ' · ' + m.model.file_sha256.slice(0,16) + '…', 'fingerprint'));
     const support = node('div', undefined, 'model-support');
-    support.append(node('strong', committed.length ? `${committed.length} / ${m.tensors.length} tensors supported` : 'Fingerprint only'));
-    support.append(node('p', committed.length ? `${groups.toLocaleString()} integer row groups · partial coverage` : 'Proof verification unavailable'));
-    support.append(node('p', DATA.local_generation?.includes(m.manifest_id) ? 'Generate in the local workspace' : 'Local generation unavailable'));
-    summary.append(identity, support, node('span', 'Details ↗', 'record-link')); record.append(summary);
+    support.append(node('strong', committed.length ? `${committed.length} of ${m.tensors.length} tensors can be checked` : 'File fingerprint only'));
+    support.append(node('p', committed.length ? `${groups.toLocaleString()} row groups, checked one at a time` : 'No proofs can be checked for this file yet'));
+    support.append(node('p', DATA.local_generation?.includes(m.manifest_id) ? 'Can generate proofs in the local workspace' : 'Cannot generate proofs in the local workspace'));
+    summary.append(identity, support, node('span', 'Details', 'record-link')); record.append(summary);
     const body = node('div', undefined, 'model-details');
-    body.append(node('p', committed.length ? 'These registrations let the verifier check individual integer row groups. They do not prove a complete operation or model response.' : 'This exact model file is recorded. No Groth16 proof support is registered for it.', 'small'));
+    body.append(node('p', committed.length ? 'These registrations let the verifier check individual integer row groups. They do not prove a complete operation or model response.' : 'This exact model file is recorded. No proof support is registered for it yet.', 'small'));
     tableRow(table, 'Registration', m.manifest_id);
     tableRow(table, 'Model file SHA-256', m.model.file_sha256);
     tableRow(table, 'Execution metadata', `${m.execution.statement}; ${m.execution.backend}; ${m.execution.threads} threads. Full execution is not proven.`);
-    tableRow(table, 'Trust', 'Project registry; independent registrar review pending. Experimental single-contributor setup.');
+    tableRow(table, 'Trust', 'Registered by this project. Independent review is pending. The proving parameters come from an experimental single-contributor setup.');
     body.append(table);
     const button = node('button', 'Download registration', 'secondary');
     button.addEventListener('click', () => download(m, 'registration.json')); body.append(button);
-    const details = node('details'), tensors = node('table'); details.append(node('summary', `Inspect ${m.tensors.length} tensors`));
-    for (const t of m.tensors) tableRow(tensors, t.name, `${t.type}; ${t.shape.join(' × ')}; ${t.groth16 ? t.groth16.groups.length + ' registered row groups' : 'not covered'}`);
+    const details = node('details'), tensors = node('table'); details.append(node('summary', `Show all ${m.tensors.length} tensors`));
+    for (const t of m.tensors) tableRow(tensors, t.name, `${t.type}; ${t.shape.join(' × ')}; ${t.groth16 ? t.groth16.groups.length + ' registered row groups' : 'no proof support'}`);
     details.append(tensors); body.append(details); record.append(body); $('models-view').append(record);
   }
 }
@@ -65,7 +65,7 @@ function coverageView(result) {
   const header = node('div', undefined, 'coverage-header');
   const nav = node('div', undefined, 'coverage-nav');
   nav.setAttribute('role','group'); nav.setAttribute('aria-label','Inspect proof coverage');
-  header.append(node('h3', 'Locate the checked calculation'), nav);
+  header.append(node('h3', 'Where this calculation sits'), nav);
   const body = node('div', undefined, 'coverage-body');
   const visual = node('div');
   const plot = node('div', undefined, 'coverage-plot'); plot.setAttribute('aria-hidden','true');
@@ -78,31 +78,31 @@ function coverageView(result) {
     plot.replaceChildren(); caption.replaceChildren(); plot.dataset.view=kind;
     if(kind === 'model') {
       for(const tensor of m.tensors) plot.append(node('span', undefined, tensor.name === t.name ? 'selected' : ''));
-      legend.textContent=`One square per tensor · ${m.tensors.length} total`;
+      legend.textContent=`Each square is one tensor, ${m.tensors.length} in total`;
       caption.append(node('h3',m.model.name),node('p','The highlighted tensor contains this proof’s calculation. The other tensors are not checked by this file.'),node('p',t.name,'fingerprint'));
     } else if(kind === 'operation') {
       // These are conceptual stages, not a measured execution graph or progress percentage.
       for(let i=0;i<5;i++) plot.append(node('span',undefined,i===1?'selected':''));
-      legend.textContent='Conceptual stages · not an execution trace';
+      legend.textContent='Stages of the operation, not an execution trace';
       caption.append(node('h3','Only the integer arithmetic'),node('p','Input quantization → integer row group → scaling → accumulation → output.'),node('p','This proof checks one integer group. Quantization, scales, accumulation and rounding remain outside its claim.'),node('p',t.name,'fingerprint'));
     } else {
       const rows=t.groth16.rows_per_group, first=result.group*rows;
       for(let i=0;i<rows;i++) plot.append(node('span',undefined,'selected'));
-      legend.textContent=`${rows} rows in this group · each block is one row`;
+      legend.textContent=`Each block is one of the ${rows} rows in this group`;
       caption.append(node('h3',`Rows ${first}–${first+rows-1}`),node('p',`Group ${result.group} of ${t.groth16.groups.length} registered groups for this tensor. Q4_K × Q8_K integer arithmetic.`),node('p','Private weights are bound to the registered commitment. Activation values and sums are public.'));
     }
   }
-  for(const [id,label] of [['model','Model'],['operation','Operation'],['rows','Checked rows']]) {
+  for(const [id,label] of [['model','Model'],['operation','Operation'],['rows','Rows']]) {
     const button=node('button',label); button.type='button'; button.addEventListener('click',()=>view(id));controls.push([id,button]);nav.append(button);
   }
   view('rows'); return wrapper;
 }
 function resultView(result, ms, label) {
   const out = $('result-view'); out.hidden=false; out.dataset.state = result.status;
-  const titles = {verified:'One calculation verified.', invalid:'This proof did not pass.', unsupported:'Unrecognized proof format.',
+  const titles = {verified:'Proof accepted.', invalid:'Proof rejected.', unsupported:'Unsupported proof format.',
     'unknown-model':'Registration not found.', unavailable:'Verification unavailable.'};
   const heading=node('div',undefined,'result-heading'), title=node('div');
-  title.append(node('div', label || 'Verification result', 'eyebrow'), node('h2', titles[result.status] || 'Verification could not complete.'));
+  title.append(node('div', label || 'Your proof file', 'eyebrow'), node('h2', titles[result.status] || 'Verification could not complete.'));
   heading.append(title,node('div',result.accept?'✓':'×',result.accept?'verdict-seal ok':'verdict-seal bad'));
   out.replaceChildren(heading);
   let explanation = result.error;
@@ -113,26 +113,26 @@ function resultView(result, ms, label) {
     else if (/public signal/.test(result.error)) explanation = 'The proof contains malformed or missing public numbers.';
     else if (/proof verification failed/.test(result.error)) explanation = 'The proof does not verify against its supplied public inputs.';
   }
-  out.append(node('p', result.accept ? 'The integer arithmetic passed, and the weight commitment matches the registered model record.' : explanation, 'result-lead'));
-  out.append(node('p', 'The prompt, generated answer and complete inference are not verified by this proof.', 'notice'));
+  out.append(node('p', result.accept ? 'The integer arithmetic checks out, and the weights match the registered commitment.' : explanation, 'result-lead'));
+  out.append(node('p', 'The prompt, the answer and the complete inference are not verified by this proof.', 'notice'));
   if (result.manifest && result.entry) {
     const {manifest:m, entry:t} = result, facts = node('dl', undefined, 'facts');
     for (const [name, value] of [
-      ['Model record', m.model.name + ' · ' + fileTypeLabel(m)],
-      ['Checked scope', result.accept ? `One group · ${t.groth16.rows_per_group} integer rows` : 'Not accepted'],
-      ['Weight commitment', result.bound ? 'Matches registered commitment' : 'Not accepted / not completed'],
-      ['Verification time', `${ms} ms · in this browser`]
+      ['Model', m.model.name + ', ' + fileTypeLabel(m)],
+      ['Checked', result.accept ? `One row group of ${t.groth16.rows_per_group} rows` : 'Not accepted'],
+      ['Weight commitment', result.bound ? 'Matches the registered model' : 'Not confirmed'],
+      ['Verification time', `${ms} ms in this browser`]
     ]) { const pair = node('div'); pair.append(node('dt', name), node('dd', value)); facts.append(pair); }
     out.append(facts);
     if(result.accept) out.append(coverageView(result));
-    const details = node('details'), table = node('table'); details.append(node('summary', 'Technical checks & trust assumptions'));
+    const details = node('details'), table = node('table'); details.append(node('summary', 'Technical details and trust assumptions'));
     tableRow(table, 'Registration ID', m.manifest_id); tableRow(table, 'Tensor', t.name);
     tableRow(table, 'Circuit', t.groth16.circuit);
     tableRow(table, 'Rows', `${result.group * t.groth16.rows_per_group} through ${(result.group + 1) * t.groth16.rows_per_group - 1} (group ${result.group})`);
-    tableRow(table, 'Pairing', result.pairing ? 'Passes' : 'Not accepted / not completed');
-    tableRow(table, 'Weight commitment', result.bound ? 'Matches' : 'Not accepted / not completed');
+    tableRow(table, 'Pairing check', result.pairing ? 'Passed' : 'Not confirmed');
+    tableRow(table, 'Weight commitment', result.bound ? 'Matches' : 'Not confirmed');
     tableRow(table, 'Privacy', 'Weights are private. Activation numbers and arithmetic sums are public.');
-    tableRow(table, 'Trust', 'Project registry; independent review pending. Experimental single-contributor setup.');
+    tableRow(table, 'Trust', 'Registered by this project. Independent review is pending. The proving parameters come from an experimental single-contributor setup.');
     if (result.error) tableRow(table, 'Reason', result.error);
     details.append(table); out.append(details);
   }
@@ -143,7 +143,7 @@ function resultView(result, ms, label) {
 async function verifyPackage(value, label) {
   if (verifying) return;
   verifying = true; document.dispatchEvent?.(new CustomEvent('receipts-verification', {detail:{active:true}})); $('run').disabled = true; $('package-file').disabled = true;
-  $('status').textContent = 'Checking the proof and trusted registration in your browser…';
+  $('status').textContent = 'Checking the proof against the registered model in your browser…';
   $('result-view').hidden = false;
   $('result-view').dataset.state = 'checking';
   $('result-view').replaceChildren(node('h2', 'Checking proof…'));
@@ -186,7 +186,7 @@ function selectFile(file) {
   $('status').textContent = '';
   $('result-view').hidden = false;
   $('result-view').dataset.state = 'pending';
-  $('result-view').replaceChildren(node('h2', 'File selected · not checked yet'));
+  $('result-view').replaceChildren(node('h2', 'File selected. Not checked yet.'));
 }
 async function api(path, options = {}) {
   const response = await fetch('/api/local' + path, {...options, headers:{'X-Prover-Token':LOCAL.token, ...options.headers}});
@@ -203,8 +203,8 @@ function renderJob(job) {
   $('progress').replaceChildren(...stages.map(([id, label], i) => {
     const item = node('li', label); item.dataset.state = job.status === 'complete' || i < current ? 'done' : i === current && job.status === 'running' ? 'active' : 'pending'; return item;
   }));
-  $('job-status').textContent = job.status === 'complete' ? `Ready · ${job.elapsed_seconds}s total. Your proof is ready to download.` :
-    job.status === 'failed' ? 'Stopped: ' + job.error : job.status === 'cancelled' ? 'Cancelled. You can start another run.' : `Working ${HOSTED ? 'on the server' : 'locally'} · ${job.elapsed_seconds}s elapsed`;
+  $('job-status').textContent = job.status === 'complete' ? `Done in ${job.elapsed_seconds} s. Your proof is ready to download.` :
+    job.status === 'failed' ? 'Stopped: ' + job.error : job.status === 'cancelled' ? 'Cancelled. You can start another run.' : `Working ${HOSTED ? 'on the server' : 'locally'}, ${job.elapsed_seconds} s so far`;
   const done = ['complete','failed','cancelled'].includes(job.status);
   $('prompt').disabled = !done; $('local-model').disabled = !done;
   $('cancel-button').hidden = done;
@@ -294,7 +294,7 @@ function init() {
     catch (error) { $('job-status').textContent = error.message; }
   });
   $('download-proof').addEventListener('click', () => { if (generatedPackage) download(generatedPackage, 'computation-proof.llamaproof'); });
-  $('check-generated').addEventListener('click', () => { if (generatedPackage) verifyPackage(generatedPackage, 'Your local computation proof'); });
+  $('check-generated').addEventListener('click', () => { if (generatedPackage) verifyPackage(generatedPackage, 'Your generated proof'); });
   renderModels(); renderExamples(); loadLocal();
 }
 init();

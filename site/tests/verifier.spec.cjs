@@ -41,7 +41,7 @@ test('file names stay text and cannot create markup',async({page})=>{
 test('catalogue search and local generation availability',async({page})=>{
  await page.locator('#model-search').fill('1.5B');
  await expect(page.locator('#models-view')).toContainText('Qwen2.5');
- await expect(page.locator('#models-view')).toContainText('Local generation unavailable');
+ await expect(page.locator('#models-view')).toContainText('Cannot generate proofs');
  await expect(page.locator('#models-view')).not.toContainText('Qwen3-0.6B');
  await page.locator('#model-search').fill('no-model-matches-this');await expect(page.locator('#models-view')).toContainText('No registered models');
  await page.locator('#show-generate').click();await expect(page.locator('#local-unavailable')).toBeVisible();await expect(page.locator('#generate-form')).toBeHidden();

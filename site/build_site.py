@@ -76,7 +76,7 @@ def main() -> int:
             t = next((t for t in m["tensors"] if t.get("groth16", {}).get("groups", [None])[0] == honest[0]), None)
             if t is None:
                 continue
-            for name, label in (("honest", "Honest registered row group"), ("out-of-range", "Invalid activation: must reject")):
+            for name, label in (("honest", "Example valid proof"), ("out-of-range", "Example invalid proof")):
                 examples.append({"label": label, "manifest_id": m["manifest_id"], "tensor": t["name"], "group": 0,
                                  "proof": json.loads((fixtures / (name + "-proof.json")).read_text()),
                                  "public": json.loads((fixtures / (name + "-public.json")).read_text())})
