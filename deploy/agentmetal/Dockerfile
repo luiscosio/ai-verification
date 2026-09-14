@@ -16,5 +16,6 @@ RUN uv python install 3.13 \
     && ./setup-workspace.sh --jobs 2 \
     && uv run --project tools/workspace --locked python site/build_site.py \
     && useradd --uid 10001 --create-home prover
+RUN chmod -R a+rX /app/models /app/code/llama.cpp/examples/receipts/zk/groth16/build
 USER prover
 ENTRYPOINT ["/app/tools/workspace/.venv/bin/python", "site/local_prover.py"]
