@@ -30,6 +30,7 @@ def corpus():
 def main():
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--suite',choices=['native','row-proofs'],default='native');p.add_argument('--models',default=','.join(MODELS));p.add_argument('--limit',type=int);p.add_argument('--model',action='append',default=[],metavar='NAME=PATH',help='Override a selected model path');p.add_argument('--case-plan',type=Path,help='Run a saved public case list instead of the default matrix');a=p.parse_args()
     if a.limit is not None and a.limit<1:p.error('--limit must be positive')
+    env=environment(ROOT)
     a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
     models=resolve_models(a.models,a.model);identities={}
     for name,(file,reg) in models.items():
@@ -38,7 +39,7 @@ def main():
         if reg:
             if value!=json.loads((ROOT/'registry'/reg/'manifest.json').read_text())['model']['file_sha256']:raise ValueError('Model does not match registration: '+name)
         identities[name]={'sha256':value,'bytes':file.stat().st_size,'registration':reg}
-    write(a.out/'environment.json',environment(ROOT)|{'models':identities,'suite':a.suite,'corpus_sha256':digest(ROOT/'benchmarks/corpus.json'),'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py'),'native_binary_sha256':digest(BIN),'native_source_sha256':digest(ROOT/'code/llama.cpp/examples/receipts/receipts.cpp'),'fork_commit':subprocess.check_output(['git','-C',str(ROOT/'code/llama.cpp'),'rev-parse','HEAD'],text=True).strip()})
+    write(a.out/'environment.json',env|{'models':identities,'suite':a.suite,'corpus_sha256':digest(ROOT/'benchmarks/corpus.json'),'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py'),'native_binary_sha256':digest(BIN),'native_source_sha256':digest(ROOT/'code/llama.cpp/examples/receipts/receipts.cpp'),'fork_commit':subprocess.check_output(['git','-C',str(ROOT/'code/llama.cpp'),'rev-parse','HEAD'],text=True).strip()})
     prompts=corpus();cases=[]
     if a.suite=='native':
         for name in models:

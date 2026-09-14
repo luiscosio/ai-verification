@@ -1,0 +1,157 @@
+{
+  "method": "SHA-256 of git show COMMIT:PATH compared with the original environment digest. A matching later commit establishes byte identity, not a clean or immutable run. Original environment records remain unchanged.",
+  "records": [
+    {
+      "environment": "baseline/native-environment.json",
+      "recorded_commit": "dc2bb08b77699c645d83b617b9e711ac81295a29",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [
+        {
+          "path": "benchmarks/run_matrix.py",
+          "recorded_sha256": "ac858075d24332b008e471e9b8e55cdd9ae4c74f0124396934ba3a8b0bb7ca74",
+          "matching_committed_revision": "bb10f02b47db7b11ac8ddb9e41cc02d3d52a7424",
+          "exists_at_recorded_head": false,
+          "matches_recorded_head": false,
+          "meaning": "file bytes were not committed in recorded HEAD; matching version was committed separately"
+        },
+        {
+          "path": "benchmarks/measure.py",
+          "recorded_sha256": "74397d7b8d02035d09a7397e29c7a21371197fad3f2126bdc314049be3d77baa",
+          "matching_committed_revision": "bb10f02b47db7b11ac8ddb9e41cc02d3d52a7424",
+          "exists_at_recorded_head": false,
+          "matches_recorded_head": false,
+          "meaning": "file bytes were not committed in recorded HEAD; matching version was committed separately"
+        }
+      ]
+    },
+    {
+      "environment": "native-negative-environment.json",
+      "recorded_commit": "cc14d9214aad26cd4db2538d37a2f9898a2c2a91",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [
+        {
+          "path": "benchmarks/run_extended.py",
+          "recorded_sha256": "a408bddffeff888d32297843fd3eed2191b46aada5025c9fa4fb765455f2b72e",
+          "matching_committed_revision": "6290d46adf779942515cd7783e0951ca2f3b1923",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        },
+        {
+          "path": "benchmarks/measure.py",
+          "recorded_sha256": "2b524e118c1a9cab8b3fb6a58adc29473d1b78ac524ba82900323f40501bc800",
+          "matching_committed_revision": "64ec3b860914c4fd3e9c911b4af01e487063a016",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        }
+      ]
+    },
+    {
+      "environment": "operation-environment.json",
+      "recorded_commit": "cc14d9214aad26cd4db2538d37a2f9898a2c2a91",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [
+        {
+          "path": "benchmarks/run_extended.py",
+          "recorded_sha256": "a408bddffeff888d32297843fd3eed2191b46aada5025c9fa4fb765455f2b72e",
+          "matching_committed_revision": "6290d46adf779942515cd7783e0951ca2f3b1923",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        },
+        {
+          "path": "benchmarks/measure.py",
+          "recorded_sha256": "2b524e118c1a9cab8b3fb6a58adc29473d1b78ac524ba82900323f40501bc800",
+          "matching_committed_revision": "64ec3b860914c4fd3e9c911b4af01e487063a016",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        }
+      ]
+    },
+    {
+      "environment": "postfix/native-environment.json",
+      "recorded_commit": "a3c65a50866af963dfd6d01f343f67f681cff540",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [
+        {
+          "path": "benchmarks/run_matrix.py",
+          "recorded_sha256": "4bd944fcd071c8a14ccdb4564a873b547ad14d2333e181cdb28c79cfa4c31680",
+          "matching_committed_revision": "a3c65a50866af963dfd6d01f343f67f681cff540",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        },
+        {
+          "path": "benchmarks/measure.py",
+          "recorded_sha256": "2b524e118c1a9cab8b3fb6a58adc29473d1b78ac524ba82900323f40501bc800",
+          "matching_committed_revision": "64ec3b860914c4fd3e9c911b4af01e487063a016",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": false,
+          "meaning": "file bytes were not committed in recorded HEAD; matching version was committed separately"
+        }
+      ]
+    },
+    {
+      "environment": "rows/environment.json",
+      "recorded_commit": "52bc097e39a8444b1720df6e858a3a20375e17d6",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [
+        {
+          "path": "benchmarks/run_matrix.py",
+          "recorded_sha256": "bed22e7a12b15814e7c3df7fa88132e668d95750d8be4fbbe28ab4217d93a512",
+          "matching_committed_revision": "cc14d9214aad26cd4db2538d37a2f9898a2c2a91",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": false,
+          "meaning": "file bytes were not committed in recorded HEAD; matching version was committed separately"
+        },
+        {
+          "path": "benchmarks/measure.py",
+          "recorded_sha256": "2b524e118c1a9cab8b3fb6a58adc29473d1b78ac524ba82900323f40501bc800",
+          "matching_committed_revision": "64ec3b860914c4fd3e9c911b4af01e487063a016",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        }
+      ]
+    },
+    {
+      "environment": "stress-environment.json",
+      "recorded_commit": "762ce635a044247bd1ed471572ef8beddbfeccc6",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [],
+      "limitation": "No driver or monitor digests were captured for this environment; no script attribution is inferred."
+    },
+    {
+      "environment": "throughput-environment.json",
+      "recorded_commit": "cc14d9214aad26cd4db2538d37a2f9898a2c2a91",
+      "recorded_dirty": true,
+      "historical_status_inventory": "not recorded; complete pending file list cannot be reconstructed",
+      "scripts": [
+        {
+          "path": "benchmarks/run_extended.py",
+          "recorded_sha256": "a408bddffeff888d32297843fd3eed2191b46aada5025c9fa4fb765455f2b72e",
+          "matching_committed_revision": "6290d46adf779942515cd7783e0951ca2f3b1923",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        },
+        {
+          "path": "benchmarks/measure.py",
+          "recorded_sha256": "2b524e118c1a9cab8b3fb6a58adc29473d1b78ac524ba82900323f40501bc800",
+          "matching_committed_revision": "64ec3b860914c4fd3e9c911b4af01e487063a016",
+          "exists_at_recorded_head": true,
+          "matches_recorded_head": true,
+          "meaning": "same bytes as recorded HEAD"
+        }
+      ]
+    }
+  ]
+}

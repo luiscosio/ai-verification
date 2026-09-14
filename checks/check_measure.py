@@ -1,11 +1,33 @@
 """Exercise resource observation and process cleanup using real child processes."""
-import os,sys,tempfile,time,unittest
+import os,subprocess,sys,tempfile,time,unittest
 from pathlib import Path
 import psutil
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'benchmarks'))
-from measure import measure
+from measure import measure,clean_revision
 
 class Measurements(unittest.TestCase):
+    def test_benchmark_requires_clean_root_and_submodules(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)/'root';child=Path(folder)/'child';root.mkdir();child.mkdir()
+            def git(where,*args):return subprocess.check_output(['git','-c','user.name=Test','-c','user.email=test@example.invalid',*args],cwd=where,stderr=subprocess.PIPE,text=True).strip()
+            for repo in [root,child]:
+                git(repo,'init');(repo/'tracked').write_text('original');git(repo,'add','tracked');git(repo,'commit','-m','fixture')
+            git(root,'-c','protocol.file.allow=always','submodule','add',str(child),'sub');git(root,'commit','-am','submodule fixture')
+            revision=clean_revision(root);self.assertFalse(revision['dirty']);self.assertEqual(revision['commit'],git(root,'rev-parse','HEAD'));self.assertEqual(revision['tree'],git(root,'rev-parse','HEAD^{tree}'))
+            (root/'tracked').write_text('changed')
+            with self.assertRaisesRegex(RuntimeError,'tracked'):clean_revision(root)
+            git(root,'add','tracked')
+            with self.assertRaisesRegex(RuntimeError,'tracked'):clean_revision(root)
+            git(root,'restore','--staged','--worktree','tracked')
+            (root/'untracked').write_text('new')
+            with self.assertRaisesRegex(RuntimeError,'untracked'):clean_revision(root)
+            (root/'untracked').unlink();(root/'sub'/'untracked').write_text('new')
+            with self.assertRaisesRegex(RuntimeError,'sub'):clean_revision(root)
+            (root/'sub'/'untracked').unlink();(root/'sub'/'tracked').write_text('changed')
+            with self.assertRaisesRegex(RuntimeError,'sub'):clean_revision(root)
+            git(root/'sub','commit','-am','changed child revision')
+            with self.assertRaisesRegex(RuntimeError,'sub'):clean_revision(root)
+
     def test_memory_and_exit_status(self):
         with tempfile.TemporaryDirectory() as d:
             m,out,err=measure([sys.executable,'-c',"import time; x=bytearray(32*1024*1024); print('observed'); time.sleep(.2); raise SystemExit(7)"],d)

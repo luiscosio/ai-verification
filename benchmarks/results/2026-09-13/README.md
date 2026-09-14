@@ -72,6 +72,18 @@ Combined local Python instrumentation reports **72.1% statement coverage and 62.
 
 Use the commands and locked environment in [the benchmark guide](../../README.md). The [60-case regression plan](../../unicode-regression-plan.json) reproduces the post-fix matrix. Raw records include model digests, binary identity, execution settings and resource samples. The initial baseline used a development binary whose build header reported `7bf600953`; its binary digest was captured before rebuilding. It should not be described as a clean release build. Later runs record the repaired native revision and source/material identities.
 
+**All seven archived environment records report a dirty tree.** The recorder saved only a boolean, not the staged/unstaged/untracked file inventory, so the complete historical list cannot be recovered. A [retrospective provenance audit](provenance.json) compares each saved script SHA-256 with committed Git blobs and with the recorded HEAD. The original environment files and measurements remain unchanged.
+
+| Run | Known script state at the recorded HEAD | Matching committed version |
+|---|---|---|
+| Initial native matrix (`dc2bb08b`) | `benchmarks/run_matrix.py` and `benchmarks/measure.py` were absent from HEAD; their measured versions were pending work | Both match `bb10f02b`, committed later |
+| Post-fix native regression (`a3c65a50`) | Driver matches HEAD; `benchmarks/measure.py` differs | Driver matches `a3c65a50`; monitor matches later `64ec3b86` |
+| Row proofs (`52bc097e`) | `benchmarks/run_matrix.py` differs; monitor matches HEAD | Driver matches later `cc14d921`; monitor matches `64ec3b86` |
+| Throughput, native negatives, complete operations (`cc14d921`) | Saved driver and monitor both match HEAD; other pending paths were not recorded | Extended driver matches `6290d46a`; monitor matches `64ec3b86` |
+| Stress (`762ce635`) | No driver or monitor digest was captured; pending paths are unknown | No script attribution inferred |
+
+These are the provable script differences, not a complete list of uncommitted files. In particular, matching a later commit establishes byte identity, not that the run used a clean checkout or that all code was committed when it ran. No claim is made about the content or effect of unrecorded pending files. Future benchmark startup now rejects dirty root/submodule trees, records commit and tree IDs, and requires output outside the repository. Ignored binaries and models still require their separate digests, and the checkout must remain unchanged during measurement.
+
 Heavy local suites ran sequentially. Discarded pilot runs included an incorrectly configured replay backend and interrupted overlapping orchestration; those directories are excluded from every published aggregate. All 208 initial matrix attempts, including the four genuine failures, are retained. The post-fix regression is a targeted 60-case rerun, not a second complete 208-case sweep.
 
 OS timing provides wall time, CPU time and peak process RSS; 50 ms sampling tracks command descendants, and a separate 100 ms observer tracks the complete runner including trace parsing. Summed RSS can double-count shared pages and sampling can miss brief peaks. The whole-runner observer began partway through the Unicode regression, before the later suites. System swap and available memory include other applications and cannot be attributed to the benchmark. Filesystem cache was uncontrolled; no cold-cache, GPU/Metal, physical-phone, Windows, energy or thermal-throttling results are claimed.

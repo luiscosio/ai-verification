@@ -49,7 +49,16 @@ def measure(command, cwd, timeout=600):
                 'sampled_peak_tree_rss_bytes':max((s['rss_bytes'] for s in samples),default=0),'min_system_available_bytes':min((s['available_bytes'] for s in samples),default=0),'system_swap_start_bytes':swap_start,'system_swap_end_bytes':psutil.swap_memory().used,'samples':samples}
         return result,(folder/'stdout').read_text(errors='replace'),(folder/'stderr').read_text(errors='replace')
 
+def clean_revision(root):
+    status=subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=all','--ignore-submodules=none'],cwd=root,text=True).rstrip()
+    if status:
+        raise RuntimeError('Benchmark requires a clean Git tree, including submodules and untracked files. Commit or move pending work, then retry. Use an output directory outside the repository.\n'+status)
+    return {'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
+            'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=root,text=True).strip(),
+            'dirty':False,'git_status_porcelain':''}
+
 def environment(root):
+    revision=clean_revision(root)
     def command(*args):return subprocess.check_output(args,cwd=root,text=True).strip()
-    return {'platform':platform.platform(),'cpu':command('sysctl','-n','machdep.cpu.brand_string') if platform.system()=='Darwin' else platform.processor(),'logical_cpus':psutil.cpu_count(),'physical_memory_bytes':psutil.virtual_memory().total,'python':platform.python_version(),'node':command('node','--version'),'commit':command('git','rev-parse','HEAD'),'dirty':bool(command('git','status','--porcelain')),'sampling_interval_seconds':.05,
+    return revision|{'platform':platform.platform(),'cpu':command('sysctl','-n','machdep.cpu.brand_string') if platform.system()=='Darwin' else platform.processor(),'logical_cpus':psutil.cpu_count(),'physical_memory_bytes':psutil.virtual_memory().total,'python':platform.python_version(),'node':command('node','--version'),'sampling_interval_seconds':.05,
             'limits':['Fresh process for each measurement; filesystem cache is uncontrolled','Summed RSS can double-count shared mappings; sampled peaks can miss short spikes','CPU metrics from OS time cover its child command; sampled CPU is live processes only','System available/swap values include other applications; changes are not attributed to this test','CPU backend only; accelerator allocations and energy not measured']}

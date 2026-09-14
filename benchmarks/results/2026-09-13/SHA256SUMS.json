@@ -1,7 +1,7 @@
 {
   "README.md": {
-    "sha256": "63766ac5d87043dd37605b5418b6b6b22c7fea8deb34421cb3c12b088fe63499",
-    "bytes": 13581
+    "sha256": "59616ee9c55523d5653cebf4baf9a69eea8890a012ad9dd50f2bd6efaae8d345",
+    "bytes": 15509
   },
   "baseline/native-environment.json": {
     "sha256": "537e97282329a0ca7bab47cffadc540552316ec5c7c42e344fea24e9be16a673",
@@ -182,6 +182,10 @@
   "process-tree.jsonl.gz": {
     "sha256": "390cd236093409ceda107f0998167a9374c49316ee5902ae5167659641f599eb",
     "bytes": 179264
+  },
+  "provenance.json": {
+    "sha256": "18b75b4373d5ee7a1976269ad05e074f400a04fbaf3541f551abf3e252a59f77",
+    "bytes": 7279
   },
   "rows/environment.json": {
     "sha256": "97233b0de9fb9ec393cc5962f3bfc4f257823c2484d66c8a67afd22ee3fb6090",

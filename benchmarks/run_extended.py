@@ -14,8 +14,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--suite',choices=['throughput','complete-operation','native-negatives'],required=True);parser.add_argument('--models',default=','.join(MODELS));parser.add_argument('--model',action='append',default=[],metavar='NAME=PATH');a=parser.parse_args();models=resolve_models(a.models,a.model)
     if a.suite=='native-negatives' and len(models)<2:parser.error('Cross-model negative controls require at least two models')
     if a.suite=='complete-operation' and 'qwen3-0.6b' not in models:parser.error('The complete-operation experiment requires qwen3-0.6b')
+    env=environment(ROOT)
     a.out=a.out.resolve();a.out.mkdir(parents=True,exist_ok=False)
-    write(a.out/'environment.json',environment(ROOT)|{'suite':a.suite,'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py')})
+    write(a.out/'environment.json',env|{'suite':a.suite,'driver_sha256':digest(Path(__file__)),'monitor_sha256':digest(ROOT/'benchmarks/measure.py')})
     if a.suite=='throughput':
         bench=ROOT/'code/llama.cpp/build/bin/llama-bench'
         if not bench.exists():subprocess.run(['cmake','--build',str(ROOT/'code/llama.cpp/build'),'--target','llama-bench','-j','2'],check=True)
