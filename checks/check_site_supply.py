@@ -21,7 +21,7 @@ class SupplyChecks(unittest.TestCase):
         template=(ROOT/'site/template.html').read_text()
         self.assertNotRegex(template,r'<script[^>]+src=')
         self.assertIn('__SNARKJS__',template);self.assertIn('__THREE__',template)
-        self.assertNotRegex((ROOT/'site/jelly.js').read_text(),r'\bimport\s*\(')
+        self.assertNotRegex((ROOT/'site/figure.js').read_text(),r'\bimport\s*\(')
 
     def test_actions_use_full_commits(self):
         actions=[a for workflow in (ROOT/'.github/workflows').glob('*.yml') for a in re.findall(r'uses:\s*(\S+)',workflow.read_text())]

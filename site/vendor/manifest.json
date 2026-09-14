@@ -4,8 +4,8 @@
   "esbuild": "0.25.10",
   "files": {
     "three.min.js": {
-      "sha256": "f866bb2c188626e361fbdfa120176ebef311f1e19dd49e2c411551f6418fa624",
-      "bytes": 491792
+      "sha256": "05e00e376529e49e7677236d351719b2649c36171f83946588a6e92fc6ed755c",
+      "bytes": 496504
     },
     "snarkjs.min.js": {
       "sha256": "3bf5b5123047ed9187baa7d4c11285019f09fbed88a28693984ed9dd0508466a",

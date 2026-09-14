@@ -40,10 +40,10 @@ __STYLE__
 </div>
 <aside class="specimen" aria-label="Conceptual illustration of partial proof coverage">
 <div class="specimen-heading"><span>Inside the computation</span><span class="figure-number">Fig. 01</span></div>
-<div class="jelly-stage" id="jelly-stage" aria-hidden="true">
-<svg class="jelly-fallback" viewBox="0 0 600 500" role="presentation"><defs><radialGradient id="jelly-color" cx="30%" cy="20%" r="80%"><stop stop-color="#ffe2b4"/><stop offset=".35" stop-color="#fda57b"/><stop offset=".75" stop-color="#d67894"/><stop offset="1" stop-color="#9076ad"/></radialGradient></defs><ellipse cx="305" cy="425" rx="155" ry="15" fill="#ddd2d5" opacity=".5"/><path d="M150 290C90 120 200 55 315 80C440 55 505 220 440 335C400 420 190 440 150 290Z" fill="url(#jelly-color)"/><g fill="none" stroke="#fff2e9" stroke-width="2" opacity=".7"><ellipse cx="300" cy="200" rx="149" ry="78"/><ellipse cx="301" cy="232" rx="157" ry="78"/><ellipse cx="302" cy="264" rx="158" ry="78"/><ellipse cx="303" cy="296" rx="147" ry="72"/><ellipse cx="305" cy="328" rx="125" ry="61"/></g></svg>
+<div class="figure-stage" id="figure-stage" aria-hidden="true">
+<svg class="figure-fallback" viewBox="0 0 600 500" role="presentation"><defs><linearGradient id="fig-tile" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe7cd"/><stop offset="1" stop-color="#f2b58f"/></linearGradient><pattern id="fig-grid" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="1.5" y="1.5" width="13" height="13" rx="2.5" fill="url(#fig-tile)"/></pattern><pattern id="fig-grid-lit" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="1.5" y="1.5" width="13" height="13" rx="2.5" fill="#b9a3ea"/></pattern></defs><ellipse cx="300" cy="332" rx="250" ry="26" fill="#d9cfd8" opacity=".5"/><g transform="matrix(.9 0 -.55 .55 170 140)"><rect width="448" height="288" fill="#f6dccb" opacity=".6"/><rect width="448" height="288" fill="url(#fig-grid)"/><rect y="112" width="448" height="80" fill="#8361bf" opacity=".22"/><rect y="112" width="448" height="80" fill="url(#fig-grid-lit)"/><rect x="-5" y="107" width="458" height="90" fill="none" stroke="#8f72d6" stroke-width="3"/><g fill="#fff6e6" stroke="#8f72d6" stroke-width="1.5"><circle cx="472" cy="120" r="5"/><circle cx="472" cy="136" r="5"/><circle cx="472" cy="152" r="5"/><circle cx="472" cy="168" r="5"/><circle cx="472" cy="184" r="5"/></g></g></svg>
 </div>
-<div class="specimen-caption"><span class="slice-mark" aria-hidden="true"></span><p>A small part of a larger whole.<br><span>This proof checks one integer row group.</span></p><button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false" hidden>Pause motion</button></div>
+<div class="specimen-caption"><span class="slice-mark" aria-hidden="true"></span><p>One row group out of the whole matrix.<br><span>Frosted tiles are the private weights. The lit band is the part this proof checks.</span></p><button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false" hidden>Pause motion</button></div>
 <p class="illustration-note">Conceptual illustration. The result below shows actual coverage.</p>
 </aside>
 </section>
@@ -80,7 +80,7 @@ __APP__
 __THREE__
 </script>
 <script type="module">
-__JELLY__
+__FIGURE__
 </script>
 </body>
 </html>

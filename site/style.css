@@ -340,7 +340,7 @@ button span {
 .figure-number {
   color: #77727f;
 }
-.jelly-stage {
+.figure-stage {
   width: 100%;
   height: 414px;
   position: relative;
@@ -349,7 +349,7 @@ button span {
   overflow: hidden;
   pointer-events: none;
 }
-.jelly-stage canvas {
+.figure-stage canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -358,17 +358,17 @@ button span {
   opacity: 0;
   transition: opacity 0.5s;
 }
-.jelly-stage[data-ready="true"] canvas {
+.figure-stage[data-ready="true"] canvas {
   opacity: 1;
 }
-.jelly-fallback {
+.figure-fallback {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   transition: opacity 0.5s;
 }
-.jelly-stage[data-ready="true"] .jelly-fallback {
+.figure-stage[data-ready="true"] .figure-fallback {
   opacity: 0;
 }
 .specimen-caption {
@@ -896,7 +896,7 @@ footer > span:last-child {
   .workbench {
     min-height: 650px;
   }
-  .jelly-stage {
+  .figure-stage {
     min-height: 440px;
   }
   .specimen:before {
@@ -923,7 +923,7 @@ footer > span:last-child {
   .specimen:before {
     right: -28px;
   }
-  .jelly-stage {
+  .figure-stage {
     min-height: 250px;
   }
   .specimen-caption {
@@ -986,7 +986,7 @@ footer > span:last-child {
   .specimen:before {
     inset: 0 -22px;
   }
-  .jelly-stage {
+  .figure-stage {
     height: 270px;
     min-height: 270px;
     flex: auto;

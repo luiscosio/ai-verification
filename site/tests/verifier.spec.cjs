@@ -59,7 +59,7 @@ test('keyboard navigation and narrow layout',async({page})=>{
 test('reduced motion and unavailable WebGL preserve verification',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(String(type).includes('webgl'))return null;return original.call(this,type,...args);};});
- await page.reload();await expect(page.locator('.jelly-fallback')).toBeVisible();
+ await page.reload();await expect(page.locator('.figure-fallback')).toBeVisible();
  await page.getByRole('button',{name:'Try a valid proof',exact:true}).click();await expect(page.locator('#result-view')).toHaveAttribute('data-state','verified');
 });
 
