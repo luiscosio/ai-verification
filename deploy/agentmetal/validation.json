@@ -1,0 +1,25 @@
+{
+  "https_authenticated_page": 200,
+  "access_controls": "unauthenticated page/API rejected; token and origin enforced",
+  "generation_seconds": 45.22,
+  "proof_bytes": 42752,
+  "independent_verifier": {
+    "accept": true,
+    "pairing": true,
+    "bound": true,
+    "error": "",
+    "status": "verified",
+    "group": 0,
+    "coverage": "One Q4_K x Q8_K integer row group. Prompt, answer, scales and full inference are not proven.",
+    "setup": "Experimental single-contributor setup; not production assurance."
+  },
+  "platform": "linux/amd64 emulated on local Docker Desktop; no AgentMetal VM allocated",
+  "application_commit": "1c99e63df54ac16504cfe2d11d90cb9b394b3afd",
+  "deployment_commit": "8bdd91492caa513d30f88dc6fb7130cba2ffb1a3",
+  "image_id": "sha256:b86bf3959ecab59c53748f61543d318f6e87bf378c299d260586eb873830d227",
+  "dockerfile_sha256": "a0d3c2f1e530af67b48fcf77e09ebcc444422d922f5ddba4be7290887501fbf2",
+  "proof_sha256": "6435db0f8fc0795569217d4b1b35f58dd3dbe31f97f58f860b67f3394ad87258",
+  "tampered_proof_rejected": true,
+  "tls_scope": "Local self-signed test certificate. Public DNS and ACME require the target server and were not exercised.",
+  "cloud_deployment": "blocked: AgentMetal backing project server quota; no VM allocated"
+}

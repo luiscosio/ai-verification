@@ -17,6 +17,10 @@ The 8 GB plan accommodates the measured approximately 6.22 GiB peak summed runne
 
 ## September 13 provisioning attempt
 
-A limited coupon was minted. Two redemption attempts returned HTTP 502; the API log reported **server limit reached** for both Ashburn and Hillsboro. The coupon was confirmed unused, and the backing project listed five running servers. No existing server was deleted or repurposed. Deployment requires a higher project server limit or an explicitly selected existing host. The container deployment has not yet been exercised on a target server.
+A limited coupon was minted. Two redemption attempts returned HTTP 502; the API log reported **server limit reached** for both Ashburn and Hillsboro. The coupon was confirmed unused, and the backing project listed five running servers. No existing server was deleted or repurposed. Deployment requires a higher project server limit or an explicitly selected existing host. The container deployment has not yet been exercised on an AgentMetal server.
+
+Local container validation passed on Linux x86-64 emulated by Docker Desktop. It exercised the HTTPS proxy with a local test certificate, login rejection, authenticated HTML, token/origin rejection, actual model generation, proof download and independent verification. The 42,752-byte proof was accepted; a changed public sum was rejected. The generate/download/independent-check cycle took 45.22 seconds under emulation, which is not an AgentMetal performance estimate. Source and image identities are in [validation.json](validation.json). Temporary test containers and their network were removed.
+
+The build/run checks caught two container packaging defects before cloud deployment: the minimal image needed `make` (now supplied by `build-essential`), and root-installed model/proving files needed read permission for the unprivileged service user. Only the public model and proving-material directories receive those read permissions; private runtime traces retain the existing temporary-file handling.
 
 Coupon, SSH key and request records are kept outside tracked files under `.receipts-cache/agentmetal-20260913/` in the operator checkout. The coupon expires after one day if not redeemed. Do not copy the AgentMetal monorepo, its admin token or its infrastructure credentials into this public repository or the prover image.
