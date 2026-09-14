@@ -53,6 +53,17 @@ class WorkspaceChecks(unittest.IsolatedAsyncioTestCase):
         status, body = await request(self.app, '/api/local/config', headers=self.headers)
         self.assertEqual(status, 200); self.assertIn('models', body)
 
+    async def test_hosted_origin_keeps_token_and_origin_boundaries(self):
+        app = local.create_app(public_origin='https://proofs.example.test')
+        headers = {'host':'proofs.example.test', 'origin':'https://proofs.example.test', 'x-prover-token':app.state.token}
+        status, _ = await request(app, '/api/local/config', headers=headers)
+        self.assertEqual(status, 200)
+        for altered in ({'host':'127.0.0.1:8789'}, {'origin':'https://attacker.example'}, {'x-prover-token':''}):
+            status, _ = await request(app, '/api/local/config', headers=headers | altered)
+            self.assertEqual(status, 403)
+        for origin in ('http://proofs.example.test', 'https://user:pass@proofs.example.test', 'https://proofs.example.test/path', 'https://proofs.example.test?query', 'https://proofs.example.test#fragment'):
+            with self.assertRaises(ValueError):local.create_app(public_origin=origin)
+
     async def test_bad_requests_and_unknown_run(self):
         for body in (b'null', b'[]', b'{', json.dumps({'model':'wrong', 'prompt':'test'}).encode(), b'x' * 4097):
             status, _ = await request(self.app, '/api/local/jobs', 'POST', body, self.headers)

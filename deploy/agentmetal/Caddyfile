@@ -1,0 +1,12 @@
+{$PROVER_DOMAIN} {
+    header Cache-Control "no-store"
+    basic_auth {
+        proof {$PROVER_PASSWORD_HASH}
+    }
+    request_body {
+        max_size 16KB
+    }
+    reverse_proxy 127.0.0.1:8789 {
+        header_up -Authorization
+    }
+}

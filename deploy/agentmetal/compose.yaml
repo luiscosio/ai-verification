@@ -1,0 +1,34 @@
+services:
+  prover:
+    build:
+      context: .
+      args:
+        APP_REVISION: ${APP_REVISION:?Set the reviewed full Git commit}
+    image: ai-verification-prover:${APP_REVISION}
+    # Share only the proxy's network namespace; Python still binds loopback.
+    network_mode: service:proxy
+    command: ["--public-origin", "https://${PROVER_DOMAIN:?Set the HTTPS hostname}"]
+    init: true
+    restart: unless-stopped
+    mem_limit: 7g
+    cpus: 4
+    pids_limit: 256
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - prover_work:/tmp
+  proxy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      PROVER_DOMAIN: ${PROVER_DOMAIN}
+      PROVER_PASSWORD_HASH: ${PROVER_PASSWORD_HASH:?Set a bcrypt password hash}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  prover_work:
+  caddy_data:
+  caddy_config:

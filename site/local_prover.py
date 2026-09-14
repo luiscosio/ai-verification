@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local-only generation companion. The published verifier has no proving endpoints."""
+"""Loopback generation companion; hosted mode requires an authenticated HTTPS proxy."""
 from __future__ import annotations
 
 import argparse
@@ -15,6 +15,7 @@ import signal
 import sys
 import tempfile
 import time
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -202,11 +203,18 @@ class Prover:
                 self.package = None
 
 
-def create_app(port=8789):
+def create_app(port=8789, public_origin=None):
     prover = Prover()
     token = secrets.token_urlsafe(32)
     authority = f'127.0.0.1:{port}'
     origin = 'http://' + authority
+    if public_origin is not None:
+        parsed = urlsplit(public_origin)
+        if (parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password
+                or parsed.path or parsed.query or parsed.fragment):
+            raise ValueError('Public origin must be an HTTPS origin without credentials, path, query or fragment.')
+        origin = public_origin
+        authority = parsed.netloc
 
     @asynccontextmanager
     async def lifespan(app):
@@ -232,7 +240,7 @@ def create_app(port=8789):
     @app.get('/', response_class=HTMLResponse)
     async def page():
         html = (ROOT / 'site/index.html').read_text()
-        return html.replace('/*LOCAL_CONFIG*/null', json.dumps({'token': token}))
+        return html.replace('/*LOCAL_CONFIG*/null', json.dumps({'token': token, 'hosted': public_origin is not None}))
 
     @app.get('/api/local/config')
     async def config():
@@ -294,6 +302,7 @@ if __name__ == '__main__':
     import uvicorn
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', type=int, default=8789)
+    parser.add_argument('--public-origin', help='HTTPS origin behind an authenticated reverse proxy; listener stays on loopback')
     args = parser.parse_args()
-    print(f'Open http://127.0.0.1:{args.port} to generate and verify proofs locally.', flush=True)
-    uvicorn.run(create_app(args.port), host='127.0.0.1', port=args.port)
+    print(f'Open {args.public_origin or f"http://127.0.0.1:{args.port}"} to generate and verify proofs.', flush=True)
+    uvicorn.run(create_app(args.port, args.public_origin), host='127.0.0.1', port=args.port)

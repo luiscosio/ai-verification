@@ -1,4 +1,5 @@
 const $ = id => document.getElementById(id);
+const HOSTED = Boolean(LOCAL?.hosted);
 function node(tag, text, className) {
   const el = document.createElement(tag);
   if (text !== undefined) el.textContent = String(text);
@@ -20,7 +21,7 @@ function workspaceMode(mode) {
   $('show-generate').setAttribute('aria-pressed', String(generate));
   $('show-verify').setAttribute('aria-pressed', String(!generate));
   $('workspace-title').textContent = generate ? 'Make the evidence.' : 'Inspect a proof.';
-  $('workspace-intro').textContent = generate ? 'Run a model locally. Export a proof of one calculation.' : 'Check a computation against registered model weights.';
+  $('workspace-intro').textContent = generate ? (HOSTED ? 'Run a model on the hosted server. Export a proof of one calculation.' : 'Run a model locally. Export a proof of one calculation.') : 'Check a computation against registered model weights.';
 }
 function fileTypeLabel(m) {
   // GGUF file type 15 is LLAMA_FTYPE_MOSTLY_Q4_K_M in the pinned llama.h.
@@ -203,7 +204,7 @@ function renderJob(job) {
     const item = node('li', label); item.dataset.state = job.status === 'complete' || i < current ? 'done' : i === current && job.status === 'running' ? 'active' : 'pending'; return item;
   }));
   $('job-status').textContent = job.status === 'complete' ? `Ready · ${job.elapsed_seconds}s total. Your proof is ready to download.` :
-    job.status === 'failed' ? 'Stopped: ' + job.error : job.status === 'cancelled' ? 'Cancelled. You can start another run.' : `Working locally · ${job.elapsed_seconds}s elapsed`;
+    job.status === 'failed' ? 'Stopped: ' + job.error : job.status === 'cancelled' ? 'Cancelled. You can start another run.' : `Working ${HOSTED ? 'on the server' : 'locally'} · ${job.elapsed_seconds}s elapsed`;
   const done = ['complete','failed','cancelled'].includes(job.status);
   $('prompt').disabled = !done; $('local-model').disabled = !done;
   $('cancel-button').hidden = done;
@@ -244,6 +245,11 @@ async function pollJob() {
 }
 async function loadLocal() {
   if (!LOCAL) return;
+  if (HOSTED) {
+    $('show-generate').textContent = 'Generate on server';
+    $('generate').setAttribute('aria-label', 'Generate on server');
+    $('run-details').querySelector('p.small').textContent = 'Measured on the hosted server; not certified by the proof.';
+  }
   workspaceMode('generate');
   $('local-unavailable').hidden = true; $('generate-form').hidden = false; $('generate-button').disabled = true;
   try {
@@ -251,7 +257,7 @@ async function loadLocal() {
     $('local-model').replaceChildren(...config.models.map(m => new Option(m.name, m.id)));
     function readiness() {
       const m = config.models.find(m => m.id === $('local-model').value);
-      $('readiness').textContent = m?.ready ? 'Model and proving tools found. Everything runs on this computer.' : (m?.issues || ['No supported local model.']).join(' ');
+      $('readiness').textContent = m?.ready ? (HOSTED ? 'Ready. Prompts run on this server. This login shares one workspace and its latest result.' : 'Model and proving tools found. Everything runs on this computer.') : (m?.issues || ['No supported local model.']).join(' ');
       $('generate-button').disabled = !m?.ready;
     }
     $('local-model').addEventListener('change', readiness); readiness();
