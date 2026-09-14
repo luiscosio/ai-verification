@@ -2,7 +2,7 @@ FROM ghcr.io/astral-sh/uv:0.9.26 AS uv
 FROM node:24-bookworm-slim
 COPY --from=uv /uv /uvx /usr/local/bin/
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates git cmake g++ libssl-dev python3 \
+    ca-certificates git cmake build-essential libssl-dev python3 \
     && rm -rf /var/lib/apt/lists/*
 ARG APP_REVISION
 ENV UV_PYTHON_INSTALL_DIR=/opt/python PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
