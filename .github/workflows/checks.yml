@@ -1,11 +1,34 @@
 name: Verification checks
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
   workflow_call:
 permissions:
   contents: read
 jobs:
+  hosted-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix code/llama.cpp/examples/receipts/zk/groth16
+      - name: Build selected revision as an unprivileged hosted prover
+        run: docker build --build-arg APP_REVISION="$GITHUB_SHA" -t proof-release:ci deploy/agentmetal
+      - name: HTTPS proxy, access controls, generation and independent proof verification
+        run: python3 deploy/agentmetal/check_hosted.py --image proof-release:ci --out test-results/hosted-container.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: hosted-container
+          path: test-results/
   portable:
     strategy:
       fail-fast: false

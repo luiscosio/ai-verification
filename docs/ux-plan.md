@@ -56,13 +56,13 @@ The first workspace records model-check, combined inference/capture, witness, pr
 
 ## Release order
 
-The older private artifact remains historical. The hosted experimental registry is deployed to GitHub Pages at `https://luiscosio.github.io/ai-verification/`. The generated files in `site/` remain local outputs; the workflow builds its own bundle from committed sources.
+AgentMetal is the single hosting target. Its server quota increase is pending. Pages publishing is disabled; the existing Pages site is temporary until the replacement is verified. The older private artifact remains historical.
 
-1. Review and commit the changes in the llama.cpp fork, then push that fork commit.
-2. Update the parent repository's submodule pin to that available commit; commit the registration, shared-policy consumers, checks, workspace and documentation together, then push the parent.
-3. Run `checks/run.sh` locally. A push to `main` triggers the Pages workflow, which runs the browser/offline acceptance regressions and builds the trusted-registry bundle.
-4. Wait for the Pages deployment to finish. Verify both bundled examples and a freshly generated file on the hosted site; confirm the registration ID and scope labels.
-5. Record the parent commit, fork commit and deployment URL. Publishing more model identities must not imply proof coverage for unsupported tensors or models.
+1. Review and push the llama.cpp fork, then update and commit the parent’s submodule pin and registration changes.
+2. Run the local checks and wait for the parent commit’s Verification checks workflow to pass. A push runs tests, not publication.
+3. Build the hosted image for that full commit and run `deploy/agentmetal/check_hosted.py --image IMAGE --out REPORT.json` against it. Keep the image identity and report with the release records.
+4. After capacity is available, redeem the unused coupon (or mint a replacement if it expired), provision and follow [the deployment guide](../deploy/agentmetal/README.md). Validate public HTTPS, access controls and a fresh independently verified proof on the live host.
+5. Record the parent/fork commits, image identity, URL and lease expiry. Unpublish Pages only after the replacement passes. Publishing more model identities must not imply coverage for unsupported tensors or models.
 
 Keep a private research preview distinct from a production-assurance release. Production still requires appropriate setup, independent registration/review, verified execution coverage and the security gates in `PLAN.md`.
 

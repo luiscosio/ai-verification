@@ -56,7 +56,7 @@ Expander is used through a fork, `luiscosio/Expander` branch `macos-build`, pull
 
 ## Site
 
-Hosted registry and verifier: **https://luiscosio.github.io/ai-verification/**. Open a locally generated `.llamaproof` file there to check its registered weight commitment in your browser. The file is not uploaded to or stored by the hosting service. The catalogue distinguishes model fingerprints from actual proof coverage; these project registrations are not signatures from the model providers.
+AgentMetal is the single planned host for the website, registry, browser verifier and password-protected proof workspace. Deployment is prepared but waiting for the provider to raise its server quota; no AgentMetal URL is live yet. Open a locally generated `.llamaproof` file in the website to check its registered weight commitment in your browser. The file is not uploaded to or stored by the hosting service. The catalogue distinguishes model fingerprints from actual proof coverage; these project registrations are not signatures from the model providers.
 
 | Model file | Hosted verification coverage |
 |---|---|
@@ -87,13 +87,13 @@ Setup installs the locked Python and Node dependencies, builds the pinned native
 
 The versioned asset names and full checksums are recorded in [releases/prover-materials-v1.json](releases/prover-materials-v1.json). The [proving-material release](https://github.com/luiscosio/ai-verification/releases/tag/prover-materials-v1) contains the existing experimental parameters, not a new ceremony. Never regenerate setup as a substitute for installing the matching keys. Native compilation and generation have been tested locally on macOS and on clean Linux CI runners, including authenticated model installation, actual local API generation and fresh proof verification. The earlier macOS fresh-checkout round trip completed in 25 seconds; [validation details](docs/setup-validation-2026-09-13.json) distinguish cached assets from network tests. The [expanded testing report](benchmarks/results/2026-09-13/README.md) records the cross-CPU installation repair and subsequent results.
 
-The local companion listens on `127.0.0.1:8789`, uses one active job and an ephemeral session token, and removes private temporary traces/witness files on completion, cancellation or failure. It keeps the latest prompt, unverified text and public package in memory until another run or shutdown. The published static page has no local proving connection. Restarting the companion loses the latest run, so download anything you want to keep.
+The local companion listens on `127.0.0.1:8789`, uses one active job and an ephemeral session token, and removes private temporary traces/witness files on completion, cancellation or failure. It keeps the latest prompt, unverified text and public package in memory until another run or shutdown. In hosted mode, generation runs on the AgentMetal server and everyone with the login shares the same workspace; opening a proof file for browser verification stays on the visitor’s computer. Restarting the companion loses the latest run, so download anything you want to keep.
 
 ### Build and publication
 
 `python3 site/build_site.py` rebuilds `site/index.html` and `site/artifact.html` from the trusted registry and checked-in site sources. Missing keys or mismatched materials fail with a concise error. `uv run --with fastapi --with 'uvicorn[standard]' --with python-multipart python3 site/serve.py` still serves the static page and the separate server-side Expander verification endpoint.
 
-GitHub Pages is the sole supported hosted verifier. The old Claude artifact is stale and must not be used; remote retirement is pending access to its signed-in owner session. It is no longer linked here as a verification destination. `.github/workflows/pages.yml` uses full commit pins for all five actions, checks the browser/offline acceptance policy, builds a static bundle from the pinned submodule and registry, and deploys it after each push to `main`. Only the generated HTML is published; local proving endpoints, models and private traces are excluded. No publication occurs when running the builder locally. The product/research plan and usability gate are in [docs/ux-plan.md](docs/ux-plan.md).
+See [the AgentMetal deployment guide](deploy/agentmetal/README.md) for the prepared release, access model and cutover checks. Main-branch pushes run verification checks without publishing. Automatic GitHub Pages publishing is disabled and its workflow has been removed; the existing Pages site remains temporarily available until the AgentMetal replacement passes its live checks, then it will be unpublished. The old Claude verifier artifact is stale and must not be used; its removal still requires its owner’s signed-in session. Running the site builder never publishes anything. The product/research plan is in [docs/ux-plan.md](docs/ux-plan.md).
 
 ## Notes
 

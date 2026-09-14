@@ -8,7 +8,8 @@ ARG APP_REVISION
 ENV UV_PYTHON_INSTALL_DIR=/opt/python PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN test -n "$APP_REVISION" \
     && git clone --filter=blob:none --no-checkout https://github.com/luiscosio/ai-verification.git /app \
-    && git -C /app checkout --detach "$APP_REVISION" \
+    && git -C /app fetch --depth 1 origin "$APP_REVISION" \
+    && git -C /app checkout --detach FETCH_HEAD \
     && git -C /app submodule update --init
 WORKDIR /app
 RUN uv python install 3.13 \

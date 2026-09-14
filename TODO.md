@@ -39,8 +39,9 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 ### Stage 6, registry and verification site
 - [x] `site/`: static page with the registered models, in-browser Groth16 verification against the pinned manifest, coverage stated on every result, offline reproduction commands, bundled honest and tampered packages, self-check on load
 - [x] `site/serve.py`: local server, server-side verification of Expander packages with size and time limits; accepted a Qwen3 proof, rejected a tampered one
-- [ ] Retire the old private Claude verifier artifact. It is stale and no longer recommended; remote removal/replacement is blocked on a signed-in owner session. GitHub Pages is the sole supported verifier.
-- [x] GitHub Pages deployment workflow for the hosted experimental registry/verifier, triggered from `main`: https://luiscosio.github.io/ai-verification/
+- [ ] Retire the old private Claude verifier artifact. It is stale and no longer recommended; remote removal/replacement is blocked on a signed-in owner session. AgentMetal is the single hosting target; its quota increase is pending.
+- [x] Retire automatic Pages publishing; preserve all verification jobs on main pushes.
+- [ ] Complete AgentMetal deployment after the server quota increase, validate the live service, then unpublish the existing Pages site.
 - [x] Searchable catalogue: Qwen3-0.6B registered integer cores, Qwen2.5-1.5B one registered tensor, Qwen2.5-0.5B fingerprint-only identity. Coverage is explicit on each card.
 
 ### Proof workspace, alongside the research stages
@@ -67,7 +68,7 @@ The usability work in `docs/ux-plan.md` proceeds alongside this cryptographic de
 2. [ ] **Second registrar.** Someone else runs `register.py --check --commit --groth16` against their own copy of the GGUF and signs the manifest; publish Expander's commitment parameters explicitly instead of its testing-only RNG. Stage 2 exit gate.
 3. [ ] **Choose the execution track and next backend experiment.** The complete F20 operation is implemented and measured, with conditional private-boundary composition documented. Its Q4-only serial projection is about 28 hours/token, before other required operations. Keep native arithmetic as the default track and F20 as a candidate; obtain independent review and settle budgets before a broad kernel port. A future selected fixed-point track would port `docs/stage4/fixed_point_forward.py` into ggml's CPU backend as a selectable mode: matmul scale step and RMS norm first, measure token agreement after each op, register stmt/v1 when the whole pass is in. Then the trace verifier's tolerances become exact equalities.
 4. [ ] **Whole-token prover spike.** Two one-week spikes: Libra-style masking on one sumcheck layer in the Expander fork, or a GKR-with-logup system that already has a zero-knowledge mode. Then the Q6_K circuit, the nonlinear ops of stmt/v1, and a specified, reviewed hiding-boundary composition. The Stage 4 sketches are not a soundness argument.
-5. [ ] **Production-assurance website**, after item 1: reviewed setup, independent registration, prover signatures and a versioned verifier release. The public experimental Pages site verifies Groth16 locally in the browser and stores no proof uploads. Expander server deployment, if added, needs deployment-level upload/rate limits and explicit labeling.
+5. [ ] **Production-assurance website**, after item 1: reviewed setup, independent registration, prover signatures and a versioned verifier release. The website verifies Groth16 locally in the browser and stores no proof uploads. Expander server deployment, if added, needs deployment-level upload/rate limits and explicit labeling.
 6. [x] Publish the existing matching prover material as `prover-materials-v1` GitHub release assets; full checksums and byte sizes are in `releases/prover-materials-v1.json`.
 7. [ ] Extend Qwen2.5-1.5B beyond its registered `blk.0.ffn_gate.weight` checkpoint, and integrate supported registrations into the local model picker.
 8. [ ] Cache compiled circuits per shape in `receipts-zk verify` (2 to 5 s per verification today).
