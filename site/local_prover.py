@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Loopback generation companion; hosted mode requires an authenticated HTTPS proxy."""
+"""Loopback generation companion; hosted mode sits behind an HTTPS proxy and serves the public site."""
 from __future__ import annotations
 
 import argparse
@@ -18,7 +18,7 @@ import time
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 ROOT = Path(__file__).resolve().parents[1]
 G16 = ROOT / 'code/llama.cpp/examples/receipts/zk/groth16'
@@ -31,6 +31,10 @@ REGISTRATION = ROOT / 'registry/qwen3-0.6b-q4_k_m/manifest.json'
 CIRCUIT = 'r16_k1024'
 STAGES = ('model', 'inference', 'witness', 'proving', 'checking', 'export')
 MAX_REQUEST = 4096
+
+
+PUBLIC_FILES = {'llms.txt': 'text/plain; charset=utf-8', 'robots.txt': 'text/plain; charset=utf-8',
+                'sitemap.xml': 'application/xml; charset=utf-8', 'og-image.png': 'image/png', 'favicon.svg': 'image/svg+xml'}
 
 
 def sha256(path):
@@ -232,7 +236,7 @@ def create_app(port=8789, public_origin=None):
         if request.url.path.startswith('/api/') and not secrets.compare_digest(request.headers.get('x-prover-token', ''), token):
             return JSONResponse({'detail': 'Reload the local workspace to reconnect.'}, status_code=403)
         response = await call_next(request)
-        response.headers['Cache-Control'] = 'no-store'
+        response.headers.setdefault('Cache-Control', 'no-store')
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
@@ -240,7 +244,19 @@ def create_app(port=8789, public_origin=None):
     @app.get('/', response_class=HTMLResponse)
     async def page():
         html = (ROOT / 'site/index.html').read_text()
-        return html.replace('/*LOCAL_CONFIG*/null', json.dumps({'token': token, 'hosted': public_origin is not None}))
+        return (html.replace('/*LOCAL_CONFIG*/null', json.dumps({'token': token, 'hosted': public_origin is not None}))
+                .replace('__PUBLIC_ORIGIN__', origin).replace('__ROBOTS__', 'index, follow' if public_origin else 'noindex'))
+
+    # Public files next to the page: discovery and social previews. Text files learn the origin.
+    def public_file(name, content_type):
+        async def handler():
+            body = (ROOT / 'site/public' / name).read_bytes()
+            if content_type.startswith(('text/', 'application/xml')):
+                body = body.decode().replace('__PUBLIC_ORIGIN__', origin).encode()
+            return Response(body, media_type=content_type, headers={'Cache-Control': 'public, max-age=3600'})
+        return handler
+    for name, content_type in PUBLIC_FILES.items():
+        app.add_api_route('/' + name, public_file(name, content_type), methods=['GET'])
 
     @app.get('/api/local/config')
     async def config():

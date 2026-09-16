@@ -257,7 +257,7 @@ async function loadLocal() {
     $('local-model').replaceChildren(...config.models.map(m => new Option(m.name, m.id)));
     function readiness() {
       const m = config.models.find(m => m.id === $('local-model').value);
-      $('readiness').textContent = m?.ready ? (HOSTED ? 'Ready. Prompts run on this server. This login shares one workspace and its latest result.' : 'Model and proving tools found. Everything runs on this computer.') : (m?.issues || ['No supported local model.']).join(' ');
+      $('readiness').textContent = m?.ready ? (HOSTED ? 'Ready. Prompts run on this server. Everyone shares one workspace and its latest result.' : 'Model and proving tools found. Everything runs on this computer.') : (m?.issues || ['No supported local model.']).join(' ');
       $('generate-button').disabled = !m?.ready;
     }
     $('local-model').addEventListener('change', readiness); readiness();

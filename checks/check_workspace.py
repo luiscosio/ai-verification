@@ -34,7 +34,10 @@ async def request(app, path, method='GET', body=b'', headers=None):
     await asyncio.wait_for(app(scope, receive, send), 5)
     status = next(m['status'] for m in messages if m['type'] == 'http.response.start')
     raw = b''.join(m.get('body', b'') for m in messages if m['type'] == 'http.response.body')
-    return status, json.loads(raw)
+    try:
+        return status, json.loads(raw)
+    except ValueError:  # HTML and text responses
+        return status, raw.decode(errors='replace')
 
 
 class WorkspaceChecks(unittest.IsolatedAsyncioTestCase):
@@ -63,6 +66,25 @@ class WorkspaceChecks(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(status, 403)
         for origin in ('http://proofs.example.test', 'https://user:pass@proofs.example.test', 'https://proofs.example.test/path', 'https://proofs.example.test?query', 'https://proofs.example.test#fragment'):
             with self.assertRaises(ValueError):local.create_app(public_origin=origin)
+
+    async def test_public_files_and_discovery_tags(self):
+        app = local.create_app(public_origin='https://proofs.example.test')
+        headers = {'host':'proofs.example.test'}
+        status, html = await request(app, '/', headers=headers)
+        self.assertEqual(status, 200)
+        for tag in ('<link rel="canonical" href="https://proofs.example.test/">', '<meta name="robots" content="index, follow">',
+                    '<meta property="og:image" content="https://proofs.example.test/og-image.png">', 'application/ld+json'):
+            self.assertIn(tag, html)
+        self.assertNotIn('__PUBLIC_ORIGIN__', html); self.assertNotIn('__ROBOTS__', html)
+        for path in ('/llms.txt', '/robots.txt', '/sitemap.xml'):
+            status, body = await request(app, path, headers=headers)
+            self.assertEqual(status, 200); self.assertIn('https://proofs.example.test/', body)
+        status, _ = await request(app, '/og-image.png', headers=headers)
+        self.assertEqual(status, 200)
+        status, _ = await request(app, '/llms.txt', headers={'host':'attacker.invalid'})
+        self.assertEqual(status, 403)
+        status, html = await request(self.app, '/', headers=self.headers)
+        self.assertIn('<meta name="robots" content="noindex">', html)
 
     async def test_bad_requests_and_unknown_run(self):
         for body in (b'null', b'[]', b'{', json.dumps({'model':'wrong', 'prompt':'test'}).encode(), b'x' * 4097):

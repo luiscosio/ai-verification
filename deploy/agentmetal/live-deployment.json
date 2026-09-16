@@ -81,6 +81,15 @@
   "operator_notes": [
     "Port 22 becomes unreachable for several minutes after bursts of connection attempts, including bare TCP probes, while 80 and 443 stay reachable. Use few, long-lived SSH sessions and never probe port 22.",
     "Adding firewall rules through the API while an SSH session was open did not disturb that session; a new rule took effect within seconds.",
-    "The login password and SSH key live only in the operator's private records outside Git."
+    "The SSH key lives only in the operator's private records outside Git."
+  ],
+  "access": "Public since 2026-09-16: no login. The application enforces Host, Origin and a per-process request token; one job at a time.",
+  "discovery": [
+    "llms.txt",
+    "robots.txt",
+    "sitemap.xml",
+    "og-image.png",
+    "favicon.svg",
+    "canonical, Open Graph, Twitter and JSON-LD tags"
   ]
 }

@@ -23,7 +23,6 @@ services:
     ports: ["80:80", "443:443"]
     environment:
       PROVER_DOMAIN: ${PROVER_DOMAIN}
-      PROVER_PASSWORD_HASH: ${PROVER_PASSWORD_HASH:?Set a bcrypt password hash}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

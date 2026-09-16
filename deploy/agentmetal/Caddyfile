@@ -1,12 +1,9 @@
 {$PROVER_DOMAIN} {
-    header Cache-Control "no-store"
-    basic_auth {
-        proof {$PROVER_PASSWORD_HASH}
-    }
+    encode zstd gzip
+    # The application sets Cache-Control itself; everything else stays uncached.
+    header ?Cache-Control "no-store"
     request_body {
         max_size 16KB
     }
-    reverse_proxy 127.0.0.1:8789 {
-        header_up -Authorization
-    }
+    reverse_proxy 127.0.0.1:8789
 }

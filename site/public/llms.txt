@@ -1,0 +1,35 @@
+# llama-receipts
+
+> Proofs of one LLM calculation. A llama.cpp fork writes a receipt of an inference run with a Merkle-committed activation trace, and a Groth16 circuit proves one integer row group of one matrix multiplication against a registered commitment to the model's weights. This site verifies such proofs in the browser, without the weights.
+
+Coverage is partial and is stated on every result: one Q4_K x Q8_K integer row group of 16 rows inside one operation. The prompt, the answer, the scales and the complete inference are not proven. The proving parameters come from an experimental single-contributor setup. Registrations are made by this project, not by the model providers.
+
+## Pages
+
+- Verify a proof: __PUBLIC_ORIGIN__/ (drop a .llamaproof file; verification runs in your browser, the file is not uploaded)
+- Generate a proof: __PUBLIC_ORIGIN__/#workspace (runs Qwen3-0.6B Q4_K_M on this server, one job at a time, prompts up to 64 tokens, about 50 seconds)
+- Model records: __PUBLIC_ORIGIN__/#models (Qwen3-0.6B Q4_K_M with 168 registered tensors and 22,400 row groups; Qwen2.5-1.5B with one registered tensor; Qwen2.5-0.5B fingerprint only)
+- What a passing proof means: __PUBLIC_ORIGIN__/#understand
+
+## Source and documents
+
+- Repository: https://github.com/luiscosio/ai-verification
+- Plan: https://github.com/luiscosio/ai-verification/blob/main/PLAN.md
+- Status scratch pad: https://github.com/luiscosio/ai-verification/blob/main/TODO.md
+- Registry manifests: https://github.com/luiscosio/ai-verification/tree/main/registry
+- Deployment record: https://github.com/luiscosio/ai-verification/blob/main/deploy/agentmetal/live-deployment.json
+- llama.cpp fork with the receipts tool, Lean spec and provers: https://github.com/luiscosio/llama.cpp (branch receipts-all; draft pull requests 1 to 3)
+- Proof file format: envelope llama-receipts/proof-package/v1, claim q4k-integer-row-group/v1
+
+## Verify a proof offline
+
+    git clone --recursive https://github.com/luiscosio/ai-verification
+    cd ai-verification
+    npm ci --prefix code/llama.cpp/examples/receipts/zk/groth16
+    node site/verify-file.cjs my-proof.llamaproof
+
+The browser and the offline verifier enforce the same acceptance policy against the same pinned registry. No model weights are needed.
+
+## API note
+
+The /api/local/ endpoints exist for this page's own use. They require a per-process token embedded in the page and the page's origin, and they are not a stable interface. Everyone shares one workspace and its latest result.

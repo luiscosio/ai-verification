@@ -42,7 +42,7 @@ for manifest in manifests.values():
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return (ROOT / "site" / "index.html").read_text()
+    return (ROOT / "site" / "index.html").read_text().replace("__PUBLIC_ORIGIN__", "http://127.0.0.1").replace("__ROBOTS__", "noindex")
 
 
 @app.get("/api/models")

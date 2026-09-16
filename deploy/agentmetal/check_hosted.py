@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Check an isolated release image or a live HTTPS workspace. Never provisions."""
+"""Check an isolated release image or the live public HTTPS workspace. Never provisions."""
 import argparse
-import base64
 import hashlib
 import json
 import os
@@ -30,15 +29,12 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         raise RuntimeError("Unexpected redirect; credentials were not forwarded")
 
 
-def check(url, password, context, folder):
+def check(url, context, folder):
     opener = urllib.request.build_opener(
         NoRedirect(), urllib.request.HTTPSHandler(context=context))
-    auth = 'Basic ' + base64.b64encode(('proof:' + password).encode()).decode()
 
-    def request(path, body=None, headers=None, authenticated=True):
+    def request(path, body=None, headers=None):
         headers = dict(headers or {})
-        if authenticated:
-            headers['Authorization'] = auth
         if body is not None:
             headers['Content-Type'] = 'application/json'
         req = urllib.request.Request(url + path, headers=headers,
@@ -55,15 +51,24 @@ def check(url, password, context, folder):
             status, html, headers = request('/')
             if status == 200:
                 break
-            require(status in (502, 503), 'Authenticated page returned HTTP ' + str(status))
+            require(status in (502, 503), 'Public page returned HTTP ' + str(status))
         except urllib.error.URLError:
             if time.monotonic() >= deadline:
                 raise
         require(time.monotonic() < deadline, 'Workspace did not become ready')
         time.sleep(1)
     require(headers.get('Cache-Control') == 'no-store', 'Page must not be cached')
-    for path in ('/', '/api/local/config'):
-        require(request(path, authenticated=False)[0] == 401, 'Login is not enforced')
+    page = html.decode()
+    for tag in ('<link rel="canonical" href="' + url + '/">', '<meta property="og:url" content="' + url + '/">',
+                '<meta name="robots" content="index, follow">', 'application/ld+json'):
+        require(tag in page, 'Discovery tag missing: ' + tag)
+    for path, content_type in (('/llms.txt', 'text/plain'), ('/robots.txt', 'text/plain'), ('/sitemap.xml', 'application/xml'),
+                               ('/og-image.png', 'image/png'), ('/favicon.svg', 'image/svg+xml')):
+        status, body, file_headers = request(path)
+        require(status == 200 and file_headers.get('Content-Type', '').startswith(content_type), path + ' is not served')
+        require(file_headers.get('Cache-Control') == 'public, max-age=3600', path + ' must be cacheable')
+        if content_type != 'image/png':
+            require(url in body.decode(), path + ' does not name this origin')
     require(request('/api/local/config')[0] == 403, 'Missing request token was accepted')
     match = re.search(r'const LOCAL = (\{[^;]+\});', html.decode())
     require(match is not None, 'Hosted configuration missing')
@@ -121,14 +126,14 @@ def check(url, password, context, folder):
     return {'url': url, 'generation_and_verification_seconds': round(time.monotonic() - started, 2),
             'proof_bytes': len(raw), 'proof_sha256': hashlib.sha256(raw).hexdigest(),
             'independent_verifier': verdict, 'tampered_proof_rejected': True,
-            'access_checks': ['login', 'request token', 'origin', 'host', '16KB body limit', 'no-store']}
+            'access_checks': ['public page', 'discovery files', 'request token', 'origin', 'host', '16KB body limit', 'no-store']}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     target = parser.add_mutually_exclusive_group(required=True)
     target.add_argument('--image', help='Local release image; starts and removes isolated containers')
-    target.add_argument('--url', help='Live HTTPS origin; password from PROVER_PASSWORD')
+    target.add_argument('--url', help='Live public HTTPS origin')
     parser.add_argument('--out', required=True, type=Path)
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix='proof-release-check-') as temporary:
@@ -139,14 +144,9 @@ def main():
             require(parsed.scheme == 'https' and parsed.hostname and not
                     (parsed.username or parsed.password or parsed.path or parsed.query or parsed.fragment),
                     'URL must be an HTTPS origin')
-            password = os.environ.get('PROVER_PASSWORD')
-            require(bool(password), 'Set PROVER_PASSWORD privately in the environment')
-            result = check(url, password, ssl.create_default_context(), folder)
+            result = check(url, ssl.create_default_context(), folder)
             result['tls_scope'] = 'Public certificate verification enabled'
         else:
-            password = secrets.token_urlsafe(24)
-            hashed = subprocess.check_output(['docker', 'run', '--rm', 'caddy:2.10.2-alpine',
-                                              'caddy', 'hash-password', '--plaintext', password], text=True).strip()
             compose = (DEPLOY / 'compose.yaml').read_text().replace(
                 'ports: ["80:80", "443:443"]', 'ports: ["127.0.0.1:18443:18443"]')
             require(compose != (DEPLOY / 'compose.yaml').read_text(), 'Cannot isolate proxy port mapping')
@@ -154,13 +154,12 @@ def main():
             (folder / 'override.yaml').write_text('services:\n  prover:\n    image: ' + json.dumps(args.image) + '\n')
             (folder / 'Caddyfile').write_text((DEPLOY / 'Caddyfile').read_text().replace(
                 '{$PROVER_DOMAIN} {', '{$PROVER_DOMAIN} {\n    tls internal', 1))
-            env = os.environ | {'APP_REVISION': 'local-check', 'PROVER_DOMAIN': 'localhost:18443',
-                                'PROVER_PASSWORD_HASH': hashed}
+            env = os.environ | {'APP_REVISION': 'local-check', 'PROVER_DOMAIN': 'localhost:18443'}
             command = ['docker', 'compose', '-p', 'proof-check-' + secrets.token_hex(4),
                        '-f', str(folder / 'compose.yaml'), '-f', str(folder / 'override.yaml')]
             try:
                 subprocess.run(command + ['up', '-d', '--no-build'], env=env, check=True)
-                result = check('https://localhost:18443', password, ssl._create_unverified_context(), folder)
+                result = check('https://localhost:18443', ssl._create_unverified_context(), folder)
                 result['image_id'] = subprocess.check_output(
                     ['docker', 'image', 'inspect', '--format', '{{.Id}}', args.image], text=True).strip()
                 result['tls_scope'] = 'Isolated local test certificate; public DNS/ACME not tested'

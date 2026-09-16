@@ -56,7 +56,7 @@ Expander is used through a fork, `luiscosio/Expander` branch `macos-build`, pull
 
 ## Site
 
-AgentMetal hosts the website, registry, browser verifier and password-protected proof workspace at https://178-156-248-181.sslip.io (login required). The hostname is a wildcard DNS name for the server address; a project domain can replace it by changing one variable and restarting the proxy. Open a locally generated `.llamaproof` file in the website to check its registered weight commitment in your browser. The file is not uploaded to or stored by the hosting service. The catalogue distinguishes model fingerprints from actual proof coverage; these project registrations are not signatures from the model providers.
+AgentMetal hosts the public website, registry, browser verifier and proof workspace at https://178-156-248-181.sslip.io. Anyone can verify a proof there, and anyone can generate one: prompts run on that server, one job at a time, about 50 seconds each. The hostname is a wildcard DNS name for the server address; a project domain can replace it by changing one variable and restarting the proxy. Open a locally generated `.llamaproof` file in the website to check its registered weight commitment in your browser. The file is not uploaded to or stored by the hosting service. The catalogue distinguishes model fingerprints from actual proof coverage; these project registrations are not signatures from the model providers.
 
 | Model file | Hosted verification coverage |
 |---|---|
