@@ -56,7 +56,7 @@ The first workspace records model-check, combined inference/capture, witness, pr
 
 ## Release order
 
-AgentMetal hosts the workspace at https://178-156-248-181.sslip.io since September 15, 2026 (server `srv_2j7wytturoa3`, medium plan, lease to 2026-10-15). The site is public, including generation, since September 16. Pages publishing is disabled and the old Pages site is being unpublished. The older private artifact remains historical.
+AgentMetal hosts the workspace at https://178-156-248-181.sslip.io since September 15, 2026 (server `srv_2j7wytturoa3`, medium plan, lease to 2026-10-15). The site is public, including generation, since September 16. Pages publishing is disabled and the old Pages site was deleted on September 16. The older private artifact remains historical.
 
 1. Review and push the llama.cpp fork, then update and commit the parent’s submodule pin and registration changes.
 2. Run the local checks and wait for the parent commit’s Verification checks workflow to pass. A push runs tests, not publication.

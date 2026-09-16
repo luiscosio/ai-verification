@@ -48,7 +48,7 @@
       "application_commit": "20a91ecbc15bdaaa510742a359dde24c5c195e75",
       "fork_commit": "e075aeb058c135e137dcf19ef9a63e761052e02a",
       "image_id": "sha256:4d88c2001031e83b3affd2ebf88b6438c2162df1bcf548af45a020293d516394",
-      "status": "serving",
+      "status": "superseded on 2026-09-16 by the public cutover; image kept on the server as rollback",
       "ci_run": "Verification checks on 20a91ec passed all eight jobs before the rebuild",
       "live_check": {
         "generation_and_verification_seconds": 48.01,
@@ -76,6 +76,40 @@
         "coverage": "One Q4_K x Q8_K integer row group. Prompt, answer, scales and full inference are not proven.",
         "setup": "Experimental single-contributor setup; not production assurance."
       }
+    },
+    {
+      "application_commit": "de7799b278ef4cabed0ea862038d84cba8e84ae5",
+      "fork_commit": "e075aeb058c135e137dcf19ef9a63e761052e02a",
+      "image_id": "sha256:c164915a78246f449bcc4de46e566c9135e424b3966ecec5645f100eee1db0df",
+      "status": "serving, public",
+      "ci_run": "Verification checks on de7799b passed all eight jobs before the switch",
+      "live_check": {
+        "generation_and_verification_seconds": 48.48,
+        "proof_bytes": 42753,
+        "proof_sha256": "008bd3238427eeb773479742c8907442b16f0f350faccad4cc789e69842084e8",
+        "tampered_proof_rejected": true,
+        "access_checks": [
+          "public page",
+          "discovery files",
+          "request token",
+          "origin",
+          "host",
+          "16KB body limit",
+          "no-store"
+        ],
+        "tls_scope": "Public certificate verification enabled",
+        "checked_at_utc": "2026-09-16T00:54:46Z"
+      },
+      "independent_verifier": {
+        "accept": true,
+        "pairing": true,
+        "bound": true,
+        "error": "",
+        "status": "verified",
+        "group": 0,
+        "coverage": "One Q4_K x Q8_K integer row group. Prompt, answer, scales and full inference are not proven.",
+        "setup": "Experimental single-contributor setup; not production assurance."
+      }
     }
   ],
   "operator_notes": [
@@ -91,5 +125,6 @@
     "og-image.png",
     "favicon.svg",
     "canonical, Open Graph, Twitter and JSON-LD tags"
-  ]
+  ],
+  "github_pages": "Deleted 2026-09-16 after the public live check passed; https://luiscosio.github.io/ai-verification/ returns 404."
 }
