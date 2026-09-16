@@ -56,7 +56,7 @@ Expander is used through a fork, `luiscosio/Expander` branch `macos-build`, pull
 
 ## Site
 
-AgentMetal is the single planned host for the website, registry, browser verifier and password-protected proof workspace. Deployment is prepared but waiting for the provider to raise its server quota; no AgentMetal URL is live yet. Open a locally generated `.llamaproof` file in the website to check its registered weight commitment in your browser. The file is not uploaded to or stored by the hosting service. The catalogue distinguishes model fingerprints from actual proof coverage; these project registrations are not signatures from the model providers.
+AgentMetal hosts the website, registry, browser verifier and password-protected proof workspace at https://178-156-248-181.sslip.io (login required). The hostname is a wildcard DNS name for the server address; a project domain can replace it by changing one variable and restarting the proxy. Open a locally generated `.llamaproof` file in the website to check its registered weight commitment in your browser. The file is not uploaded to or stored by the hosting service. The catalogue distinguishes model fingerprints from actual proof coverage; these project registrations are not signatures from the model providers.
 
 | Model file | Hosted verification coverage |
 |---|---|
@@ -93,7 +93,7 @@ The local companion listens on `127.0.0.1:8789`, uses one active job and an ephe
 
 `python3 site/build_site.py` rebuilds `site/index.html` and `site/artifact.html` from the trusted registry and checked-in site sources. Missing keys or mismatched materials fail with a concise error. `uv run --with fastapi --with 'uvicorn[standard]' --with python-multipart python3 site/serve.py` still serves the static page and the separate server-side Expander verification endpoint.
 
-See [the AgentMetal deployment guide](deploy/agentmetal/README.md) for the prepared release, access model and cutover checks. Main-branch pushes run verification checks without publishing. Automatic GitHub Pages publishing is disabled and its workflow has been removed; the existing Pages site remains temporarily available until the AgentMetal replacement passes its live checks, then it will be unpublished. The old Claude verifier artifact is stale and must not be used; its removal still requires its owner’s signed-in session. Running the site builder never publishes anything. The product/research plan is in [docs/ux-plan.md](docs/ux-plan.md).
+See [the AgentMetal deployment guide](deploy/agentmetal/README.md) for the live deployment record, access model and cutover checks. Main-branch pushes run verification checks without publishing. Automatic GitHub Pages publishing is disabled and its workflow has been removed; the AgentMetal deployment passed its live checks on September 15, 2026, and the existing Pages site is to be unpublished once the operator confirms the cutover. The old Claude verifier artifact is stale and must not be used; its removal still requires its owner’s signed-in session. Running the site builder never publishes anything. The product/research plan is in [docs/ux-plan.md](docs/ux-plan.md).
 
 ## Notes
 

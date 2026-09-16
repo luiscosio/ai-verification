@@ -1,0 +1,86 @@
+{
+  "url": "https://178-156-248-181.sslip.io",
+  "hostname_note": "Wildcard DNS name for the server address (sslip.io); replace with a project domain via PROVER_DOMAIN.",
+  "provider": "AgentMetal",
+  "server_id": "srv_2j7wytturoa3",
+  "plan": "medium (4 vCPU, 8 GB, 160 GB)",
+  "location_ipv4": "178.156.248.181",
+  "provisioned_at_utc": "2026-09-15T23:30:35Z",
+  "lease_expires_at_utc": "2026-10-15T23:30:35Z",
+  "coupon": "30-day 100% coupon minted 2026-09-13, redeemed once",
+  "firewall": "inbound tcp/22 (baseline), icmp (baseline), tcp/80, tcp/443",
+  "docker": "Ubuntu 24.04 packages docker.io 29.1.3 and docker-compose-v2 2.40.3",
+  "image_source": "Built on the server from the pinned public commit with deploy/agentmetal/Dockerfile; the pre-built archive transfer was abandoned when the SSH session dropped. CI built the same Dockerfile for both commits.",
+  "deployments": [
+    {
+      "application_commit": "ef2caa6198f1103903bdf89a84ee8db8797053eb",
+      "fork_commit": "e075aeb058c135e137dcf19ef9a63e761052e02a",
+      "live_check": {
+        "generation_and_verification_seconds": 48.09,
+        "proof_bytes": 42754,
+        "proof_sha256": "a2655d1f1126c74221c49b2f61ca5f471d8a73683d2bf86235ad84c069fdc555",
+        "tampered_proof_rejected": true,
+        "access_checks": [
+          "login",
+          "request token",
+          "origin",
+          "host",
+          "16KB body limit",
+          "no-store"
+        ],
+        "tls_scope": "Public certificate verification enabled",
+        "checked_at_utc": "2026-09-15T23:57:08Z"
+      },
+      "independent_verifier": {
+        "accept": true,
+        "pairing": true,
+        "bound": true,
+        "error": "",
+        "status": "verified",
+        "group": 0,
+        "coverage": "One Q4_K x Q8_K integer row group. Prompt, answer, scales and full inference are not proven.",
+        "setup": "Experimental single-contributor setup; not production assurance."
+      },
+      "image_id": "sha256:b16445cc401c2845f038e694705cdc545d05ea69bbf04efc43d291c025e43a60",
+      "status": "superseded the same evening; image kept on the server as rollback"
+    },
+    {
+      "application_commit": "20a91ecbc15bdaaa510742a359dde24c5c195e75",
+      "fork_commit": "e075aeb058c135e137dcf19ef9a63e761052e02a",
+      "image_id": "sha256:4d88c2001031e83b3affd2ebf88b6438c2162df1bcf548af45a020293d516394",
+      "status": "serving",
+      "ci_run": "Verification checks on 20a91ec passed all eight jobs before the rebuild",
+      "live_check": {
+        "generation_and_verification_seconds": 48.01,
+        "proof_bytes": 42754,
+        "proof_sha256": "f800c1ec3698e01707065b618523e2418bf6d424cda1fc948def975c9faa8458",
+        "tampered_proof_rejected": true,
+        "access_checks": [
+          "login",
+          "request token",
+          "origin",
+          "host",
+          "16KB body limit",
+          "no-store"
+        ],
+        "tls_scope": "Public certificate verification enabled",
+        "checked_at_utc": "2026-09-16T00:13:23Z"
+      },
+      "independent_verifier": {
+        "accept": true,
+        "pairing": true,
+        "bound": true,
+        "error": "",
+        "status": "verified",
+        "group": 0,
+        "coverage": "One Q4_K x Q8_K integer row group. Prompt, answer, scales and full inference are not proven.",
+        "setup": "Experimental single-contributor setup; not production assurance."
+      }
+    }
+  ],
+  "operator_notes": [
+    "Port 22 becomes unreachable for several minutes after bursts of connection attempts, including bare TCP probes, while 80 and 443 stay reachable. Use few, long-lived SSH sessions and never probe port 22.",
+    "Adding firewall rules through the API while an SSH session was open did not disturb that session; a new rule took effect within seconds.",
+    "The login password and SSH key live only in the operator's private records outside Git."
+  ]
+}

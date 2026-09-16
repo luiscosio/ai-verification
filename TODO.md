@@ -39,9 +39,11 @@ Scratch pad for the ZK inference PoC. `PLAN.md` holds the plan and its gates; th
 ### Stage 6, registry and verification site
 - [x] `site/`: static page with the registered models, in-browser Groth16 verification against the pinned manifest, coverage stated on every result, offline reproduction commands, bundled honest and tampered packages, self-check on load
 - [x] `site/serve.py`: local server, server-side verification of Expander packages with size and time limits; accepted a Qwen3 proof, rejected a tampered one
-- [ ] Retire the old private Claude verifier artifact. It is stale and no longer recommended; remote removal/replacement is blocked on a signed-in owner session. AgentMetal is the single hosting target; its quota increase is pending.
+- [ ] Retire the old private Claude verifier artifact. It is stale and no longer recommended; remote removal/replacement is blocked on a signed-in owner session. AgentMetal is the single hosting target and is live.
 - [x] Retire automatic Pages publishing; preserve all verification jobs on main pushes.
-- [ ] Complete AgentMetal deployment after the server quota increase, validate the live service, then unpublish the existing Pages site.
+- [x] AgentMetal deployment live at https://178-156-248-181.sslip.io since September 15, 2026; the live check passed (HTTPS, access controls, server-side generation, independent verification, tampered proof rejected). Record: `deploy/agentmetal/live-deployment.json`.
+- [ ] Unpublish the existing GitHub Pages site once the operator confirms the cutover (`gh api --method DELETE repos/luiscosio/ai-verification/pages`).
+- [ ] Point a project domain at 178.156.248.181 and set `PROVER_DOMAIN` to it; the wildcard sslip.io name is a stopgap.
 - [x] Searchable catalogue: Qwen3-0.6B registered integer cores, Qwen2.5-1.5B one registered tensor, Qwen2.5-0.5B fingerprint-only identity. Coverage is explicit on each card.
 
 ### Proof workspace, alongside the research stages

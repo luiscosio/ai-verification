@@ -32,3 +32,15 @@ Local container validation passed on Linux x86-64 emulated by Docker Desktop. It
 The build/run checks caught two container packaging defects before cloud deployment: the minimal image needed `make` (now supplied by `build-essential`), and root-installed model/proving files needed read permission for the unprivileged service user. Only the public model and proving-material directories receive those read permissions; private runtime traces retain the existing temporary-file handling.
 
 Coupon, SSH key and request records are kept outside tracked files under `.receipts-cache/agentmetal-20260913/` in the operator checkout. The coupon expires after one day if not redeemed. Do not copy the AgentMetal monorepo, its admin token or its infrastructure credentials into this public repository or the prover image.
+
+## September 15 deployment
+
+The 30-day coupon minted on September 13 was still unused and unexpired, so it was redeemed through `POST /v1/servers` with the dedicated SSH public key. The provider returned server `srv_2j7wytturoa3` (medium plan, Ubuntu 24.04, 178.156.248.181) with a lease to 2026-10-15. Ports 80 and 443 were opened through the firewall API; 22 and ICMP are the provider baseline. Docker Engine and Compose came from Ubuntu's own packages, not a downloaded installer.
+
+The pre-built image archive transfer was abandoned after the SSH session dropped mid-copy. The image was instead built on the server from the pinned public commit with `docker compose --env-file .env up -d --build`, the same Dockerfile the `hosted-container` CI job builds. The hostname is the wildcard DNS name `178-156-248-181.sslip.io`; Caddy obtained a publicly trusted certificate for it. A project domain can replace it by pointing an A record at the address, changing `PROVER_DOMAIN` and restarting the proxy.
+
+The live check from the operator checkout passed against `https://178-156-248-181.sslip.io`: login, request token, origin, host, 16 KB body limit and no-store checks; server-side generation, proof download and independent verification in 48.09 seconds; a 42,754-byte proof accepted; the same proof with one changed public sum rejected. Identities and the check summary are in [live-deployment.json](live-deployment.json). The login password and SSH key stay in the operator's private records.
+
+Operational note: after bursts of connection attempts to port 22, including bare TCP reachability probes, the server stopped answering on 22 for several minutes while 80 and 443 kept working. Use few, long-lived SSH sessions and do not probe port 22.
+
+The same evening, after the Verification checks workflow passed on commit `20a91ec` (the redrawn figure and plain-language labels), `APP_REVISION` was changed and `docker compose --env-file .env up -d --build` rebuilt and swapped the prover container while the proxy kept running. The live check passed again in 48.01 seconds with a 42,754-byte proof accepted and its tampered copy rejected. The previous image stays on the server for rollback by changing `APP_REVISION` back and running `up -d --no-build`.
