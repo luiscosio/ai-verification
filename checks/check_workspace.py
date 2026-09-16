@@ -68,6 +68,8 @@ class WorkspaceChecks(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(ValueError):local.create_app(public_origin=origin)
 
     async def test_public_files_and_discovery_tags(self):
+        if not (ROOT / 'site/index.html').exists():  # CI has no prebuilt page
+            subprocess.run([sys.executable, str(ROOT / 'site/build_site.py')], check=True, capture_output=True)
         app = local.create_app(public_origin='https://proofs.example.test')
         headers = {'host':'proofs.example.test'}
         status, html = await request(app, '/', headers=headers)

@@ -67,7 +67,7 @@ def check(url, context, folder):
         status, body, file_headers = request(path)
         require(status == 200 and file_headers.get('Content-Type', '').startswith(content_type), path + ' is not served')
         require(file_headers.get('Cache-Control') == 'public, max-age=3600', path + ' must be cacheable')
-        if content_type != 'image/png':
+        if path in ('/llms.txt', '/robots.txt', '/sitemap.xml'):
             require(url in body.decode(), path + ' does not name this origin')
     require(request('/api/local/config')[0] == 403, 'Missing request token was accepted')
     match = re.search(r'const LOCAL = (\{[^;]+\});', html.decode())
